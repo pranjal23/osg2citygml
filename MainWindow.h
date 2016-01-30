@@ -13,9 +13,10 @@ public:
   ~MainWindow();
 
 private slots:
-  void onCreateView();
+  void open();
 
 private:
+  void onCreateView(QString fileName);
   QMdiArea* mdiArea_;
 };
 

@@ -18,6 +18,7 @@ public:
              Qt::WindowFlags f = 0 );
 
   virtual ~OSGWidget();
+  void setFile(QString fileName);
 
 protected:
 
