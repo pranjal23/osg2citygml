@@ -13,11 +13,6 @@ MainWindow::MainWindow( QWidget* parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
-    QMenuBar* menuBar = this->menuBar();
-
-    QMenu* menu = menuBar->addMenu( "File" );
-    menu->addAction( "Select Model", this, SLOT( open() ) );
 }
 
 MainWindow::~MainWindow()
@@ -40,4 +35,9 @@ void MainWindow::open(){
     {
         onCreateView(filename);
     }
+}
+
+void MainWindow::on_commandLinkButton_clicked()
+{
+    open();
 }

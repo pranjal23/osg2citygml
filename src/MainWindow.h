@@ -27,6 +27,7 @@ private:
 private slots:
   void open();
 
+  void on_commandLinkButton_clicked();
 };
 
 #endif
