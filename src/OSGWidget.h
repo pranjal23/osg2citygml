@@ -19,9 +19,9 @@ public:
 
   virtual ~OSGWidget();
   void setFile(QString fileName);
+  void resizeWidget(int width, int height);
 
 protected:
-
   virtual void paintEvent( QPaintEvent* paintEvent );
   virtual void paintGL();
   virtual void resizeGL( int width, int height );

@@ -38,11 +38,10 @@ OSGWidget::OSGWidget( QWidget* parent,
                                                               this->height() ) )
     , viewer_( new osgViewer::CompositeViewer )
 {
-    setFile("");
+    this->setFile("");
 
     //register for keyevents
     this->setFocusPolicy( Qt::StrongFocus );
-    this->setMinimumSize( 100, 100 );
 
     //register for mouse events
     this->setMouseTracking( true );
@@ -69,6 +68,10 @@ void OSGWidget::paintEvent( QPaintEvent* /* paintEvent */ )
 void OSGWidget::paintGL()
 {
     viewer_->frame();
+}
+
+void OSGWidget::resizeWidget(int width, int height){
+    this->resize(width,height);
 }
 
 void OSGWidget::resizeGL( int width, int height )

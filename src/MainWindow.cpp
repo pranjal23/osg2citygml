@@ -13,6 +13,7 @@ MainWindow::MainWindow( QWidget* parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    this->showMaximized();
 }
 
 MainWindow::~MainWindow()
@@ -23,6 +24,7 @@ MainWindow::~MainWindow()
 void MainWindow::onCreateView(QString fileName)
 {
     ui->osgWidget->setFile(fileName);
+    ui->osgWidget->resizeWidget(this->width(),this->height());
 }
 
 void MainWindow::open(){
@@ -40,4 +42,9 @@ void MainWindow::open(){
 void MainWindow::on_commandLinkButton_clicked()
 {
     open();
+}
+
+void MainWindow::resizeEvent(QResizeEvent* event)
+{
+    ui->osgWidget->resizeWidget(this->width(),this->height());
 }
