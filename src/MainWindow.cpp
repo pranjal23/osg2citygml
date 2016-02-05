@@ -25,7 +25,6 @@ void MainWindow::onCreateView(QString fileName)
 {
     ui->osgWidget->setFile(fileName);
     ui->osgWidget->resizeWidget(this->width(),this->height());
-    ui->controlsGroup->setVisible(false);
 
     //register for keyevents
     this->setFocusPolicy( Qt::StrongFocus );

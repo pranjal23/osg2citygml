@@ -40,12 +40,8 @@ OSGWidget::OSGWidget( QWidget* parent,
 {
     this->setFile("");
 
-    //register for keyevents
-    //this->setFocusPolicy( Qt::StrongFocus );
-
     //register for mouse events
     this->setMouseTracking( true );
-
 }
 
 OSGWidget::~OSGWidget()
@@ -315,7 +311,7 @@ void OSGWidget::setFile(QString fileName){
 
     osg::Camera* camera = new osg::Camera;
     camera->setViewport( 0, 0, this->width(), this->height() );
-    camera->setClearColor( osg::Vec4( 0.2f, 0.2f, 1.f, 0.5f ) );
+    camera->setClearColor( osg::Vec4( 0.2f, 0.2f, 0.2f, 1.f ) );
     camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
     camera->setGraphicsContext( graphicsWindow_ );
 
