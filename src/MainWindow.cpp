@@ -25,6 +25,10 @@ void MainWindow::onCreateView(QString fileName)
 {
     ui->osgWidget->setFile(fileName);
     ui->osgWidget->resizeWidget(this->width(),this->height());
+    ui->controlsGroup->setVisible(false);
+
+    //register for keyevents
+    this->setFocusPolicy( Qt::StrongFocus );
 }
 
 void MainWindow::open(){
@@ -47,4 +51,16 @@ void MainWindow::on_commandLinkButton_clicked()
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
     ui->osgWidget->resizeWidget(this->width(),this->height());
+}
+
+void MainWindow::keyPressEvent( QKeyEvent* event )
+{
+    if( event->key() == Qt::Key_G )
+    {
+        bool visiblity = this->ui->controlsGroup->isVisible();
+        this->ui->controlsGroup->setVisible(!visiblity);
+        return;
+    }
+
+    QCoreApplication::sendEvent(this->ui->osgWidget,event);
 }

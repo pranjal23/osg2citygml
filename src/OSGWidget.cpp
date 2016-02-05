@@ -41,10 +41,11 @@ OSGWidget::OSGWidget( QWidget* parent,
     this->setFile("");
 
     //register for keyevents
-    this->setFocusPolicy( Qt::StrongFocus );
+    //this->setFocusPolicy( Qt::StrongFocus );
 
     //register for mouse events
     this->setMouseTracking( true );
+
 }
 
 OSGWidget::~OSGWidget()

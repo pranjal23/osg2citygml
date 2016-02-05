@@ -24,6 +24,7 @@ private:
   Ui::MainWindow *ui;
   void onCreateView(QString fileName);
   virtual void resizeEvent(QResizeEvent* event);
+  virtual void keyPressEvent( QKeyEvent* event );
 
 private slots:
   void open();
