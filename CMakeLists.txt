@@ -6,6 +6,11 @@ SET( CMAKE_CXX_FLAGS "-std=c++11 -Wall -pedantic -Wno-long-long" )
 SET( CMAKE_INCLUDE_CURRENT_DIR ON )
 SET( CMAKE_AUTOMOC ON )
 
+#To Run in debug Mode...
+# Set argument
+# -DCMAKE_BUILD_TYPE=Debug
+# when running CMAKE
+
 FIND_PACKAGE( Qt5Core )
 FIND_PACKAGE( Qt5Gui  )
 FIND_PACKAGE( Qt5OpenGL )
@@ -17,6 +22,8 @@ SET( SOURCES
   src/MainWindow.cpp
   src/OSGWidget.cpp
   src/OSG2CityGML.cpp
+  src/OrientationConverter.cpp
+  src/OSGConv.cpp
 )
 
 FILE(

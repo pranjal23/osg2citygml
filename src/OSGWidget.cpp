@@ -28,6 +28,8 @@
 #include <QPainter>
 #include <QWheelEvent>
 
+#include "OsgConv.h"
+
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
     : QOpenGLWidget( parent,
@@ -226,14 +228,94 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
+void analysePrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts) {
+    unsigned int ic;
+    unsigned int i2;
+    unsigned int nprim=0;
+    osg::notify(osg::WARN) << "Prim set type "<< prset->getMode() << std::endl;
+    for (ic=0; ic<prset->getNumIndices(); ic++) { // NB the vertices are held in the drawable -
+        osg::notify(osg::WARN) << "vertex "<< ic << " is index "<<prset->index(ic) << " at " <<
+            (* verts)[prset->index(ic)].x() << "," <<
+            (* verts)[prset->index(ic)].y() << "," <<
+            (* verts)[prset->index(ic)].z() << std::endl;
+    }
+    // you might want to handle each type of primset differently: such as:
+    switch (prset->getMode()) {
+    case osg::PrimitiveSet::TRIANGLES: // get vertices of triangle
+        osg::notify(osg::WARN) << "Triangles "<< nprim << " is index "<<prset->index(ic) << std::endl;
+        for (i2=0; i2<prset->getNumIndices()-2; i2+=3) {
+        }
+    break;
+    case osg::PrimitiveSet::TRIANGLE_STRIP: // look up how tristrips are coded
+    break;
+    // etc for all the primitive types you expect. EG quads, quadstrips lines line loops....
+    }
+}
+
 void OSGWidget::setFile(QString fileName){
 
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
     osg::ref_ptr<osg::Group> root = new osg::Group;
 
     if(!fileName.isEmpty()){
-        osg::ref_ptr<osg::Node> model= osgDB::readNodeFile(fileName.toUtf8().constData());
-        root->addChild( model.get() );
+
+        const char* src = fileName.toUtf8().constData();
+
+        char dest[100];
+        memset(dest, '\0', sizeof(dest));
+        strcpy(dest, src);
+
+        char* args[10];
+        args[0] = " ";
+        args[1] = dest;
+        osg::ref_ptr<osg::Node> model = readModel(2, args);
+
+        //osg::ref_ptr<osg::Node> model= osgDB::readNodeFile(fileName.toUtf8().constData());
+        if(model==NULL)
+            return;
+
+        osg::Geode *geode;
+        osg::Group *grp;
+        osg::Geometry *geom;
+
+        grp = model.get()->asGroup();
+        if(grp==0){
+            osg::notify(osg::WARN) << "Group = 0" << std::endl;
+        } else {
+            osg::notify(osg::WARN) << "In Here..." << std::endl;
+            int i;
+            for (i = 0; i < grp->getNumChildren(); i++) {
+                osg::notify(osg::WARN) << "Child - " << grp->getChild(i)->className() << std::endl;
+
+                geode = (osg::Geode*)grp->getChild(i);
+
+                if(geode==0){
+                    osg::notify(osg::WARN) << "Geode = 0" << std::endl;
+                }
+                else
+                {
+                    int j;
+                    for (j = 0; j < geode->getNumChildren(); j++) {
+                        osg::notify(osg::WARN) << "Child Child - " << geode->getChild(j)->className() << std::endl;
+
+                        geom = (osg::Geometry*)grp->getChild(i);
+
+                        int j;
+                        for (j = 0; j < geode->getNumChildren(); j++) {
+                            //osg::notify(osg::WARN) << "The number of elements in vertex array- " << geom-> << std::endl;
+                        }
+                        /*for (unsigned int ipr=0; ipr<geom->getNumPrimitiveSets(); ipr++) {
+                            osg::PrimitiveSet* prset=geom->getPrimitiveSet(ipr);
+                            osg::notify(osg::WARN) << "Primitive Set "<< ipr << std::endl;
+                            //analysePrimSet(prset, dynamic_cast<const osg::Vec3Array*>(geom->getVertexArray()));
+                        }*/
+                    }
+                }
+            }
+        }
+
+        //Render it...
+        root->addChild(model.get());
     }
     else
     {
