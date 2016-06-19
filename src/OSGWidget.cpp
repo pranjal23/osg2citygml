@@ -257,7 +257,8 @@ void OSGWidget::setFile(QString fileName){
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
     osg::ref_ptr<osg::Group> root = new osg::Group;
 
-    if(!fileName.isEmpty()){
+    if(!fileName.isEmpty())
+    {
 
         const char* src = fileName.toUtf8().constData();
 
@@ -300,15 +301,20 @@ void OSGWidget::setFile(QString fileName){
 
                         geom = (osg::Geometry*)grp->getChild(i);
 
-                        int j;
-                        for (j = 0; j < geode->getNumChildren(); j++) {
-                            //osg::notify(osg::WARN) << "The number of elements in vertex array- " << geom-> << std::endl;
+                        for( unsigned int ii = 0; ii < geode->getNumDrawables(); ++ii )
+                        {
+                            osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( geode->getDrawable( ii ) );
+                            if( geometry.valid() )
+                            {
+                                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+                                {
+                                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                                    osg::notify(osg::WARN) << "Primitive Set "<< ipr << std::endl;
+                                    analysePrimSet(prset, dynamic_cast<const osg::Vec3Array*>(geometry->getVertexArray()));
+                                }
+                                //osg::notify(osg::WARN) << "The number of elements in vertex array- " << geometry->getVertexArray()->getNumElements() << std::endl;
+                            }
                         }
-                        /*for (unsigned int ipr=0; ipr<geom->getNumPrimitiveSets(); ipr++) {
-                            osg::PrimitiveSet* prset=geom->getPrimitiveSet(ipr);
-                            osg::notify(osg::WARN) << "Primitive Set "<< ipr << std::endl;
-                            //analysePrimSet(prset, dynamic_cast<const osg::Vec3Array*>(geom->getVertexArray()));
-                        }*/
                     }
                 }
             }
