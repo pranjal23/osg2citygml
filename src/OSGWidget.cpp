@@ -228,30 +228,33 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
-void analysePrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts) {
+void printPrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts)
+{
     unsigned int ic;
-    unsigned int i2;
-    unsigned int nprim=0;
-    osg::notify(osg::WARN) << "Prim set type "<< prset->getMode() << std::endl;
-    for (ic=0; ic<prset->getNumIndices(); ic++) { // NB the vertices are held in the drawable -
-        osg::notify(osg::WARN) << "vertex "<< ic << " is index "<<prset->index(ic) << " at " <<
-            (* verts)[prset->index(ic)].x() << "," <<
-            (* verts)[prset->index(ic)].y() << "," <<
-            (* verts)[prset->index(ic)].z() << std::endl;
+
+    osg::notify(osg::DEBUG_FP) << "Prim set type - "<< prset->getMode()
+                               << ", Vertex Ids: " << std::endl;
+
+    for (ic=0; ic < prset->getNumIndices(); ic++)
+    {
+        unsigned int vertexId = prset->index(ic);
+        osg::notify(osg::DEBUG_FP) << vertexId << ", ";
     }
-    // you might want to handle each type of primset differently: such as:
-    switch (prset->getMode()) {
-    case osg::PrimitiveSet::TRIANGLES: // get vertices of triangle
-        osg::notify(osg::WARN) << "Triangles "<< nprim << " is index "<<prset->index(ic) << std::endl;
-        for (i2=0; i2<prset->getNumIndices()-2; i2+=3) {
-        }
-    break;
-    case osg::PrimitiveSet::TRIANGLE_STRIP: // look up how tristrips are coded
-    break;
-    // etc for all the primitive types you expect. EG quads, quadstrips lines line loops....
-    }
+
+    osg::notify(osg::DEBUG_FP) << std::endl;
 }
 
+void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
+{
+    osg::notify(osg::DEBUG_FP) << "Vertex Id: "<< vertexId << ", coordinates: " <<
+                                  (* verts)[vertexId].x() << "," <<
+                                  (* verts)[vertexId].y() << "," <<
+                                  (* verts)[vertexId].z() << std::endl;
+}
+
+bool renderOriginal = true;
+bool printPrimitiveSets = true;
+bool renderWelcomeTriangle = false;
 void OSGWidget::setFile(QString fileName){
 
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
@@ -271,22 +274,31 @@ void OSGWidget::setFile(QString fileName){
         args[1] = dest;
         osg::ref_ptr<osg::Node> model = readModel(2, args);
 
-        //osg::ref_ptr<osg::Node> model= osgDB::readNodeFile(fileName.toUtf8().constData());
         if(model==NULL)
+        {
             return;
+        }
+        else
+        {
+            if(renderOriginal)
+            {
+                //Plain OSG Render without analysis or modification for debug...
+                root->addChild(model.get());
+            }
+        }
 
-        osg::Geode *geode;
         osg::Group *grp;
-        osg::Geometry *geom;
+        osg::Geode *geode;
 
         grp = model.get()->asGroup();
         if(grp==0){
             osg::notify(osg::WARN) << "Group = 0" << std::endl;
         } else {
-            osg::notify(osg::WARN) << "In Here..." << std::endl;
+            osg::notify(osg::WARN) << "Number of Children in group - " << grp->getNumChildren() << std::endl;
             int i;
-            for (i = 0; i < grp->getNumChildren(); i++) {
-                osg::notify(osg::WARN) << "Child - " << grp->getChild(i)->className() << std::endl;
+            for (i = 0; i < grp->getNumChildren(); i++)
+            {
+                osg::notify(osg::WARN) << "Child - " << i << std::endl;
 
                 geode = (osg::Geode*)grp->getChild(i);
 
@@ -295,35 +307,91 @@ void OSGWidget::setFile(QString fileName){
                 }
                 else
                 {
-                    int j;
-                    for (j = 0; j < geode->getNumChildren(); j++) {
-                        osg::notify(osg::WARN) << "Child Child - " << geode->getChild(j)->className() << std::endl;
+                    osg::Geode* modelGeode = new osg::Geode();
 
-                        geom = (osg::Geometry*)grp->getChild(i);
-
-                        for( unsigned int ii = 0; ii < geode->getNumDrawables(); ++ii )
+                    for( unsigned int ii = 0; ii < geode->getNumDrawables(); ++ii )
+                    {
+                        osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( geode->getDrawable( ii ) );
+                        if( geometry.valid() )
                         {
-                            osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( geode->getDrawable( ii ) );
-                            if( geometry.valid() )
+
+                            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                             {
-                                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+                                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                                const osg::Vec3Array *verts = dynamic_cast<const osg::Vec3Array*>(geometry->getVertexArray());
+
+                                if(printPrimitiveSets)
                                 {
-                                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                                    osg::notify(osg::WARN) << "Primitive Set "<< ipr << std::endl;
-                                    analysePrimSet(prset, dynamic_cast<const osg::Vec3Array*>(geometry->getVertexArray()));
+                                    printPrimSet(prset, verts);
                                 }
-                                //osg::notify(osg::WARN) << "The number of elements in vertex array- " << geometry->getVertexArray()->getNumElements() << std::endl;
+
+                                osg::Geometry* modelGeometry = new osg::Geometry();
+                                modelGeode->addDrawable(modelGeometry);
+
+                                osg::Vec3Array* geomVertices = new osg::Vec3Array(verts->getNumElements());
+                                modelGeometry->setVertexArray(geomVertices);
+
+                                unsigned int ia;
+                                for (ia=0; ia<verts->getNumElements(); ia++)
+                                {
+                                    geomVertices->push_back((*verts)[ia]);
+                                }
+
+
+                                osg::Vec4Array* geomColors = new osg::Vec4Array;
+                                modelGeometry->setColorArray(geomColors);
+                                modelGeometry->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
+
+                                unsigned int ib;
+                                for (ib=0; ib<verts->getNumElements(); ib++)
+                                {
+                                    geomColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                                }
+
+
+                                // for each primitive analyze its type and work accordingly...
+                                switch (prset->getMode())
+                                {
+                                case osg::PrimitiveSet::TRIANGLES:
+                                {
+                                    osg::DrawElementsUInt* primSet =
+                                            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+
+                                    unsigned int ja;
+                                    for (ja=0; ja<prset->getNumIndices(); ja++)
+                                    {
+                                        unsigned int vertexId = prset->index(ja);
+                                        primSet->push_back(vertexId);
+                                    }
+                                    modelGeometry->addPrimitiveSet(primSet);
+                                    root->addChild(modelGeode);
+                                }
+                                    break;
+                                case osg::PrimitiveSet::TRIANGLE_STRIP:
+                                {
+                                    osg::DrawElementsUInt* primSet =
+                                            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
+
+                                    unsigned int ja;
+                                    for (ja=0; ja<prset->getNumIndices(); ja++)
+                                    {
+                                        unsigned int vertexId = prset->index(ja);
+                                        primSet->push_back(vertexId);
+                                    }
+                                    modelGeometry->addPrimitiveSet(primSet);
+                                    root->addChild(modelGeode);
+                                }
+                                    break;
+                                    //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
-        //Render it...
-        root->addChild(model.get());
     }
-    else
+    else if(renderWelcomeTriangle)
     {
         osg::Geode* pyramidGeode = new osg::Geode();
         osg::Geometry* pyramidGeometry = new osg::Geometry();
