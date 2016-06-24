@@ -50,7 +50,7 @@ public:
                     osg::Vec4Array* colours = new osg::Vec4Array(1);
                     osg::Vec4* col = getNewColor();
                     (*colours)[0].set(col->x(),col->y(),col->z(),col->w());
-                    geometry->setColorArray(colours, osg::Array::BIND_PER_PRIMITIVE_SET);
+                    geometry->setColorArray(colours, osg::Array::BIND_PER_VERTEX);
                 }
             }
         }
