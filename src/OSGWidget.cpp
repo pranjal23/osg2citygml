@@ -28,7 +28,8 @@
 #include <QPainter>
 #include <QWheelEvent>
 
-#include "OsgConv.h"
+#include "OSGConv.h"
+#include "OSGHelpers.h"
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -40,7 +41,8 @@ OSGWidget::OSGWidget( QWidget* parent,
                                                               this->height() ) )
     , viewer_( new osgViewer::CompositeViewer )
 {
-    this->setFile("");
+    root = new osg::Group;
+    this->setView();
 
     //register for mouse events
     this->setMouseTracking( true );
@@ -228,6 +230,100 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
+void OSGWidget::addColor(){
+
+    AddEditColoursToGeometryVisitor colorVistor;
+
+    int i;
+    for (i = 0; i < modelGroup_.get()->getNumChildren(); i++)
+    {
+        osg::Geode* geode = (osg::Geode*)modelGroup_.get()->getChild(i);
+        colorVistor.apply(*geode);
+    }
+
+}
+
+void onConvertToTrianglePrimitiveSets()
+{
+    /*
+    if( geometry.valid() )
+    {
+
+        for (unsigned int ipr=0; ipr<geometry.get()->getNumPrimitiveSets(); ipr++)
+        {
+            osg::PrimitiveSet* prset=geometry.get()->getPrimitiveSet(ipr);
+            const osg::Vec3Array *verts = dynamic_cast<const osg::Vec3Array*>(geometry.get()->getVertexArray());
+
+            if(printPrimitiveSets)
+            {
+                printPrimSet(prset, verts);
+            }
+
+            osg::Vec3Array* geomVertices = new osg::Vec3Array(verts->getNumElements());
+            modelGeometry->setVertexArray(geomVertices);
+
+            unsigned int ia;
+            for (ia=0; ia<verts->getNumElements(); ia++)
+            {
+                geomVertices->push_back((*verts)[ia]);
+            }
+
+
+            osg::Vec4Array* geomColors = new osg::Vec4Array;
+            modelGeometry->setColorArray(geomColors);
+            modelGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+
+            unsigned int ib;
+            for (ib=0; ib<verts->getNumElements(); ib++)
+            {
+                geomColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
+            }
+
+
+            // for each primitive analyze its type and work accordingly...
+            switch (prset->getMode())
+            {
+            case osg::PrimitiveSet::TRIANGLES:
+            {
+                osg::notify(osg::WARN) << "Add triangles" << std::endl;
+                osg::DrawElementsUInt* primSet =
+                        new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+
+                unsigned int ja;
+                for (ja=0; ja<prset->getNumIndices(); ja++)
+                {
+                    unsigned int vertexId = prset->index(ja);
+                    primSet->push_back(vertexId);
+                }
+                modelGeometry->addPrimitiveSet(primSet);
+                modelGroup->addChild(modelGeode);
+            }
+                break;
+            case osg::PrimitiveSet::TRIANGLE_STRIP:
+            {
+                osg::notify(osg::WARN) << "Add triangle strip" << std::endl;
+                osg::DrawElementsUInt* primSet =
+                        new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
+
+                unsigned int ja;
+                for (ja=0; ja<prset->getNumIndices(); ja++)
+                {
+                    unsigned int vertexId = prset->index(ja);
+                    primSet->push_back(vertexId);
+                }
+                modelGeometry->addPrimitiveSet(primSet);
+                modelGroup->addChild(modelGeode);
+            }
+                break;
+                //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
+            }
+
+        }
+    }
+
+    */
+}
+
 void printPrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts)
 {
     unsigned int ic;
@@ -252,209 +348,8 @@ void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
                                   (* verts)[vertexId].z() << std::endl;
 }
 
-bool renderOriginal = true;
-bool printPrimitiveSets = true;
-bool renderWelcomeTriangle = false;
-void OSGWidget::setFile(QString fileName){
-
+void OSGWidget::setView(){
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
-    osg::ref_ptr<osg::Group> root = new osg::Group;
-
-    if(!fileName.isEmpty())
-    {
-
-        const char* src = fileName.toUtf8().constData();
-
-        char dest[100];
-        memset(dest, '\0', sizeof(dest));
-        strcpy(dest, src);
-
-        char* args[10];
-        args[0] = " ";
-        args[1] = dest;
-        osg::ref_ptr<osg::Node> model = readModel(2, args);
-
-        if(model==NULL)
-        {
-            return;
-        }
-        else
-        {
-            if(renderOriginal)
-            {
-                //Plain OSG Render without analysis or modification for debug...
-                root->addChild(model.get());
-            }
-        }
-
-        osg::Group *grp;
-        osg::Geode *geode;
-
-        grp = model.get()->asGroup();
-        if(grp==0){
-            osg::notify(osg::WARN) << "Group = 0" << std::endl;
-        } else {
-            osg::notify(osg::WARN) << "Number of Children in group - " << grp->getNumChildren() << std::endl;
-            int i;
-            for (i = 0; i < grp->getNumChildren(); i++)
-            {
-                osg::notify(osg::WARN) << "Child - " << i << std::endl;
-
-                geode = (osg::Geode*)grp->getChild(i);
-
-                if(geode==0){
-                    osg::notify(osg::WARN) << "Geode = 0" << std::endl;
-                }
-                else
-                {
-                    osg::Geode* modelGeode = new osg::Geode();
-
-                    for( unsigned int ii = 0; ii < geode->getNumDrawables(); ++ii )
-                    {
-                        osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( geode->getDrawable( ii ) );
-                        if( geometry.valid() )
-                        {
-
-                            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
-                            {
-                                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                                const osg::Vec3Array *verts = dynamic_cast<const osg::Vec3Array*>(geometry->getVertexArray());
-
-                                if(printPrimitiveSets)
-                                {
-                                    printPrimSet(prset, verts);
-                                }
-
-                                osg::Geometry* modelGeometry = new osg::Geometry();
-                                modelGeode->addDrawable(modelGeometry);
-
-                                osg::Vec3Array* geomVertices = new osg::Vec3Array(verts->getNumElements());
-                                modelGeometry->setVertexArray(geomVertices);
-
-                                unsigned int ia;
-                                for (ia=0; ia<verts->getNumElements(); ia++)
-                                {
-                                    geomVertices->push_back((*verts)[ia]);
-                                }
-
-
-                                osg::Vec4Array* geomColors = new osg::Vec4Array;
-                                modelGeometry->setColorArray(geomColors);
-                                modelGeometry->setColorBinding(osg::Geometry::BIND_PER_PRIMITIVE_SET);
-
-                                unsigned int ib;
-                                for (ib=0; ib<verts->getNumElements(); ib++)
-                                {
-                                    geomColors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f));
-                                }
-
-
-                                // for each primitive analyze its type and work accordingly...
-                                switch (prset->getMode())
-                                {
-                                case osg::PrimitiveSet::TRIANGLES:
-                                {
-                                    osg::DrawElementsUInt* primSet =
-                                            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-
-                                    unsigned int ja;
-                                    for (ja=0; ja<prset->getNumIndices(); ja++)
-                                    {
-                                        unsigned int vertexId = prset->index(ja);
-                                        primSet->push_back(vertexId);
-                                    }
-                                    modelGeometry->addPrimitiveSet(primSet);
-                                    root->addChild(modelGeode);
-                                }
-                                    break;
-                                case osg::PrimitiveSet::TRIANGLE_STRIP:
-                                {
-                                    osg::DrawElementsUInt* primSet =
-                                            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
-
-                                    unsigned int ja;
-                                    for (ja=0; ja<prset->getNumIndices(); ja++)
-                                    {
-                                        unsigned int vertexId = prset->index(ja);
-                                        primSet->push_back(vertexId);
-                                    }
-                                    modelGeometry->addPrimitiveSet(primSet);
-                                    root->addChild(modelGeode);
-                                }
-                                    break;
-                                    //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    else if(renderWelcomeTriangle)
-    {
-        osg::Geode* pyramidGeode = new osg::Geode();
-        osg::Geometry* pyramidGeometry = new osg::Geometry();
-
-        pyramidGeode->addDrawable(pyramidGeometry);
-        root->addChild(pyramidGeode);
-
-        osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
-        pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
-        pyramidVertices->push_back( osg::Vec3(10, 0, 0) ); // front right
-        pyramidVertices->push_back( osg::Vec3(10,10, 0) ); // back right
-        pyramidVertices->push_back( osg::Vec3( 0,10, 0) ); // back left
-        pyramidVertices->push_back( osg::Vec3( 5, 5,10) ); // peak
-
-        pyramidGeometry->setVertexArray( pyramidVertices );
-
-        osg::DrawElementsUInt* pyramidBase =
-                new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-        pyramidBase->push_back(3);
-        pyramidBase->push_back(2);
-        pyramidBase->push_back(1);
-        pyramidBase->push_back(0);
-        pyramidGeometry->addPrimitiveSet(pyramidBase);
-
-        osg::DrawElementsUInt* pyramidFaceOne =
-                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-        pyramidFaceOne->push_back(0);
-        pyramidFaceOne->push_back(1);
-        pyramidFaceOne->push_back(4);
-        pyramidGeometry->addPrimitiveSet(pyramidFaceOne);
-
-        osg::DrawElementsUInt* pyramidFaceTwo =
-                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-        pyramidFaceTwo->push_back(1);
-        pyramidFaceTwo->push_back(2);
-        pyramidFaceTwo->push_back(4);
-        pyramidGeometry->addPrimitiveSet(pyramidFaceTwo);
-
-        osg::DrawElementsUInt* pyramidFaceThree =
-                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-        pyramidFaceThree->push_back(2);
-        pyramidFaceThree->push_back(3);
-        pyramidFaceThree->push_back(4);
-        pyramidGeometry->addPrimitiveSet(pyramidFaceThree);
-
-        osg::DrawElementsUInt* pyramidFaceFour =
-                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-        pyramidFaceFour->push_back(3);
-        pyramidFaceFour->push_back(0);
-        pyramidFaceFour->push_back(4);
-        pyramidGeometry->addPrimitiveSet(pyramidFaceFour);
-
-        osg::Vec4Array* colors = new osg::Vec4Array;
-        colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 0 red
-        colors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) ); //index 1 green
-        colors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) ); //index 2 blue
-        colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) ); //index 3 white
-        colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 4 red
-
-        pyramidGeometry->setColorArray(colors);
-        pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-    }
-
 
     // Set material for basic lighting and enable depth tests.
     osg::StateSet* stateSet = root.get()->getOrCreateStateSet();
@@ -485,4 +380,147 @@ void OSGWidget::setFile(QString fileName){
 
     viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
     viewer_->realize();
+}
+
+void OSGWidget::renderTriangle()
+{
+    osg::Geode* pyramidGeode = new osg::Geode();
+    osg::Geometry* pyramidGeometry = new osg::Geometry();
+
+    pyramidGeode->addDrawable(pyramidGeometry);
+    root->addChild(pyramidGeode);
+
+    osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
+    pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
+    pyramidVertices->push_back( osg::Vec3(10, 0, 0) ); // front right
+    pyramidVertices->push_back( osg::Vec3(10,10, 0) ); // back right
+    pyramidVertices->push_back( osg::Vec3( 0,10, 0) ); // back left
+    pyramidVertices->push_back( osg::Vec3( 5, 5,10) ); // peak
+
+    pyramidGeometry->setVertexArray( pyramidVertices );
+
+    osg::DrawElementsUInt* pyramidBase =
+            new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+    pyramidBase->push_back(3);
+    pyramidBase->push_back(2);
+    pyramidBase->push_back(1);
+    pyramidBase->push_back(0);
+    pyramidGeometry->addPrimitiveSet(pyramidBase);
+
+    osg::DrawElementsUInt* pyramidFaceOne =
+            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    pyramidFaceOne->push_back(0);
+    pyramidFaceOne->push_back(1);
+    pyramidFaceOne->push_back(4);
+    pyramidGeometry->addPrimitiveSet(pyramidFaceOne);
+
+    osg::DrawElementsUInt* pyramidFaceTwo =
+            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    pyramidFaceTwo->push_back(1);
+    pyramidFaceTwo->push_back(2);
+    pyramidFaceTwo->push_back(4);
+    pyramidGeometry->addPrimitiveSet(pyramidFaceTwo);
+
+    osg::DrawElementsUInt* pyramidFaceThree =
+            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    pyramidFaceThree->push_back(2);
+    pyramidFaceThree->push_back(3);
+    pyramidFaceThree->push_back(4);
+    pyramidGeometry->addPrimitiveSet(pyramidFaceThree);
+
+    osg::DrawElementsUInt* pyramidFaceFour =
+            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+    pyramidFaceFour->push_back(3);
+    pyramidFaceFour->push_back(0);
+    pyramidFaceFour->push_back(4);
+    pyramidGeometry->addPrimitiveSet(pyramidFaceFour);
+
+    osg::Vec4Array* colors = new osg::Vec4Array;
+    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 0 red
+    colors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) ); //index 1 green
+    colors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) ); //index 2 blue
+    colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) ); //index 3 white
+    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 4 red
+
+    pyramidGeometry->setColorArray(colors);
+    pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+}
+
+bool renderOriginal = false;
+bool printPrimitiveSets = false;
+void OSGWidget::setFile(QString fileName){
+
+    root = new osg::Group;
+
+    if(!fileName.isEmpty())
+    {
+
+        const char* src = fileName.toUtf8().constData();
+
+        char dest[100];
+        memset(dest, '\0', sizeof(dest));
+        strcpy(dest, src);
+
+        char* args[10];
+        args[0] = " ";
+        args[1] = dest;
+        osg::ref_ptr<osg::Node> model = readModel(2, args);
+
+        if(model==NULL)
+        {
+            return;
+        }
+        else
+        {
+            if(renderOriginal)
+            {
+                //Plain OSG Render without analysis or modification for debug...
+                root->addChild(model.get());
+            }
+        }
+
+
+        osg::Group *origGroup;
+        osg::Geode *origGeode;
+
+        origGroup = model.get()->asGroup();
+
+        if(origGroup==0){
+            osg::notify(osg::WARN) << "Group = 0" << std::endl;
+        } else {
+            osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
+
+            modelGroup_ = new osg::Group();
+            root->addChild(modelGroup_.get());
+
+            int i;
+            for (i = 0; i < origGroup->getNumChildren(); i++)
+            {
+                osg::notify(osg::WARN) << "Child - " << i << std::endl;
+
+                origGeode = (osg::Geode*)origGroup->getChild(i);
+
+                if(origGeode==0){
+                    osg::notify(osg::WARN) << "Geode = 0" << std::endl;
+                }
+                else
+                {
+                    osg::Geode* modelGeode = new osg::Geode();
+
+                    for( unsigned int ii = 0; ii < origGeode->getNumDrawables(); ++ii )
+                    {
+                        osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( origGeode->getDrawable( ii ) );
+
+                        modelGroup_.get()->addChild(modelGeode);
+                        modelGeode->addDrawable(geometry.get());
+
+                    }                    
+                }
+            }
+
+            addColor();
+        }
+    }
+
+    setView();
 }

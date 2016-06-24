@@ -19,6 +19,8 @@ public:
 
   virtual ~OSGWidget();
   void setFile(QString fileName);
+  void setView();
+  void renderTriangle();
   void resizeWidget(int width, int height);
 
 protected:
@@ -40,12 +42,14 @@ private:
 
   virtual void onHome();
   virtual void onResize( int width, int height );
+  virtual void addColor();
 
   osgGA::EventQueue* getEventQueue() const;
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
   osg::ref_ptr<osgViewer::CompositeViewer> viewer_;
-
+  osg::ref_ptr<osg::Group> modelGroup_;
+  osg::ref_ptr<osg::Group> root;
 };
 
 #endif

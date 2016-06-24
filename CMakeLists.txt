@@ -26,6 +26,14 @@ SET( SOURCES
   src/OSGConv.cpp
 )
 
+SET( HEADERS
+  src/MainWindow.h
+  src/OSGWidget.h
+  src/OrientationConverter.h
+  src/OSGConv.h
+  src/OSGHelpers.h
+)
+
 FILE(
 GLOB_RECURSE
 UI_FILES
