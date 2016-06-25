@@ -70,13 +70,14 @@ public:
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
 
-                if (geometry->getColorArray()==0 || geometry->getColorArray()->getNumElements()==0)
-                {
-                    osg::Vec4Array* colours = new osg::Vec4Array(1);
-                    osg::Vec4* col = getNewColor();
-                    (*colours)[0].set(col->x(),col->y(),col->z(),col->w());
-                    geometry->setColorArray(colours, osg::Array::BIND_PER_VERTEX);
-                }
+                osg::Vec4Array* colours = new osg::Vec4Array(3);
+                osg::Vec4* col = getNewColor(0);
+                (*colours)[0].set(col->x(),col->y(),col->z(),col->w());
+                col = getNewColor(1);
+                (*colours)[1].set(col->x(),col->y(),col->z(),col->w());
+                col = getNewColor(2);
+                (*colours)[2].set(col->x(),col->y(),col->z(),col->w());
+                geometry->setColorArray(colours, osg::Array::BIND_OVERALL);
             }
         }
     }
@@ -84,13 +85,13 @@ public:
     virtual void apply(osg::Node& node) { traverse(node); }
 
 private:
-    int x = 0;
-    osg::Vec4* getNewColor(){
-        x++;
-        if(x % 2 == 0)
-            return new osg::Vec4(1.0f,1.0f,1.0f,1.0f);
-        else
-            return new osg::Vec4(1.0f,1.0f,1.0f,1.0f);
+    osg::Vec4* getNewColor(int x){
+        if(x == 0)
+            return new osg::Vec4(0.5f,1.0f,1.0f,1.0f);
+        else if(x == 1)
+            return new osg::Vec4(1.0f,0.5f,1.0f,1.0f);
+        else if(x == 2)
+            return new osg::Vec4(1.0f,1.0f,0.5f,1.0f);
     }
 
 };

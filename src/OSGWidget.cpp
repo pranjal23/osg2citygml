@@ -41,7 +41,7 @@ OSGWidget::OSGWidget( QWidget* parent,
                                                               this->height() ) )
     , viewer_( new osgViewer::CompositeViewer )
 {
-    root = new osg::Group;
+    rootSceneGroup = new osg::Group;
     this->setView();
 
     //register for mouse events
@@ -91,6 +91,18 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
     if( event->key() == Qt::Key_H )
     {
         this->onHome();
+        return;
+    }
+
+    if( event->key() == Qt::Key_O )
+    {
+        this->renderOriginal();
+        return;
+    }
+
+    if( event->key() == Qt::Key_E )
+    {
+        this->renderEditable();
         return;
     }
 
@@ -235,9 +247,9 @@ void OSGWidget::addColor(){
     AddEditColoursToGeometryVisitor colorVistor;
 
     int i;
-    for (i = 0; i < modelGroup_.get()->getNumChildren(); i++)
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
     {
-        osg::Geode* geode = (osg::Geode*)modelGroup_.get()->getChild(i);
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
         colorVistor.apply(*geode);
     }
 
@@ -247,11 +259,11 @@ void OSGWidget::convertToTrianglePrimitives(){
     ConvertToTrianglePrimitives triangleConverter;
 
     int i;
-    for (i = 0; i < modelGroup_.get()->getNumChildren(); i++)
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
     {
-        osg::Geode* geode = (osg::Geode*)modelGroup_.get()->getChild(i);
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
 
-        triangleConverter.setVerbose(true);
+        triangleConverter.setVerbose(false);
         triangleConverter.apply(*geode);
     }
 }
@@ -260,7 +272,7 @@ void OSGWidget::setView(){
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
 
     // Set material for basic lighting and enable depth tests.
-    osg::StateSet* stateSet = root.get()->getOrCreateStateSet();
+    osg::StateSet* stateSet = rootSceneGroup.get()->getOrCreateStateSet();
     osg::Material* material = new osg::Material;
 
     material->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
@@ -276,7 +288,7 @@ void OSGWidget::setView(){
 
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
-    view->setSceneData( root.get() );
+    view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
@@ -296,7 +308,7 @@ void OSGWidget::renderTriangle()
     osg::Geometry* pyramidGeometry = new osg::Geometry();
 
     pyramidGeode->addDrawable(pyramidGeometry);
-    root->addChild(pyramidGeode);
+    rootSceneGroup->addChild(pyramidGeode);
 
     osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
     pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
@@ -354,11 +366,26 @@ void OSGWidget::renderTriangle()
     pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
 }
 
-bool renderOriginal = false;
+void OSGWidget::renderOriginal()
+{
+    rootSceneGroup->removeChild(0,1);
+
+    //Plain OSG Render
+    rootSceneGroup->addChild(originalModelGroup.get());
+}
+
+void OSGWidget::renderEditable()
+{
+    rootSceneGroup->removeChild(0,1);
+
+    //Editable OSG Render
+    rootSceneGroup->addChild(editableModelGroup.get());
+}
+
 bool printPrimitiveSets = true;
 void OSGWidget::setFile(QString fileName){
 
-    root = new osg::Group;
+    rootSceneGroup = new osg::Group;
 
     if(!fileName.isEmpty())
     {
@@ -372,61 +399,24 @@ void OSGWidget::setFile(QString fileName){
         char* args[10];
         args[0] = " ";
         args[1] = dest;
-        osg::ref_ptr<osg::Node> model = readModel(2, args);
+        originalModelGroup = readModel(2, args);
 
-        if(model==NULL)
+        if(originalModelGroup==NULL)
         {
             return;
         }
-        else
-        {
-            if(renderOriginal)
-            {
-                //Plain OSG Render without analysis or modification for debug...
-                root->addChild(model.get());
-            }
-        }
 
-        osg::Group *origGroup;
-        osg::Geode *origGeode;
-
-        origGroup = model.get()->asGroup();
+        const osg::Group *origGroup = originalModelGroup.get()->asGroup();
 
         if(origGroup==0){
             osg::notify(osg::WARN) << "Group = 0" << std::endl;
         } else {
             osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
 
-            modelGroup_ = new osg::Group();
-            root->addChild(modelGroup_.get());
-
-            int i;
-            for (i = 0; i < origGroup->getNumChildren(); i++)
-            {
-                osg::notify(osg::WARN) << "Child - " << i << std::endl;
-
-                origGeode = (osg::Geode*)origGroup->getChild(i);
-
-                if(origGeode==0){
-                    osg::notify(osg::WARN) << "Geode = 0" << std::endl;
-                }
-                else
-                {
-                    osg::Geode* modelGeode = new osg::Geode();
-
-                    for( unsigned int ii = 0; ii < origGeode->getNumDrawables(); ++ii )
-                    {
-                        osg::ref_ptr< osg::Geometry > geometry = dynamic_cast< osg::Geometry * >( origGeode->getDrawable( ii ) );
-
-                        modelGroup_.get()->addChild(modelGeode);
-                        modelGeode->addDrawable(geometry.get());
-
-                    }
-                }
-            }
-
+            editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
             convertToTrianglePrimitives();
             addColor();
+            rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
 

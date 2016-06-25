@@ -24,6 +24,8 @@ public:
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives();
   void addColor();
+  void renderOriginal();
+  void renderEditable();
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -49,8 +51,10 @@ private:
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
   osg::ref_ptr<osgViewer::CompositeViewer> viewer_;
-  osg::ref_ptr<osg::Group> modelGroup_;
-  osg::ref_ptr<osg::Group> root;
+  osg::ref_ptr<osg::Group> rootSceneGroup;
+
+  osg::ref_ptr<osg::Group> editableModelGroup;
+  osg::ref_ptr<osg::Node> originalModelGroup;
 };
 
 #endif
