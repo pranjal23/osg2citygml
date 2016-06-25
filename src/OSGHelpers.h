@@ -31,6 +31,30 @@
 
 #include <iostream>
 
+void printPrimSet(osg::PrimitiveSet*prset)
+{
+    unsigned int ic;
+
+    osg::notify(osg::DEBUG_FP) << "Prim set type - "<< prset->getMode()
+                               << ", Vertex Ids: " << std::endl;
+
+    for (ic=0; ic < prset->getNumIndices(); ic++)
+    {
+        unsigned int vertexId = prset->index(ic);
+        osg::notify(osg::DEBUG_FP) << vertexId << ", ";
+    }
+
+    osg::notify(osg::DEBUG_FP) << std::endl;
+}
+
+void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
+{
+    osg::notify(osg::DEBUG_FP) << "Vertex Id: "<< vertexId << ", coordinates: " <<
+                                  (* verts)[vertexId].x() << "," <<
+                                  (* verts)[vertexId].y() << "," <<
+                                  (* verts)[vertexId].z() << std::endl;
+}
+
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
 {
 public:
@@ -71,57 +95,75 @@ private:
 
 };
 
+class TriangleIndexes
+{
+public:
+    unsigned int vertexId1;
+    unsigned int vertexId2;
+    unsigned int vertexId3;
+};
+
+
 class ConvertToTrianglePrimitives : public osg::NodeVisitor
 {
 public:
 
     ConvertToTrianglePrimitives():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
 
+    bool verbose = false;
+    bool printIndexes = false;
     virtual void apply(osg::Geode& geode)
     {
+
         //convert to triangle strip and simplify
+        osgUtil::Simplifier simplifier;
+        simplifier.apply(geode);
+
         osgUtil::TriStripVisitor triStripVisitor;
         triStripVisitor.apply(geode);
 
-        osgUtil::Simplifier simplifier;
-        simplifier.apply(geode);
 
         for(unsigned int i=0;i<geode.getNumDrawables();++i)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
 
-            //std::vector<osg::DrawElementsUInt>* removeSets = new std::vector<osg::DrawElementsUInt>;
-            //std::vector<osg::DrawElementsUInt>* addSets = new std::vector<osg::DrawElementsUInt>;
+            std::vector<TriangleIndexes> addPrimSetIndexes;
 
             for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
             {
                 osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                osg::notify(osg::WARN) << "PRSET CLASS NAME: " << prset->getCompoundClassName();
+
+                //osg::notify(osg::WARN) << "PRSET CLASS NAME: " << prset->getCompoundClassName();
 
                 // for each primitive analyze its type and work accordingly...
                 switch (prset->getMode())
                 {
                     case osg::PrimitiveSet::TRIANGLES:
                     {
+
                         osg::notify(osg::WARN) << "In triangles - ";
 
                         unsigned int ja;
-                        for (ja=0; ja<prset->getNumIndices(); ja++)
+                        for (ja=0; ja<prset->getNumIndices()-2; ja++)
                         {
-                            osg::DrawElementsUInt* primSet =
-                                    new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+                            TriangleIndexes ti;
 
-                            //TODO add elements in the sets
+                            ti.vertexId1 = prset->index(ja);
+                            ti.vertexId2 = prset->index(ja+1);
+                            ti.vertexId3 = prset->index(ja+2);
+
+                            if(verbose && printIndexes)
                             {
-                                unsigned int vertexId = prset->index(ja);
-                                //primSet->push_back(vertexId);
-                                 osg::notify(osg::WARN) << vertexId << ", ";
+                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                       << ti.vertexId2 << ", "
+                                                       << ti.vertexId3 << std::endl;
                             }
 
-                            //addSets->push_back(*primSet);
+                            addPrimSetIndexes.push_back(ti);
                         }
 
                         osg::notify(osg::WARN) << std::endl;
+
                     }
                     break;
 
@@ -132,17 +174,21 @@ public:
                         unsigned int ja;
                         for (ja=0; ja<prset->getNumIndices()-2; ja++)
                         {
-                            osg::DrawElementsUInt* primSet =
-                                    new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
+                            TriangleIndexes ti;
 
-                            //TODO add elements in the sets
+                            ti.vertexId1 = prset->index(ja);
+                            ti.vertexId2 = prset->index(ja+1);
+                            ti.vertexId3 = prset->index(ja+2);
+
+                            if(verbose && printIndexes)
                             {
-                                unsigned int vertexId = prset->index(ja);
-                                //primSet->push_back(vertexId);
-                                 osg::notify(osg::WARN) << vertexId << ", ";
+                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                       << ti.vertexId2 << ", "
+                                                       << ti.vertexId3 << std::endl;
                             }
 
-                            //addSets->push_back(*primSet);
+                            addPrimSetIndexes.push_back(ti);
+
                         }
 
                         osg::notify(osg::WARN) << std::endl;
@@ -154,13 +200,41 @@ public:
 
             }
 
-        }
-        //End of for-loop
+            osg::notify(osg::WARN) << "---- PRINTING BEFORE REMOVAL OF PRIMITIVES ----" << std::endl;
+            geometry->removePrimitiveSet(0,geometry->getNumPrimitiveSets());
 
+            for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
+            {
+                osg::DrawElementsUShort* primSet =
+                        new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, 0);
+                TriangleIndexes ti = addPrimSetIndexes.at(prn);
+                primSet->push_back(ti.vertexId1);
+                primSet->push_back(ti.vertexId2);
+                primSet->push_back(ti.vertexId3);
+                geometry->addPrimitiveSet(primSet);
+            }
+
+            if(verbose)
+            {
+                osg::notify(osg::WARN) << "---- PRINTING PRIMITIVES AFTER CONVERSION ----" << std::endl;
+
+                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+                {
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                    printPrimSet(prset);
+                }
+
+            }
+
+        }
 
     }
 
     virtual void apply(osg::Node& node) { traverse(node); }
+
+    void setVerbose(bool v){
+        verbose = v;
+    }
 
 };
 

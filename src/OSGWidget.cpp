@@ -250,32 +250,10 @@ void OSGWidget::convertToTrianglePrimitives(){
     for (i = 0; i < modelGroup_.get()->getNumChildren(); i++)
     {
         osg::Geode* geode = (osg::Geode*)modelGroup_.get()->getChild(i);
+
+        triangleConverter.setVerbose(true);
         triangleConverter.apply(*geode);
     }
-}
-
-void printPrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts)
-{
-    unsigned int ic;
-
-    osg::notify(osg::DEBUG_FP) << "Prim set type - "<< prset->getMode()
-                               << ", Vertex Ids: " << std::endl;
-
-    for (ic=0; ic < prset->getNumIndices(); ic++)
-    {
-        unsigned int vertexId = prset->index(ic);
-        osg::notify(osg::DEBUG_FP) << vertexId << ", ";
-    }
-
-    osg::notify(osg::DEBUG_FP) << std::endl;
-}
-
-void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
-{
-    osg::notify(osg::DEBUG_FP) << "Vertex Id: "<< vertexId << ", coordinates: " <<
-                                  (* verts)[vertexId].x() << "," <<
-                                  (* verts)[vertexId].y() << "," <<
-                                  (* verts)[vertexId].z() << std::endl;
 }
 
 void OSGWidget::setView(){
@@ -408,7 +386,6 @@ void OSGWidget::setFile(QString fileName){
                 root->addChild(model.get());
             }
         }
-
 
         osg::Group *origGroup;
         osg::Geode *origGeode;
