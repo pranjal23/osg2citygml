@@ -243,85 +243,15 @@ void OSGWidget::addColor(){
 
 }
 
-void onConvertToTrianglePrimitiveSets()
-{
-    /*
-    if( geometry.valid() )
+void OSGWidget::convertToTrianglePrimitives(){
+    ConvertToTrianglePrimitives triangleConverter;
+
+    int i;
+    for (i = 0; i < modelGroup_.get()->getNumChildren(); i++)
     {
-
-        for (unsigned int ipr=0; ipr<geometry.get()->getNumPrimitiveSets(); ipr++)
-        {
-            osg::PrimitiveSet* prset=geometry.get()->getPrimitiveSet(ipr);
-            const osg::Vec3Array *verts = dynamic_cast<const osg::Vec3Array*>(geometry.get()->getVertexArray());
-
-            if(printPrimitiveSets)
-            {
-                printPrimSet(prset, verts);
-            }
-
-            osg::Vec3Array* geomVertices = new osg::Vec3Array(verts->getNumElements());
-            modelGeometry->setVertexArray(geomVertices);
-
-            unsigned int ia;
-            for (ia=0; ia<verts->getNumElements(); ia++)
-            {
-                geomVertices->push_back((*verts)[ia]);
-            }
-
-
-            osg::Vec4Array* geomColors = new osg::Vec4Array;
-            modelGeometry->setColorArray(geomColors);
-            modelGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-
-            unsigned int ib;
-            for (ib=0; ib<verts->getNumElements(); ib++)
-            {
-                geomColors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f));
-            }
-
-
-            // for each primitive analyze its type and work accordingly...
-            switch (prset->getMode())
-            {
-            case osg::PrimitiveSet::TRIANGLES:
-            {
-                osg::notify(osg::WARN) << "Add triangles" << std::endl;
-                osg::DrawElementsUInt* primSet =
-                        new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-
-                unsigned int ja;
-                for (ja=0; ja<prset->getNumIndices(); ja++)
-                {
-                    unsigned int vertexId = prset->index(ja);
-                    primSet->push_back(vertexId);
-                }
-                modelGeometry->addPrimitiveSet(primSet);
-                modelGroup->addChild(modelGeode);
-            }
-                break;
-            case osg::PrimitiveSet::TRIANGLE_STRIP:
-            {
-                osg::notify(osg::WARN) << "Add triangle strip" << std::endl;
-                osg::DrawElementsUInt* primSet =
-                        new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
-
-                unsigned int ja;
-                for (ja=0; ja<prset->getNumIndices(); ja++)
-                {
-                    unsigned int vertexId = prset->index(ja);
-                    primSet->push_back(vertexId);
-                }
-                modelGeometry->addPrimitiveSet(primSet);
-                modelGroup->addChild(modelGeode);
-            }
-                break;
-                //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
-            }
-
-        }
+        osg::Geode* geode = (osg::Geode*)modelGroup_.get()->getChild(i);
+        triangleConverter.apply(*geode);
     }
-
-    */
 }
 
 void printPrimSet(osg::PrimitiveSet*prset, const osg::Vec3Array *verts)
@@ -447,7 +377,7 @@ void OSGWidget::renderTriangle()
 }
 
 bool renderOriginal = false;
-bool printPrimitiveSets = false;
+bool printPrimitiveSets = true;
 void OSGWidget::setFile(QString fileName){
 
     root = new osg::Group;
@@ -514,10 +444,11 @@ void OSGWidget::setFile(QString fileName){
                         modelGroup_.get()->addChild(modelGeode);
                         modelGeode->addDrawable(geometry.get());
 
-                    }                    
+                    }
                 }
             }
 
+            convertToTrianglePrimitives();
             addColor();
         }
     }

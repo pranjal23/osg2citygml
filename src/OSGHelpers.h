@@ -23,6 +23,7 @@
 
 #include <osgUtil/Optimizer>
 #include <osgUtil/Simplifier>
+#include <osgUtil/TriStripVisitor>
 #include <osgUtil/SmoothingVisitor>
 
 #include <osgViewer/GraphicsWindow>
@@ -59,39 +60,107 @@ public:
     virtual void apply(osg::Node& node) { traverse(node); }
 
 private:
-    float x = 0.0f;
+    int x = 0;
     osg::Vec4* getNewColor(){
-        float r = 0.0f;
-        float g = 0.0f;
-        float b = 1.0f;
-        if (x >= 0.0f && x < 0.2f) {
-                x = x / 0.2f;
-                r = 0.0f;
-                g = x;
-                b = 1.0f;
-        } else if (x >= 0.2f && x < 0.4f) {
-                x = (x - 0.2f) / 0.2f;
-                r = 0.0f;
-                g = 1.0f;
-                b = 1.0f - x;
-        } else if (x >= 0.4f && x < 0.6f) {
-                x = (x - 0.4f) / 0.2f;
-                r = x;
-                g = 1.0f;
-                b = 0.0f;
-        } else if (x >= 0.6f && x < 0.8f) {
-                x = (x - 0.6f) / 0.2f;
-                r = 1.0f;
-                g = 1.0f - x;
-                b = 0.0f;
-        } else if (x >= 0.8f && x <= 1.0f) {
-                x = (x - 0.8f) / 0.2f;
-                r = 1.0f;
-                g = 0.0f;
-                b = x;
-        }
-        return new osg::Vec4(r,g,b,0.5f);
+        x++;
+        if(x % 2 == 0)
+            return new osg::Vec4(1.0f,1.0f,1.0f,1.0f);
+        else
+            return new osg::Vec4(0.5f,0.5f,0.5f,0.5f);
     }
+
+};
+
+class ConvertToTrianglePrimitives : public osg::NodeVisitor
+{
+public:
+
+    ConvertToTrianglePrimitives():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
+
+    virtual void apply(osg::Geode& geode)
+    {
+        //convert to triangle strip and simplify
+        osgUtil::TriStripVisitor triStripVisitor;
+        triStripVisitor.apply(geode);
+
+        osgUtil::Simplifier simplifier;
+        simplifier.apply(geode);
+
+        for(unsigned int i=0;i<geode.getNumDrawables();++i)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
+
+            //std::vector<osg::DrawElementsUInt>* removeSets = new std::vector<osg::DrawElementsUInt>;
+            //std::vector<osg::DrawElementsUInt>* addSets = new std::vector<osg::DrawElementsUInt>;
+
+            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+            {
+                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                osg::notify(osg::WARN) << "PRSET CLASS NAME: " << prset->getCompoundClassName();
+
+                // for each primitive analyze its type and work accordingly...
+                switch (prset->getMode())
+                {
+                    case osg::PrimitiveSet::TRIANGLES:
+                    {
+                        osg::notify(osg::WARN) << "In triangles - ";
+
+                        unsigned int ja;
+                        for (ja=0; ja<prset->getNumIndices(); ja++)
+                        {
+                            osg::DrawElementsUInt* primSet =
+                                    new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+
+                            //TODO add elements in the sets
+                            {
+                                unsigned int vertexId = prset->index(ja);
+                                //primSet->push_back(vertexId);
+                                 osg::notify(osg::WARN) << vertexId << ", ";
+                            }
+
+                            //addSets->push_back(*primSet);
+                        }
+
+                        osg::notify(osg::WARN) << std::endl;
+                    }
+                    break;
+
+                    case osg::PrimitiveSet::TRIANGLE_STRIP:
+                    {
+                        osg::notify(osg::WARN) << "In triangle strip - ";
+
+                        unsigned int ja;
+                        for (ja=0; ja<prset->getNumIndices()-2; ja++)
+                        {
+                            osg::DrawElementsUInt* primSet =
+                                    new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLE_STRIP, 0);
+
+                            //TODO add elements in the sets
+                            {
+                                unsigned int vertexId = prset->index(ja);
+                                //primSet->push_back(vertexId);
+                                 osg::notify(osg::WARN) << vertexId << ", ";
+                            }
+
+                            //addSets->push_back(*primSet);
+                        }
+
+                        osg::notify(osg::WARN) << std::endl;
+                    }
+                    break;
+
+                    //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
+                }
+
+            }
+
+        }
+        //End of for-loop
+
+
+    }
+
+    virtual void apply(osg::Node& node) { traverse(node); }
 
 };
 

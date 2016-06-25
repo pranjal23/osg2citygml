@@ -22,6 +22,8 @@ public:
   void setView();
   void renderTriangle();
   void resizeWidget(int width, int height);
+  void convertToTrianglePrimitives();
+  void addColor();
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -42,7 +44,6 @@ private:
 
   virtual void onHome();
   virtual void onResize( int width, int height );
-  virtual void addColor();
 
   osgGA::EventQueue* getEventQueue() const;
 
