@@ -35,16 +35,15 @@ void printPrimSet(osg::PrimitiveSet*prset)
 {
     unsigned int ic;
 
-    osg::notify(osg::DEBUG_FP) << "Prim set type - "<< prset->getMode()
-                               << ", Vertex Ids: " << std::endl;
+    osg::notify(osg::WARN) << "Prim set type - " << prset->getMode() << ", Vertex Ids: ";
 
     for (ic=0; ic < prset->getNumIndices(); ic++)
     {
         unsigned int vertexId = prset->index(ic);
-        osg::notify(osg::DEBUG_FP) << vertexId << ", ";
+        osg::notify(osg::WARN) << vertexId << ", ";
     }
 
-    osg::notify(osg::DEBUG_FP) << std::endl;
+    osg::notify(osg::WARN) << " | ";
 }
 
 void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
@@ -135,16 +134,17 @@ public:
 
                 //osg::notify(osg::WARN) << "PRSET CLASS NAME: " << prset->getCompoundClassName();
 
+                //osg::notify(osg::WARN) << "---- PRINTING BEFORE PARSING OF PRIMITIVES ----" << std::endl;
                 // for each primitive analyze its type and work accordingly...
                 switch (prset->getMode())
                 {
                     case osg::PrimitiveSet::TRIANGLES:
                     {
 
-                        osg::notify(osg::WARN) << "In triangles - ";
+                        //osg::notify(osg::WARN) << "In triangles - ";
 
                         unsigned int ja;
-                        for (ja=0; ja<prset->getNumIndices()-2; ja++)
+                        for (ja=0; ja<=prset->getNumIndices()-3; )
                         {
                             TriangleIndexes ti;
 
@@ -160,25 +160,33 @@ public:
                             }
 
                             addPrimSetIndexes.push_back(ti);
+                            ja=ja+3;
                         }
-
-                        osg::notify(osg::WARN) << std::endl;
 
                     }
                     break;
 
                     case osg::PrimitiveSet::TRIANGLE_STRIP:
                     {
-                        osg::notify(osg::WARN) << "In triangle strip - ";
+                        //osg::notify(osg::WARN) << "In triangle strip - ";
 
                         unsigned int ja;
                         for (ja=0; ja<prset->getNumIndices()-2; ja++)
                         {
                             TriangleIndexes ti;
 
-                            ti.vertexId1 = prset->index(ja);
-                            ti.vertexId2 = prset->index(ja+1);
-                            ti.vertexId3 = prset->index(ja+2);
+                            if(ja % 2 == 1)
+                            {
+                                ti.vertexId1 = prset->index(ja);
+                                ti.vertexId2 = prset->index(ja+1);
+                                ti.vertexId3 = prset->index(ja+2);
+                            }
+                            else
+                            {
+                                ti.vertexId1 = prset->index(ja);
+                                ti.vertexId2 = prset->index(ja+2);
+                                ti.vertexId3 = prset->index(ja+1);
+                            }
 
                             if(verbose && printIndexes)
                             {
@@ -190,8 +198,6 @@ public:
                             addPrimSetIndexes.push_back(ti);
 
                         }
-
-                        osg::notify(osg::WARN) << std::endl;
                     }
                     break;
 
@@ -200,7 +206,7 @@ public:
 
             }
 
-            osg::notify(osg::WARN) << "---- PRINTING BEFORE REMOVAL OF PRIMITIVES ----" << std::endl;
+            //osg::notify(osg::WARN) << "---- PRINTING BEFORE REMOVAL OF PRIMITIVES ----" << std::endl;
             geometry->removePrimitiveSet(0,geometry->getNumPrimitiveSets());
 
             for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
@@ -223,7 +229,7 @@ public:
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
                     printPrimSet(prset);
                 }
-
+                osg::notify(osg::WARN) << "---- AFTER PRINTING PRIMITIVES ----" << std::endl;
             }
 
         }
