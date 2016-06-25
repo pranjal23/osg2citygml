@@ -67,7 +67,8 @@ public:
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
             if (geometry)
             {
-                geometry->getTexCoordArrayList().clear();
+                geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
+                geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
 
                 if (geometry->getColorArray()==0 || geometry->getColorArray()->getNumElements()==0)
                 {
@@ -89,7 +90,7 @@ private:
         if(x % 2 == 0)
             return new osg::Vec4(1.0f,1.0f,1.0f,1.0f);
         else
-            return new osg::Vec4(0.5f,0.5f,0.5f,0.5f);
+            return new osg::Vec4(1.0f,1.0f,1.0f,1.0f);
     }
 
 };
@@ -114,13 +115,10 @@ public:
     virtual void apply(osg::Geode& geode)
     {
 
-        //convert to triangle strip and simplify
-        osgUtil::Simplifier simplifier;
-        simplifier.apply(geode);
-
+        //convert to triangle strip
         osgUtil::TriStripVisitor triStripVisitor;
         triStripVisitor.apply(geode);
-
+        triStripVisitor.stripify();
 
         for(unsigned int i=0;i<geode.getNumDrawables();++i)
         {
@@ -141,7 +139,7 @@ public:
                     case osg::PrimitiveSet::TRIANGLES:
                     {
 
-                        //osg::notify(osg::WARN) << "In triangles - ";
+                        osg::notify(osg::WARN) << "In triangles - ";
 
                         unsigned int ja;
                         for (ja=0; ja<=prset->getNumIndices()-3; )
@@ -162,20 +160,19 @@ public:
                             addPrimSetIndexes.push_back(ti);
                             ja=ja+3;
                         }
-
                     }
                     break;
 
                     case osg::PrimitiveSet::TRIANGLE_STRIP:
                     {
-                        //osg::notify(osg::WARN) << "In triangle strip - ";
+                        osg::notify(osg::WARN) << "In triangle strip - ";
 
                         unsigned int ja;
                         for (ja=0; ja<prset->getNumIndices()-2; ja++)
                         {
                             TriangleIndexes ti;
 
-                            if(ja % 2 == 1)
+                            if(ja % 2 == 0)
                             {
                                 ti.vertexId1 = prset->index(ja);
                                 ti.vertexId2 = prset->index(ja+1);
@@ -196,12 +193,12 @@ public:
                             }
 
                             addPrimSetIndexes.push_back(ti);
-
                         }
                     }
                     break;
 
-                    //TODO: Handle other primitive types such as quads, quadstrips lines line loops...
+                    //TODO: Check and Handle other primitive types such as lines line loops etc
+                    //that is not converted into triangle_strip by TriStripVisitor...
                 }
 
             }
@@ -233,6 +230,10 @@ public:
             }
 
         }
+
+        //Simplify before returning...
+        osgUtil::Simplifier simplifier;
+        simplifier.apply(geode);
 
     }
 
