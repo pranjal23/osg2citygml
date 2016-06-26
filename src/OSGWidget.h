@@ -9,6 +9,35 @@
 #include <osgViewer/GraphicsWindow>
 #include <osgViewer/CompositeViewer>
 
+#include <osg/Camera>
+
+#include <osg/DisplaySettings>
+#include <osg/Material>
+#include <osg/StateSet>
+
+#include <osgDB/ReadFile>
+#include <osgDB/WriteFile>
+
+#include <osgGA/EventQueue>
+#include <osgGA/TrackballManipulator>
+
+#include <osgUtil/IntersectionVisitor>
+#include <osgUtil/PolytopeIntersector>
+
+#include <osgViewer/View>
+#include <osgViewer/ViewerEventHandlers>
+
+#include <cassert>
+
+#include <stdexcept>
+#include <vector>
+
+#include <QDebug>
+#include <QKeyEvent>
+#include <QPainter>
+#include <QWheelEvent>
+
+
 class OSGWidget : public QOpenGLWidget
 {
   Q_OBJECT
@@ -20,12 +49,12 @@ public:
   virtual ~OSGWidget();
   void setFile(QString fileName);
   void setView();
-  void renderTriangle();
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives();
   void addColor();
   void renderOriginal();
   void renderEditable();
+  void rayCastClick(QMouseEvent* event);
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -55,6 +84,7 @@ private:
 
   osg::ref_ptr<osg::Group> editableModelGroup;
   osg::ref_ptr<osg::Node> originalModelGroup;
+
 };
 
 #endif

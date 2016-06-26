@@ -1,35 +1,9 @@
 #include "OSGWidget.h"
-
-#include <osg/Camera>
-
-#include <osg/DisplaySettings>
-#include <osg/Material>
-#include <osg/StateSet>
-
-#include <osgDB/ReadFile>
-#include <osgDB/WriteFile>
-
-#include <osgGA/EventQueue>
-#include <osgGA/TrackballManipulator>
-
-#include <osgUtil/IntersectionVisitor>
-#include <osgUtil/PolytopeIntersector>
-
-#include <osgViewer/View>
-#include <osgViewer/ViewerEventHandlers>
-
-#include <cassert>
-
-#include <stdexcept>
-#include <vector>
-
-#include <QDebug>
-#include <QKeyEvent>
-#include <QPainter>
-#include <QWheelEvent>
-
 #include "OSGConv.h"
 #include "OSGHelpers.h"
+#include "RayCastHelpers.h"
+
+RayTriangleIntersectionHelper* rsih;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -46,6 +20,8 @@ OSGWidget::OSGWidget( QWidget* parent,
 
     //register for mouse events
     this->setMouseTracking( true );
+
+    rsih = new RayTriangleIntersectionHelper();
 }
 
 OSGWidget::~OSGWidget()
@@ -94,13 +70,13 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
         return;
     }
 
-    if( event->key() == Qt::Key_O )
+    if( event->key() == Qt::Key_Q )
     {
         this->renderOriginal();
         return;
     }
 
-    if( event->key() == Qt::Key_E )
+    if( event->key() == Qt::Key_W )
     {
         this->renderEditable();
         return;
@@ -159,6 +135,7 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
     {
     case Qt::LeftButton:
         button = 1;
+        rayCastClick(event);
         break;
 
     case Qt::MiddleButton:
@@ -176,6 +153,28 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
     this->getEventQueue()->mouseButtonRelease( static_cast<float>( event->x() ),
                                                static_cast<float>( event->y() ),
                                                button );
+}
+
+
+void OSGWidget::rayCastClick(QMouseEvent* event)
+{
+
+    int x = event->x();
+    int y = event->y();
+    int z = -1;
+
+    osg::Vec3* direction = new osg::Vec3(x,y,z);
+
+    std::vector<osg::Camera*> cameras;
+    viewer_->getCameras( cameras );
+
+    const osg::Vec3 o = osg::Vec3(0.0f,0.0f,0.0f) *
+    osg::Matrixd::inverse(cameras[0]->getViewMatrix());
+
+    osg::Vec3* origin = new osg::Vec3(o.x(),o.y(),o.z());
+
+    rsih->cast(*(editableModelGroup.get()),*origin,*direction);
+
 }
 
 void OSGWidget::wheelEvent( QWheelEvent* event )
@@ -196,13 +195,25 @@ bool OSGWidget::event( QEvent* event )
     switch( event->type() )
     {
     case QEvent::KeyPress:
+        this->update();
+        break;
     case QEvent::KeyRelease:
+        this->update();
+        break;
     case QEvent::MouseButtonDblClick:
+        this->update();
+        break;
     case QEvent::MouseButtonPress:
+        this->update();
+        break;
     case QEvent::MouseButtonRelease:
+        this->update();
+        break;
     case QEvent::MouseMove:
+        this->update();
+        break;
     case QEvent::Wheel:
-        this->update(); //Repaint after an event
+        this->update();
         break;
 
     default:
@@ -302,70 +313,6 @@ void OSGWidget::setView(){
     viewer_->realize();
 }
 
-void OSGWidget::renderTriangle()
-{
-    osg::Geode* pyramidGeode = new osg::Geode();
-    osg::Geometry* pyramidGeometry = new osg::Geometry();
-
-    pyramidGeode->addDrawable(pyramidGeometry);
-    rootSceneGroup->addChild(pyramidGeode);
-
-    osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
-    pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
-    pyramidVertices->push_back( osg::Vec3(10, 0, 0) ); // front right
-    pyramidVertices->push_back( osg::Vec3(10,10, 0) ); // back right
-    pyramidVertices->push_back( osg::Vec3( 0,10, 0) ); // back left
-    pyramidVertices->push_back( osg::Vec3( 5, 5,10) ); // peak
-
-    pyramidGeometry->setVertexArray( pyramidVertices );
-
-    osg::DrawElementsUInt* pyramidBase =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    pyramidBase->push_back(3);
-    pyramidBase->push_back(2);
-    pyramidBase->push_back(1);
-    pyramidBase->push_back(0);
-    pyramidGeometry->addPrimitiveSet(pyramidBase);
-
-    osg::DrawElementsUInt* pyramidFaceOne =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceOne->push_back(0);
-    pyramidFaceOne->push_back(1);
-    pyramidFaceOne->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceOne);
-
-    osg::DrawElementsUInt* pyramidFaceTwo =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceTwo->push_back(1);
-    pyramidFaceTwo->push_back(2);
-    pyramidFaceTwo->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceTwo);
-
-    osg::DrawElementsUInt* pyramidFaceThree =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceThree->push_back(2);
-    pyramidFaceThree->push_back(3);
-    pyramidFaceThree->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceThree);
-
-    osg::DrawElementsUInt* pyramidFaceFour =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceFour->push_back(3);
-    pyramidFaceFour->push_back(0);
-    pyramidFaceFour->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceFour);
-
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 0 red
-    colors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) ); //index 1 green
-    colors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) ); //index 2 blue
-    colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) ); //index 3 white
-    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 4 red
-
-    pyramidGeometry->setColorArray(colors);
-    pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-}
-
 void OSGWidget::renderOriginal()
 {
     rootSceneGroup->removeChild(0,1);
@@ -382,7 +329,6 @@ void OSGWidget::renderEditable()
     rootSceneGroup->addChild(editableModelGroup.get());
 }
 
-bool printPrimitiveSets = true;
 void OSGWidget::setFile(QString fileName){
 
     rootSceneGroup = new osg::Group;
