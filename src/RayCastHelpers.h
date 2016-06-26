@@ -1,0 +1,5 @@
+#ifndef RAYCASTHELPERS
+#define RAYCASTHELPERS
+
+#endif // RAYCASTHELPERS
+

@@ -32,6 +32,7 @@ SET( HEADERS
   src/OrientationConverter.h
   src/OSGConv.h
   src/OSGHelpers.h
+  src/RayCastHelpers.h
 )
 
 FILE(
@@ -42,7 +43,7 @@ forms/*.ui
 
 QT5_WRAP_UI(UI_HEADERS ${UI_FILES})
 
-ADD_EXECUTABLE( OSG2CityGML ${SOURCES} ${UI_HEADERS} ${UI_FILES})
+ADD_EXECUTABLE( OSG2CityGML ${SOURCES} ${HEADERS} ${UI_HEADERS} ${UI_FILES})
 
 TARGET_LINK_LIBRARIES( OSG2CityGML
   ${OPENSCENEGRAPH_LIBRARIES}
