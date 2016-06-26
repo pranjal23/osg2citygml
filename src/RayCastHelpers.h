@@ -1,8 +1,12 @@
 #ifndef RAYCASTHELPERS
 #define RAYCASTHELPERS
 
+#include <QDebug>
+
 #include <osg/Group>
 #include <osg/Vec3>
+
+#include "OSGHelpers.h"
 
 
 class SelectedTrianglePrimitive
@@ -43,6 +47,19 @@ public:
                                        const osg::Vec3    D,  //Ray direction
                                        float* out )
     {
+
+        if(true)
+        {
+            qDebug() << "Printing v1, v2, v3";
+            printVertex(V1);
+            printVertex(V2);
+            printVertex(V3);
+
+            qDebug() << "Printing origin, direction";
+            printVertex(O);
+            printVertex(D);
+        }
+
         osg::Vec3 e1, e2;  //Edge1, Edge2
         osg::Vec3 P, Q, T;
         float det, inv_det, u, v;
@@ -88,11 +105,11 @@ public:
 
     virtual void cast(osg::Group& group, const osg::Vec3 origin, const osg::Vec3 direction )
     {
+        qDebug() << " In Ray Cast ";
         int i;
         for (i = 0; i < group.getNumChildren(); i++)
         {
             osg::Geode* geode = (osg::Geode*)group.getChild(i);
-
             for(unsigned int i=0;i<geode->getNumDrawables();++i)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
@@ -103,19 +120,22 @@ public:
                 {
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
 
-                    if(prset->getNumIndices()==3)
-                    {
+                    //if(prset->get)
+                    //{
                         const osg::Vec3 v1 = (* verts)[prset->index(0)];
                         const osg::Vec3 v2 = (* verts)[prset->index(1)];
                         const osg::Vec3 v3 = (* verts)[prset->index(2)];
 
                         float* out;
-
                         if(triangle_intersection(v1,v2,v3,origin,direction,out)==1)
                         {
-                            osg::notify(osg::WARN) << " Triangle selected ";
+                            qDebug() << " Triangle Selected ";
                         }
-                    }
+                        else
+                        {
+                             qDebug() << " TNS ";
+                        }
+                    //}
 
                 }
             }

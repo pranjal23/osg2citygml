@@ -22,12 +22,20 @@ void printPrimSet(osg::PrimitiveSet*prset)
     osg::notify(osg::WARN) << " | ";
 }
 
-void printVertex(unsigned int vertexId, const osg::Vec3Array *verts)
+void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)
 {
-    osg::notify(osg::DEBUG_FP) << "Vertex Id: "<< vertexId << ", coordinates: " <<
+    osg::notify(osg::WARN) << "Vertex Id: "<< vertexId << ", coordinates: " <<
                                   (* verts)[vertexId].x() << "," <<
                                   (* verts)[vertexId].y() << "," <<
                                   (* verts)[vertexId].z() << std::endl;
+}
+
+void printVertex(const osg::Vec3 vert)
+{
+    osg::notify(osg::WARN) <<
+                                  vert.x() << "," <<
+                                  vert.y() << "," <<
+                                  vert.z() << std::endl;
 }
 
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
@@ -80,7 +88,6 @@ public:
     unsigned int vertexId3;
 };
 
-
 class ConvertToTrianglePrimitives : public osg::NodeVisitor
 {
 public:
@@ -116,7 +123,7 @@ public:
                     case osg::PrimitiveSet::TRIANGLES:
                     {
 
-                        osg::notify(osg::WARN) << "In triangles - ";
+                        //osg::notify(osg::WARN) << "In triangles - ";
 
                         unsigned int ja;
                         for (ja=0; ja<=prset->getNumIndices()-3; )
@@ -142,7 +149,7 @@ public:
 
                     case osg::PrimitiveSet::TRIANGLE_STRIP:
                     {
-                        osg::notify(osg::WARN) << "In triangle strip - ";
+                        //osg::notify(osg::WARN) << "In triangle strip - ";
 
                         unsigned int ja;
                         for (ja=0; ja<prset->getNumIndices()-2; ja++)

@@ -101,12 +101,14 @@ void OSGWidget::mouseMoveEvent( QMouseEvent* event )
 
 void OSGWidget::mousePressEvent( QMouseEvent* event )
 {
+    qDebug() << " In Mouse Button Click ";
     unsigned int button = 0;
 
     switch( event->button() )
     {
     case Qt::LeftButton:
         button = 1;
+        rayCastClick(event);
         break;
 
     case Qt::MiddleButton:
@@ -124,18 +126,15 @@ void OSGWidget::mousePressEvent( QMouseEvent* event )
     this->getEventQueue()->mouseButtonPress( static_cast<float>( event->x() ),
                                              static_cast<float>( event->y() ),
                                              button );
-
 }
 
 void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
 {
     unsigned int button = 0;
-
     switch( event->button() )
     {
     case Qt::LeftButton:
         button = 1;
-        rayCastClick(event);
         break;
 
     case Qt::MiddleButton:
@@ -158,10 +157,14 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
 
 void OSGWidget::rayCastClick(QMouseEvent* event)
 {
+    qDebug() << " In Raycastclick ";
 
-    int x = event->x();
-    int y = event->y();
-    int z = -1;
+    if(rootSceneGroup.get()->getNumChildren()==0)
+        return;
+
+    float x = (2.0f * event->x()) / this->width() - 1.0f;
+    float y = 1.0f - (2.0f * event->y()) / this->height();
+    float z = 1.0f;
 
     osg::Vec3* direction = new osg::Vec3(x,y,z);
 

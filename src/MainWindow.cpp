@@ -14,6 +14,10 @@ MainWindow::MainWindow( QWidget* parent)
 {
     ui->setupUi(this);
     this->showMaximized();
+
+    //register for keyevents
+    this->setFocusPolicy( Qt::StrongFocus );
+    this->setMouseTracking(true);
 }
 
 MainWindow::~MainWindow()
@@ -25,9 +29,6 @@ void MainWindow::onCreateView(QString fileName)
 {
     ui->osgWidget->setFile(fileName);
     ui->osgWidget->resizeWidget(this->width(),this->height());
-
-    //register for keyevents
-    this->setFocusPolicy( Qt::StrongFocus );
 }
 
 void MainWindow::open(){
@@ -61,5 +62,16 @@ void MainWindow::keyPressEvent( QKeyEvent* event )
         return;
     }
 
+    QCoreApplication::sendEvent(this->ui->osgWidget,event);
+}
+
+void MainWindow::mousePressEvent(QMouseEvent *event)
+{
+    qDebug() << " MouseEvent in main window 1 ";
+    QCoreApplication::sendEvent(this->ui->osgWidget,event);
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event){
+    qDebug() << " MouseEvent in main window 2 ";
     QCoreApplication::sendEvent(this->ui->osgWidget,event);
 }

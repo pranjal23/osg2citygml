@@ -25,6 +25,8 @@ private:
   void onCreateView(QString fileName);
   virtual void resizeEvent(QResizeEvent* event);
   virtual void keyPressEvent( QKeyEvent* event );
+  virtual void mousePressEvent(QMouseEvent* event);
+  virtual void mouseMoveEvent(QMouseEvent* event);
 
 private slots:
   void open();
