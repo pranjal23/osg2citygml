@@ -16,7 +16,7 @@ FIND_PACKAGE( Qt5Gui  )
 FIND_PACKAGE( Qt5OpenGL )
 FIND_PACKAGE( OpenSceneGraph REQUIRED COMPONENTS osgDB osgGA osgUtil osgViewer )
 
-INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} )
+INCLUDE_DIRECTORIES( ${OPENSCENEGRAPH_INCLUDE_DIRS} include )
 
 SET( SOURCES
   src/MainWindow.cpp
@@ -27,12 +27,12 @@ SET( SOURCES
 )
 
 SET( HEADERS
-  src/MainWindow.h
-  src/OSGWidget.h
-  src/OrientationConverter.h
-  src/OSGConv.h
-  src/OSGHelpers.h
-  src/RayCastHelpers.h
+  include/MainWindow.h
+  include/OSGWidget.h
+  include/OrientationConverter.h
+  include/OSGConv.h
+  include/OSGHelpers.h
+  include/RayCastHelpers.h
 )
 
 FILE(

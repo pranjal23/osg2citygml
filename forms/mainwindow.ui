@@ -1162,7 +1162,7 @@
   <customwidget>
    <class>OSGWidget</class>
    <extends>QWidget</extends>
-   <header>src/osgwidget.h</header>
+   <header>include/osgwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
