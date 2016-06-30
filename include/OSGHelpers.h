@@ -44,15 +44,19 @@ void printPrimSets(osg::Geode& geode){
     for(unsigned int i=0;i<geode.getNumDrawables();i++)
     {
         osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
-        for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
-        {
-            osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-            printPrimSet(prset);
-            osg::notify(osg::WARN) << std::endl;
 
-            if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+        if(geometry && geometry->getNumPrimitiveSets()>0)
+        {
+            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
             {
-                qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                //printPrimSet(prset);
+                osg::notify(osg::WARN) << std::endl;
+
+                if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+                {
+                    qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                }
             }
         }
     }
@@ -66,25 +70,26 @@ public:
     unsigned int vertexId3;
 };
 
-class ConvertToTrianglePrimitives : public osg::NodeVisitor
+class ConvertToTrianglePrimitives
 {
 public:
 
-    ConvertToTrianglePrimitives():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
+    ConvertToTrianglePrimitives(){}
 
     bool verbose = false;
     bool printIndexes = false;
-    virtual void apply(osg::Geode& geode)
+    virtual void apply(osg::Geode* geode)
     {
-
+        /*
         //convert to triangle strip
         osgUtil::TriStripVisitor triStripVisitor;
-        triStripVisitor.apply(geode);
+        triStripVisitor.apply(*geode);
         triStripVisitor.stripify();
+        */
 
-        for(unsigned int i=0;i<geode.getNumDrawables();i++)
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
-            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
             std::vector<TriangleIndexes> addPrimSetIndexes;
 
@@ -166,7 +171,8 @@ public:
             }
 
             //osg::notify(osg::WARN) << "---- PRINTING BEFORE REMOVAL OF PRIMITIVES ----" << std::endl;
-            geometry->removePrimitiveSet(0,geometry->getNumPrimitiveSets());
+            geometry->getPrimitiveSetList().clear();
+
 
             for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
             {
@@ -176,8 +182,13 @@ public:
                 primSet->push_back(ti.vertexId1);
                 primSet->push_back(ti.vertexId2);
                 primSet->push_back(ti.vertexId3);
-                geometry->addPrimitiveSet(primSet);
+                geometry->getPrimitiveSetList().push_back(primSet);
             }
+
+            osg::notify(osg::WARN) << "Number of primitives: "
+                                   << geometry->getNumPrimitiveSets()
+                                   << std::endl;
+
 
             if(verbose)
             {
@@ -199,13 +210,13 @@ public:
 
         }
 
+        /*
         //Simplify before returning...
         osgUtil::Simplifier simplifier;
-        simplifier.apply(geode);
+        simplifier.apply(*geode);
+        */
 
     }
-
-    virtual void apply(osg::Node& node) { traverse(node); }
 
     void setVerbose(bool v){
         verbose = v;

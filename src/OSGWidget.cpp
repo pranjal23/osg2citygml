@@ -149,33 +149,6 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
                                                button );
 }
 
-/*
-void OSGWidget::rayCastClick(QMouseEvent* event)
-{
-    qDebug() << " In Raycastclick ";
-
-    if(rootSceneGroup.get()->getNumChildren()==0)
-        return;
-
-    float x = (2.0f * event->x()) / this->width() - 1.0f;
-    float y = 1.0f - (2.0f * event->y()) / this->height();
-    float z = 1.0f;
-
-    osg::Vec3* direction = new osg::Vec3(x,y,z);
-
-    std::vector<osg::Camera*> cameras;
-    viewer_->getCameras( cameras );
-
-    const osg::Vec3 o = osg::Vec3(0.0f,0.0f,0.0f) *
-    osg::Matrixd::inverse(cameras[0]->getViewMatrix());
-
-    osg::Vec3* origin = new osg::Vec3(o.x(),o.y(),o.z());
-
-    rsih->cast(*(editableModelGroup.get()),*origin,*direction);
-
-}
-*/
-
 void OSGWidget::wheelEvent( QWheelEvent* event )
 {
     event->accept();
@@ -252,7 +225,7 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
-void OSGWidget::convertToTrianglePrimitives(){
+void OSGWidget::convertToTrianglePrimitives(bool verbose){
     ConvertToTrianglePrimitives triangleConverter;
 
     int i;
@@ -260,8 +233,8 @@ void OSGWidget::convertToTrianglePrimitives(){
     {
         osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
 
-        triangleConverter.setVerbose(false);
-        triangleConverter.apply(*geode);
+        triangleConverter.setVerbose(verbose);
+        triangleConverter.apply(geode);
     }
 }
 
@@ -313,8 +286,8 @@ void OSGWidget::setFile(QString fileName){
 
             editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
             selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
-            convertToTrianglePrimitives();
-            viewer_->getView(0)->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup));
+            convertToTrianglePrimitives(false);
+            //viewer_->getView(0)->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup));
             rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
@@ -344,6 +317,7 @@ void OSGWidget::setView(){
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
+    view->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup) );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );

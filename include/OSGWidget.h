@@ -50,7 +50,7 @@ public:
   void setFile(QString fileName);
   void setView();
   void resizeWidget(int width, int height);
-  void convertToTrianglePrimitives();
+  void convertToTrianglePrimitives(bool verbose);
   void renderOriginal();
   void renderEditable();
 

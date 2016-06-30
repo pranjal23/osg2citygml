@@ -39,36 +39,62 @@ class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
 {
 public:
     std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
-    AddEditColoursToGeometryVisitor(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp)
+
+    AddEditColoursToGeometryVisitor()
         :osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
+    {
+        selectedPrimitives = nullptr;
+    }
+
+    void addSelectedPrimitivePtr(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp)
     {
         selectedPrimitives = sp;
     }
 
     virtual void apply(osg::Geode& geode)
     {
+        qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
-            if (geometry)
+            if (geometry && geometry->getNumPrimitiveSets()>0)
             {
+                unsigned int num = geometry->getNumPrimitiveSets();
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
 
                 osg::Vec4Array* colours =
                         new osg::Vec4Array(geometry->getVertexArray()->getNumElements());
-                int x = 1;
+                int x = 0;
                 osg::Vec4* col = getNewColor(x);
                 for(unsigned int ci=0;ci<colours->size();ci++)
                 {
                     (*colours)[ci].set(col->x(),col->y(),col->z(),col->w());
                 }
 
-                x=0;
-                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
-                {
-                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                 qDebug() << "npc ...";
 
+                for (unsigned int ipr=0; ipr<num; ipr++)
+                {   
+                    if(selectedPrimitives != nullptr && selectedPrimitives->size()>0)
+                    {
+                        std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->find(ipr);
+                        for(;it!=selectedPrimitives->end();it++)
+                        {
+                            qDebug() << "In here ...";
+                            SelectedTrianglePrimitive a =(*it).second;
+                            if(a.drawable.get() == geometry->asDrawable())
+                            {
+                                x = 1;
+                            }
+                            else
+                            {
+                                x = 0;
+                            }
+                        }
+                    }
+
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
                     (*colours)[prset->index(0)].set(col->x(),col->y(),col->z(),col->w());
                     col = getNewColor(x);
                     (*colours)[prset->index(1)].set(col->x(),col->y(),col->z(),col->w());
@@ -97,7 +123,7 @@ public:
     std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
     osg::ref_ptr<osg::Group> editableModelGroup;
     AddEditColoursToGeometryVisitor* colorVistor
-                    = new AddEditColoursToGeometryVisitor(selectedPrimitives);
+                    = new AddEditColoursToGeometryVisitor();
 
     PickingHandler(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp,
                    osg::ref_ptr<osg::Group> eg) {
@@ -131,6 +157,9 @@ private:
 
     void addColor(){
 
+        if(editableModelGroup == nullptr)
+            return;
+
         int i;
         for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
         {
@@ -146,7 +175,7 @@ private:
         if (!aa.computeIntersections(ea, intersections)) {
             return false;
         }
-
+        qDebug() << "In selectIntersectedPrimitives...";
 
         osgUtil::LineSegmentIntersector::Intersection firstIntersection = *intersections.begin();
 
@@ -154,11 +183,14 @@ private:
             return false;
         }
 
+        qDebug() << "Selected primitive...";
         SelectedTrianglePrimitive* stp = new SelectedTrianglePrimitive;
         stp->drawable = firstIntersection.drawable.get();
         stp->primitiveIndex = firstIntersection.primitiveIndex;
 
         selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
+        colorVistor->addSelectedPrimitivePtr(selectedPrimitives);
+        addColor();
 
         return true;
     }
