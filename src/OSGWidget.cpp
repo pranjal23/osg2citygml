@@ -3,7 +3,7 @@
 #include "OSGHelpers.h"
 #include "RayCastHelpers.h"
 
-RayTriangleIntersectionHelper* rsih;
+std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -20,8 +20,6 @@ OSGWidget::OSGWidget( QWidget* parent,
 
     //register for mouse events
     this->setMouseTracking( true );
-
-    rsih = new RayTriangleIntersectionHelper();
 }
 
 OSGWidget::~OSGWidget()
@@ -101,14 +99,11 @@ void OSGWidget::mouseMoveEvent( QMouseEvent* event )
 
 void OSGWidget::mousePressEvent( QMouseEvent* event )
 {
-    qDebug() << " In Mouse Button Click ";
     unsigned int button = 0;
-
     switch( event->button() )
     {
     case Qt::LeftButton:
         button = 1;
-        rayCastClick(event);
         break;
 
     case Qt::MiddleButton:
@@ -154,7 +149,7 @@ void OSGWidget::mouseReleaseEvent(QMouseEvent* event)
                                                button );
 }
 
-
+/*
 void OSGWidget::rayCastClick(QMouseEvent* event)
 {
     qDebug() << " In Raycastclick ";
@@ -179,6 +174,7 @@ void OSGWidget::rayCastClick(QMouseEvent* event)
     rsih->cast(*(editableModelGroup.get()),*origin,*direction);
 
 }
+*/
 
 void OSGWidget::wheelEvent( QWheelEvent* event )
 {
@@ -256,19 +252,6 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
-void OSGWidget::addColor(){
-
-    AddEditColoursToGeometryVisitor colorVistor;
-
-    int i;
-    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
-    {
-        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
-        colorVistor.apply(*geode);
-    }
-
-}
-
 void OSGWidget::convertToTrianglePrimitives(){
     ConvertToTrianglePrimitives triangleConverter;
 
@@ -280,40 +263,6 @@ void OSGWidget::convertToTrianglePrimitives(){
         triangleConverter.setVerbose(false);
         triangleConverter.apply(*geode);
     }
-}
-
-void OSGWidget::setView(){
-    float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
-
-    // Set material for basic lighting and enable depth tests.
-    osg::StateSet* stateSet = rootSceneGroup.get()->getOrCreateStateSet();
-    osg::Material* material = new osg::Material;
-
-    material->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
-
-    stateSet->setAttributeAndModes( material, osg::StateAttribute::ON );
-    stateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
-
-    osg::Camera* camera = new osg::Camera;
-    camera->setViewport( 0, 0, this->width(), this->height() );
-    camera->setClearColor( osg::Vec4( 0.2f, 0.2f, 0.2f, 1.f ) );
-    camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
-    camera->setGraphicsContext( graphicsWindow_ );
-
-    osgViewer::View* view = new osgViewer::View;
-    view->setCamera( camera );
-    view->setSceneData( rootSceneGroup.get() );
-    view->addEventHandler( new osgViewer::StatsHandler );
-
-    osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
-    manipulator->setAllowThrow( false );
-
-    view->setCameraManipulator( manipulator );
-
-    viewer_->addView( view );
-
-    viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
-    viewer_->realize();
 }
 
 void OSGWidget::renderOriginal()
@@ -363,11 +312,45 @@ void OSGWidget::setFile(QString fileName){
             osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
 
             editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
+            selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
             convertToTrianglePrimitives();
-            addColor();
+            viewer_->getView(0)->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup));
             rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
 
     setView();
+}
+
+void OSGWidget::setView(){
+    float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
+
+    // Set material for basic lighting and enable depth tests.
+    osg::StateSet* stateSet = rootSceneGroup.get()->getOrCreateStateSet();
+    osg::Material* material = new osg::Material;
+
+    material->setColorMode( osg::Material::AMBIENT_AND_DIFFUSE );
+
+    stateSet->setAttributeAndModes( material, osg::StateAttribute::ON );
+    stateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    osg::Camera* camera = new osg::Camera;
+    camera->setViewport( 0, 0, this->width(), this->height() );
+    camera->setClearColor( osg::Vec4( 0.2f, 0.2f, 0.2f, 1.f ) );
+    camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
+    camera->setGraphicsContext( graphicsWindow_ );
+
+    osgViewer::View* view = new osgViewer::View;
+    view->setCamera( camera );
+    view->setSceneData( rootSceneGroup.get() );
+    view->addEventHandler( new osgViewer::StatsHandler );
+
+    osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
+    manipulator->setAllowThrow( false );
+
+    view->setCameraManipulator( manipulator );
+
+    viewer_->addView( view );
+    viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
+    viewer_->realize();
 }

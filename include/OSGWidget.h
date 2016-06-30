@@ -51,10 +51,8 @@ public:
   void setView();
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives();
-  void addColor();
   void renderOriginal();
   void renderEditable();
-  void rayCastClick(QMouseEvent* event);
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );

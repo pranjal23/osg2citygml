@@ -1,6 +1,8 @@
 #ifndef OSGHELPERS
 #define OSGHELPERS
 
+#include <QDebug>
+
 #include <osg/Group>
 #include <osg/Vec3>
 
@@ -38,47 +40,23 @@ void printVertex(const osg::Vec3 vert)
                                   vert.z() << std::endl;
 }
 
-class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
-{
-public:
-
-    AddEditColoursToGeometryVisitor():osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN) {}
-
-    virtual void apply(osg::Geode& geode)
+void printPrimSets(osg::Geode& geode){
+    for(unsigned int i=0;i<geode.getNumDrawables();i++)
     {
-        for(unsigned int i=0;i<geode.getNumDrawables();++i)
+        osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
+        for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
         {
-            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
-            if (geometry)
-            {
-                geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
-                geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
+            osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+            printPrimSet(prset);
+            osg::notify(osg::WARN) << std::endl;
 
-                osg::Vec4Array* colours = new osg::Vec4Array(3);
-                osg::Vec4* col = getNewColor(0);
-                (*colours)[0].set(col->x(),col->y(),col->z(),col->w());
-                col = getNewColor(1);
-                (*colours)[1].set(col->x(),col->y(),col->z(),col->w());
-                col = getNewColor(2);
-                (*colours)[2].set(col->x(),col->y(),col->z(),col->w());
-                geometry->setColorArray(colours, osg::Array::BIND_OVERALL);
+            if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+            {
+                qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
             }
         }
     }
-
-    virtual void apply(osg::Node& node) { traverse(node); }
-
-private:
-    osg::Vec4* getNewColor(int x){
-        if(x == 0)
-            return new osg::Vec4(0.5f,1.0f,1.0f,1.0f);
-        else if(x == 1)
-            return new osg::Vec4(1.0f,0.5f,1.0f,1.0f);
-        else if(x == 2)
-            return new osg::Vec4(1.0f,1.0f,0.5f,1.0f);
-    }
-
-};
+}
 
 class TriangleIndexes
 {
@@ -104,7 +82,7 @@ public:
         triStripVisitor.apply(geode);
         triStripVisitor.stripify();
 
-        for(unsigned int i=0;i<geode.getNumDrawables();++i)
+        for(unsigned int i=0;i<geode.getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
 
@@ -209,6 +187,12 @@ public:
                 {
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
                     printPrimSet(prset);
+                    osg::notify(osg::WARN) << std::endl;
+
+                    if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+                    {
+                        qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                    }
                 }
                 osg::notify(osg::WARN) << "---- AFTER PRINTING PRIMITIVES ----" << std::endl;
             }
