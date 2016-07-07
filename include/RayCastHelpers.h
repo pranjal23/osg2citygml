@@ -32,7 +32,7 @@ class SelectedTrianglePrimitive
 {
 public:
     osg::ref_ptr<osg::Drawable> drawable;
-    unsigned int primitiveIndex;
+    unsigned int primitiveIndex = -1000;
 };
 
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
@@ -53,7 +53,7 @@ public:
 
     virtual void apply(osg::Geode& geode)
     {
-        qDebug() << "In add color ...";
+        //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
@@ -145,7 +145,6 @@ public:
 
             return selectIntersectedPrimitives(ea, aa);
 
-
         } else if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON) {
             m_xMouseCoordAtLastPress = ea.getX();
             m_yMouseCoordAtLastPress = ea.getY();
@@ -184,6 +183,8 @@ private:
             return false;
         }
 
+
+
         SelectedTrianglePrimitive* stp = new SelectedTrianglePrimitive;
         stp->drawable = firstIntersection.drawable.get();
         stp->primitiveIndex = firstIntersection.primitiveIndex;
@@ -191,7 +192,34 @@ private:
         qDebug() << "Selected primitive-> " << stp->primitiveIndex
                  << "Selected drawable-> " << stp->drawable.get();
 
-        selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
+        //Find if exists selected map then then remove
+        bool unselected = true;
+        if(selectedPrimitives != nullptr && selectedPrimitives->size()>0)
+        {
+            std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator itS;
+            for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+            {
+                SelectedTrianglePrimitive a =(*it).second;
+                if(a.drawable.get() == stp->drawable && a.primitiveIndex == stp->primitiveIndex)
+                {
+                    itS = it;
+                    unselected = false;
+                    break;
+                }
+            }
+
+            if(!unselected)
+            {
+                selectedPrimitives->erase(itS);
+            }
+        }
+
+        //Insert into selected primitives list if newly selected
+        if(unselected)
+        {
+            selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
+        }
+
         colorVistor->addSelectedPrimitivePtr(selectedPrimitives);
         addColor();
 
