@@ -5,9 +5,13 @@
 
 #include <osg/Group>
 #include <osg/Vec3>
+#include <osg/Referenced>
 
 #include <osgUtil/Simplifier>
 #include <osgUtil/TriStripVisitor>
+#include <osgUtil/SmoothingVisitor>
+
+const unsigned int FACE_NORMAL_INDEX = 0;
 
 void printPrimSet(osg::PrimitiveSet* prset)
 {
@@ -27,17 +31,17 @@ void printPrimSet(osg::PrimitiveSet* prset)
 void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)
 {
     osg::notify(osg::WARN) << "Vertex Id: "<< vertexId << ", coordinates: " <<
-                                  (* verts)[vertexId].x() << "," <<
-                                  (* verts)[vertexId].y() << "," <<
-                                  (* verts)[vertexId].z() << std::endl;
+                              (* verts)[vertexId].x() << "," <<
+                              (* verts)[vertexId].y() << "," <<
+                              (* verts)[vertexId].z() << std::endl;
 }
 
 void printVertex(const osg::Vec3 vert)
 {
     osg::notify(osg::WARN) <<
-                                  vert.x() << "," <<
-                                  vert.y() << "," <<
-                                  vert.z() << std::endl;
+                              vert.x() << "," <<
+                              vert.y() << "," <<
+                              vert.z() << std::endl;
 }
 
 void printPrimSets(osg::Geode& geode){
@@ -69,6 +73,12 @@ public:
     unsigned int vertexId3;
 };
 
+class UserData  : public osg::Referenced
+{
+    public:
+        osg::ref_ptr<osg::Vec3Array> faceNormals;
+};
+
 class ConvertToTrianglePrimitives
 {
 public:
@@ -79,12 +89,9 @@ public:
     bool printIndexes = false;
     virtual void apply(osg::Geode* geode)
     {
-        /*
-        //convert to triangle strip
+        //first convert to triangle strip
         osgUtil::TriStripVisitor triStripVisitor;
-        triStripVisitor.apply(*geode);
-        triStripVisitor.stripify();
-        */
+        geode->accept(triStripVisitor);
 
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
@@ -102,65 +109,65 @@ public:
                 // for each primitive analyze its type and work accordingly...
                 switch (prset->getMode())
                 {
-                    case osg::PrimitiveSet::TRIANGLES:
+                case osg::PrimitiveSet::TRIANGLES:
+                {
+
+                    //osg::notify(osg::WARN) << "In triangles - ";
+
+                    unsigned int ja;
+                    for (ja=0; ja<=prset->getNumIndices()-3; )
                     {
+                        TriangleIndexes ti;
 
-                        //osg::notify(osg::WARN) << "In triangles - ";
+                        ti.vertexId1 = prset->index(ja);
+                        ti.vertexId2 = prset->index(ja+1);
+                        ti.vertexId3 = prset->index(ja+2);
 
-                        unsigned int ja;
-                        for (ja=0; ja<=prset->getNumIndices()-3; )
+                        if(verbose && printIndexes)
                         {
-                            TriangleIndexes ti;
+                            osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                   << ti.vertexId2 << ", "
+                                                   << ti.vertexId3 << std::endl;
+                        }
 
+                        addPrimSetIndexes.push_back(ti);
+                        ja=ja+3;
+                    }
+                }
+                    break;
+
+                case osg::PrimitiveSet::TRIANGLE_STRIP:
+                {
+                    //osg::notify(osg::WARN) << "In triangle strip - ";
+
+                    unsigned int ja;
+                    for (ja=0; ja<prset->getNumIndices()-2; ja++)
+                    {
+                        TriangleIndexes ti;
+
+                        if(ja % 2 == 0)
+                        {
                             ti.vertexId1 = prset->index(ja);
                             ti.vertexId2 = prset->index(ja+1);
                             ti.vertexId3 = prset->index(ja+2);
-
-                            if(verbose && printIndexes)
-                            {
-                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
-                                                       << ti.vertexId2 << ", "
-                                                       << ti.vertexId3 << std::endl;
-                            }
-
-                            addPrimSetIndexes.push_back(ti);
-                            ja=ja+3;
                         }
-                    }
-                    break;
-
-                    case osg::PrimitiveSet::TRIANGLE_STRIP:
-                    {
-                        //osg::notify(osg::WARN) << "In triangle strip - ";
-
-                        unsigned int ja;
-                        for (ja=0; ja<prset->getNumIndices()-2; ja++)
+                        else
                         {
-                            TriangleIndexes ti;
-
-                            if(ja % 2 == 0)
-                            {
-                                ti.vertexId1 = prset->index(ja);
-                                ti.vertexId2 = prset->index(ja+1);
-                                ti.vertexId3 = prset->index(ja+2);
-                            }
-                            else
-                            {
-                                ti.vertexId1 = prset->index(ja);
-                                ti.vertexId2 = prset->index(ja+2);
-                                ti.vertexId3 = prset->index(ja+1);
-                            }
-
-                            if(verbose && printIndexes)
-                            {
-                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
-                                                       << ti.vertexId2 << ", "
-                                                       << ti.vertexId3 << std::endl;
-                            }
-
-                            addPrimSetIndexes.push_back(ti);
+                            ti.vertexId1 = prset->index(ja);
+                            ti.vertexId2 = prset->index(ja+2);
+                            ti.vertexId3 = prset->index(ja+1);
                         }
+
+                        if(verbose && printIndexes)
+                        {
+                            osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                   << ti.vertexId2 << ", "
+                                                   << ti.vertexId3 << std::endl;
+                        }
+
+                        addPrimSetIndexes.push_back(ti);
                     }
+                }
                     break;
 
                     //TODO: Check and Handle other primitive types such as lines line loops etc
@@ -184,13 +191,13 @@ public:
                 geometry->getPrimitiveSetList().push_back(primSet);
             }
 
-            osg::notify(osg::WARN) << "Number of primitives: "
-                                   << geometry->getNumPrimitiveSets()
-                                   << std::endl;
-
 
             if(verbose)
             {
+                osg::notify(osg::WARN) << "Number of primitives: "
+                                       << geometry->getNumPrimitiveSets()
+                                       << std::endl;
+
                 osg::notify(osg::WARN) << "---- PRINTING PRIMITIVES AFTER CONVERSION ----" << std::endl;
 
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
@@ -207,18 +214,61 @@ public:
                 osg::notify(osg::WARN) << "---- AFTER PRINTING PRIMITIVES ----" << std::endl;
             }
 
-        }
+            //Generate New Normals
+            osgUtil::SmoothingVisitor sv;
+            geometry->accept(sv);
 
-        /*
-        //Simplify before returning...
-        osgUtil::Simplifier simplifier;
-        simplifier.apply(*geode);
-        */
+            //Generate the Normal for each primitive
+            osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+            osg::Vec3Array* faceNormals = new osg::Vec3Array(geometry->getNumPrimitiveSets());
+            UserData* userData = new UserData;
+            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+            {
+                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                if(prset->getMode()==osg::PrimitiveSet::TRIANGLES)
+                {
+                    osg::Vec3f* normal = calculateFaceNormal(&(* verts)[prset->index(0)],
+                                                             &(* verts)[prset->index(1)],
+                                                             &(* verts)[prset->index(2)]);
+                    (*faceNormals)[ipr].set(normal->x(),normal->y(),normal->z());
+                }
+                else
+                {
+                    qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                }
+            }
+
+            userData->faceNormals = osg::ref_ptr<osg::Vec3Array>(faceNormals);
+
+            geometry->getOrCreateUserDataContainer()->setUserData(userData);
+        }
 
     }
 
     void setVerbose(bool v){
         verbose = v;
+    }
+
+private:
+    osg::Vec3f* calculateFaceNormal(osg::Vec3f* p1,osg::Vec3f* p2,osg::Vec3f* p3)
+    {
+
+        osg::Vec3f U;
+        U.x() = p2->x() - p1->x();
+        U.y() = p2->y() - p1->y();
+        U.z() = p2->z() - p1->z();
+
+        osg::Vec3f V;
+        V.x() = p3->x() - p1->x();
+        V.y() = p3->y() - p1->y();
+        V.z() = p3->z() - p1->z();
+
+        osg::Vec3f* normal = new osg::Vec3f;
+        normal->x() = (U.y()*V.z()) - (U.z()*V.y());
+        normal->y() = (U.z()*V.x()) - (U.x()*V.z());
+        normal->z() = (U.x()*V.y()) - (U.y()*V.x());
+
+        return normal;
     }
 
 };

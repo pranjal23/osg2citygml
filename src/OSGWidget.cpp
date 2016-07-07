@@ -225,6 +225,16 @@ osgGA::EventQueue* OSGWidget::getEventQueue() const
         throw std::runtime_error( "Unable to obtain valid event queue");
 }
 
+void OSGWidget::setLocationBasedSegmentation(bool checked)
+{
+    locationBasedSegmentation = checked;
+}
+
+void OSGWidget::setNormalsBasedSegmentation(bool checked)
+{
+    normalsBasedSegmentation = checked;
+}
+
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
     ConvertToTrianglePrimitives triangleConverter;
 

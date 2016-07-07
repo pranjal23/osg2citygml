@@ -75,3 +75,13 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event){
     qDebug() << " MouseEvent in main window 2 ";
     QCoreApplication::sendEvent(this->ui->osgWidget,event);
 }
+
+void MainWindow::on_enableLightBtn_toggled(bool checked)
+{
+    ui->osgWidget->setLocationBasedSegmentation(checked);
+}
+
+void MainWindow::on_multilightsBtn_toggled(bool checked)
+{
+    ui->osgWidget->setNormalsBasedSegmentation(checked);
+}

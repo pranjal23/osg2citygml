@@ -32,6 +32,8 @@ private slots:
   void open();
 
   void on_commandLinkButton_clicked();
+  void on_enableLightBtn_toggled(bool checked);
+  void on_multilightsBtn_toggled(bool checked);
 };
 
 #endif

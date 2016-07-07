@@ -53,6 +53,8 @@ public:
   void convertToTrianglePrimitives(bool verbose);
   void renderOriginal();
   void renderEditable();
+  void setLocationBasedSegmentation(bool checked);
+  void setNormalsBasedSegmentation(bool checked);
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -73,6 +75,9 @@ private:
 
   virtual void onHome();
   virtual void onResize( int width, int height );
+
+  bool locationBasedSegmentation = true;
+  bool normalsBasedSegmentation = true;
 
   osgGA::EventQueue* getEventQueue() const;
 

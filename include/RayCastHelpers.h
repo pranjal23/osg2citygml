@@ -59,7 +59,7 @@ public:
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
             if (geometry && geometry->getNumPrimitiveSets()>0)
             {
-                //unsigned int num = geometry->getNumPrimitiveSets();
+                //Remove Material and Colormark
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
 
@@ -123,8 +123,8 @@ class PickingHandler : public osgGA::GUIEventHandler {
 public:
     std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
     osg::ref_ptr<osg::Group> editableModelGroup;
-    AddEditColoursToGeometryVisitor* colorVistor
-    = new AddEditColoursToGeometryVisitor();
+
+    AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
     PickingHandler(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp,
                    osg::ref_ptr<osg::Group> eg) {
@@ -153,6 +153,16 @@ public:
         return false;
     }
 
+    void setLocationBasedSegmentation(bool state)
+    {
+        locBased = state;
+    }
+
+    void setNormalsBasedSegmentation(bool state)
+    {
+        normalsBased = state;
+    }
+
 private:
 
     void addColor(){
@@ -169,6 +179,49 @@ private:
 
     }
 
+    bool compareNormals(osg::Vec3f m, osg::Vec3f n)
+    {
+        //qDebug() << "Comparing Normal: x->" << m.x() << ", y->" << m.y() << ", z-> " << m.z();
+        //qDebug() << "to: x->" << n.x() << ", y->" << n.y() << ", z-> " << n.z();
+
+        if(m.x() == n.x() && m.y() == n.y() && m.z() == n.z())
+            return true;
+
+        return false;
+    }
+
+    void selectBySegmentation(SelectedTrianglePrimitive* stp, bool locBased, bool normalsBased)
+    {
+        osg::Geometry* geometry = stp->drawable.get()->asGeometry();
+        unsigned int primIndx = stp->primitiveIndex;
+
+        if(normalsBased)
+        {
+            //Get the Normal for the triangle primitive
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            osg::Vec3Array* faceNormals
+                    = dynamic_cast<osg::Vec3Array*>(userData->faceNormals.get());
+
+            osg::Vec3f selectedNormal = (*faceNormals)[primIndx];
+            if(faceNormals != nullptr)
+            {
+                for (unsigned int i = 0; i < faceNormals->size(); i++)
+                {
+                    if(i == primIndx)
+                        continue;
+
+                    osg::Vec3f currNormal = (*faceNormals)[i];
+
+                    if(compareNormals(selectedNormal,currNormal))
+                    {
+                        //qDebug() << "Returned true:";
+                        selectPrimitive(stp->drawable.get(),i,false, false);
+                    }
+                }
+            }
+        }
+    }
+
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
 
         osgUtil::LineSegmentIntersector::Intersections intersections;
@@ -183,14 +236,23 @@ private:
             return false;
         }
 
+        selectPrimitive(firstIntersection.drawable.get(),
+                        firstIntersection.primitiveIndex,
+                        true,
+                        true);
 
 
+        return true;
+    }
+
+    bool selectPrimitive(osg::Drawable* drawable,
+                         unsigned int index,
+                         bool propagate,
+                         bool onUserAction )
+    {
         SelectedTrianglePrimitive* stp = new SelectedTrianglePrimitive;
-        stp->drawable = firstIntersection.drawable.get();
-        stp->primitiveIndex = firstIntersection.primitiveIndex;
-
-        qDebug() << "Selected primitive-> " << stp->primitiveIndex
-                 << "Selected drawable-> " << stp->drawable.get();
+        stp->drawable = drawable;
+        stp->primitiveIndex = index;
 
         //Find if exists selected map then then remove
         bool unselected = true;
@@ -200,7 +262,8 @@ private:
             for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
             {
                 SelectedTrianglePrimitive a =(*it).second;
-                if(a.drawable.get() == stp->drawable && a.primitiveIndex == stp->primitiveIndex)
+                if(a.drawable.get() == stp->drawable
+                        && a.primitiveIndex == stp->primitiveIndex)
                 {
                     itS = it;
                     unselected = false;
@@ -218,16 +281,20 @@ private:
         if(unselected)
         {
             selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
+
+            if(propagate)
+                selectBySegmentation(stp,locBased,normalsBased);
         }
 
         colorVistor->addSelectedPrimitivePtr(selectedPrimitives);
         addColor();
-
-        return true;
     }
 
     int m_xMouseCoordAtLastPress;
     int m_yMouseCoordAtLastPress;
+
+    bool locBased;
+    bool normalsBased;
 };
 
 #endif // RAYCASTHELPERS
