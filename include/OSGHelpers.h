@@ -9,19 +9,19 @@
 #include <osgUtil/Simplifier>
 #include <osgUtil/TriStripVisitor>
 
-void printPrimSet(osg::PrimitiveSet*prset)
+void printPrimSet(osg::PrimitiveSet* prset)
 {
     unsigned int ic;
 
-    osg::notify(osg::WARN) << "Prim set type - " << prset->getMode() << ", Vertex Ids: ";
+    qDebug() << "Prim set type - " << prset->getMode() << ", Vertex Ids: ";
 
     for (ic=0; ic < prset->getNumIndices(); ic++)
     {
         unsigned int vertexId = prset->index(ic);
-        osg::notify(osg::WARN) << vertexId << ", ";
+        qDebug() << vertexId;
     }
 
-    osg::notify(osg::WARN) << " | ";
+    qDebug() << "";
 }
 
 void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)
@@ -51,7 +51,6 @@ void printPrimSets(osg::Geode& geode){
             {
                 osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
                 //printPrimSet(prset);
-                osg::notify(osg::WARN) << std::endl;
 
                 if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
                 {
