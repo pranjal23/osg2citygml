@@ -268,6 +268,8 @@ private:
         normal->y() = (U.z()*V.x()) - (U.x()*V.z());
         normal->z() = (U.x()*V.y()) - (U.y()*V.x());
 
+        normal->normalize();
+
         return normal;
     }
 
