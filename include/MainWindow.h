@@ -34,6 +34,7 @@ private slots:
   void on_commandLinkButton_clicked();
   void on_enableLightBtn_toggled(bool checked);
   void on_multilightsBtn_toggled(bool checked);
+  void on_normalDistanceSB_valueChanged(double arg1);
 };
 
 #endif

@@ -65,6 +65,13 @@ void printPrimSets(osg::Geode& geode){
     }
 }
 
+class SelectedTrianglePrimitive
+{
+public:
+    osg::ref_ptr<osg::Drawable> drawable;
+    unsigned int primitiveIndex = -1;
+};
+
 class TriangleIndexes
 {
 public:

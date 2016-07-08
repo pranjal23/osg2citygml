@@ -85,3 +85,8 @@ void MainWindow::on_multilightsBtn_toggled(bool checked)
 {
     ui->osgWidget->setNormalsBasedSegmentation(checked);
 }
+
+void MainWindow::on_normalDistanceSB_valueChanged(double value)
+{
+    ui->osgWidget->setNormalsDistance(value);
+}

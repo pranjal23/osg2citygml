@@ -526,9 +526,9 @@
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>460</y>
+      <y>450</y>
       <width>251</width>
-      <height>71</height>
+      <height>91</height>
      </rect>
     </property>
     <property name="font">
@@ -541,75 +541,16 @@
      <bool>false</bool>
     </property>
     <property name="title">
-     <string>Segmentation</string>
+     <string>Segmentation - Normals</string>
     </property>
-    <widget class="QPushButton" name="enableLightBtn">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Location</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>true</bool>
-     </property>
-    </widget>
     <widget class="QPushButton" name="multilightsBtn">
      <property name="enabled">
       <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>30</y>
+       <x>10</x>
+       <y>40</y>
        <width>111</width>
        <height>32</height>
       </rect>
@@ -661,14 +602,37 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QDoubleSpinBox" name="normalDistanceSB">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>50</y>
+       <width>67</width>
+       <height>24</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>30</y>
+       <width>59</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Distance</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QGroupBox" name="groupBox_2">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>360</y>
+      <y>390</y>
       <width>251</width>
-      <height>91</height>
+      <height>61</height>
      </rect>
     </property>
     <property name="font">
@@ -686,7 +650,7 @@
     <widget class="QRadioButton" name="flatShadingRb">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>20</x>
        <y>30</y>
        <width>100</width>
        <height>20</height>
@@ -699,9 +663,9 @@
     <widget class="QRadioButton" name="smoothShadingRb">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>121</width>
+       <x>140</x>
+       <y>30</y>
+       <width>91</width>
        <height>20</height>
       </rect>
      </property>
@@ -732,7 +696,7 @@
      <bool>false</bool>
     </property>
     <property name="title">
-     <string>Shape</string>
+     <string>Segmentation - Shape Analysis</string>
     </property>
     <widget class="QPushButton" name="boundBoxBtn">
      <property name="geometry">
@@ -846,7 +810,7 @@
       <bool>false</bool>
      </property>
     </widget>
-    <widget class="QPushButton" name="groundBtn_2">
+    <widget class="QPushButton" name="enableLightBtn">
      <property name="geometry">
       <rect>
        <x>70</x>
@@ -893,12 +857,15 @@
       </palette>
      </property>
      <property name="text">
-      <string>Plain</string>
+      <string>Location</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
      </property>
      <property name="checked">
+      <bool>true</bool>
+     </property>
+     <property name="autoDefault">
       <bool>true</bool>
      </property>
     </widget>
@@ -909,7 +876,7 @@
       <x>30</x>
       <y>20</y>
       <width>251</width>
-      <height>331</height>
+      <height>361</height>
      </rect>
     </property>
     <property name="font">

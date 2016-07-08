@@ -54,7 +54,12 @@ public:
   void renderOriginal();
   void renderEditable();
   void setLocationBasedSegmentation(bool checked);
+  bool getLocationBasedSegmentation();
   void setNormalsBasedSegmentation(bool checked);
+  bool getNormalsBasedSegmentation();
+  void setNormalsDistance(double value);
+  double getNormalsDistance();
+  osg::ref_ptr<osg::Group> getEditableModelGroup();
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -78,6 +83,7 @@ private:
 
   bool locationBasedSegmentation = true;
   bool normalsBasedSegmentation = true;
+  double normalsDistance = 0.0;
 
   osgGA::EventQueue* getEventQueue() const;
 

@@ -230,9 +230,34 @@ void OSGWidget::setLocationBasedSegmentation(bool checked)
     locationBasedSegmentation = checked;
 }
 
+bool OSGWidget::getLocationBasedSegmentation()
+{
+    return locationBasedSegmentation;
+}
+
 void OSGWidget::setNormalsBasedSegmentation(bool checked)
 {
     normalsBasedSegmentation = checked;
+}
+
+bool OSGWidget::getNormalsBasedSegmentation()
+{
+    return normalsBasedSegmentation;
+}
+
+void OSGWidget::setNormalsDistance(double value)
+{
+    normalsDistance = value;
+}
+
+double OSGWidget::getNormalsDistance()
+{
+    return normalsDistance;
+}
+
+osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
+{
+    return editableModelGroup;
 }
 
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
@@ -297,7 +322,6 @@ void OSGWidget::setFile(QString fileName){
             editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
             selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
             convertToTrianglePrimitives(false);
-            //viewer_->getView(0)->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup));
             rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
@@ -327,7 +351,7 @@ void OSGWidget::setView(){
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
-    view->addEventHandler(new PickingHandler(selectedPrimitives,editableModelGroup) );
+    view->addEventHandler(new PickingHandler(this,selectedPrimitives) );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );

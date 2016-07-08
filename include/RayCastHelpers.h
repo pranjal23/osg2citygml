@@ -26,14 +26,8 @@
 #include <utility>
 
 #include "OSGHelpers.h"
+#include "OSGWidget.h"
 
-
-class SelectedTrianglePrimitive
-{
-public:
-    osg::ref_ptr<osg::Drawable> drawable;
-    unsigned int primitiveIndex = -1000;
-};
 
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
 {
@@ -80,7 +74,6 @@ public:
                     for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
                     {
                         SelectedTrianglePrimitive a =(*it).second;
-                        //qDebug() << a.drawable.get() << " == " << geometry->asDrawable();
 
                         if(a.drawable.get() == geometry->asDrawable())
                         {
@@ -121,17 +114,18 @@ private:
 
 class PickingHandler : public osgGA::GUIEventHandler {
 public:
+    OSGWidget* osgwidget;
     std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
-    osg::ref_ptr<osg::Group> editableModelGroup;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
-    PickingHandler(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp,
-                   osg::ref_ptr<osg::Group> eg) {
+    PickingHandler(OSGWidget* widget,
+                   std::multimap<unsigned int,SelectedTrianglePrimitive>* sp)
+    {
+        osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
         selectedPrimitives = sp;
-        editableModelGroup = eg;
         addColor();
     }
 
@@ -153,27 +147,17 @@ public:
         return false;
     }
 
-    void setLocationBasedSegmentation(bool state)
-    {
-        locBased = state;
-    }
-
-    void setNormalsBasedSegmentation(bool state)
-    {
-        normalsBased = state;
-    }
-
 private:
 
     void addColor(){
 
-        if(editableModelGroup == nullptr)
+        if(osgwidget->getEditableModelGroup() == nullptr)
             return;
 
         int i;
-        for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+        for (i = 0; i < osgwidget->getEditableModelGroup().get()->getNumChildren(); i++)
         {
-            osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+            osg::Geode* geode = (osg::Geode*)osgwidget->getEditableModelGroup().get()->getChild(i);
             colorVistor->apply(*geode);
         }
 
@@ -184,18 +168,21 @@ private:
         //qDebug() << "Comparing Normal: x->" << m.x() << ", y->" << m.y() << ", z-> " << m.z();
         //qDebug() << "to: x->" << n.x() << ", y->" << n.y() << ", z-> " << n.z();
 
-        if(m.x() == n.x() && m.y() == n.y() && m.z() == n.z())
+        double weight = osgwidget->getNormalsDistance();
+        if(m.x() - n.x() <= weight
+                && m.y() - n.y() <= weight
+                && m.z() - n.z() <= weight)
             return true;
 
         return false;
     }
 
-    void selectBySegmentation(SelectedTrianglePrimitive* stp, bool locBased, bool normalsBased)
+    void selectBySegmentation(SelectedTrianglePrimitive* stp)
     {
         osg::Geometry* geometry = stp->drawable.get()->asGeometry();
         unsigned int primIndx = stp->primitiveIndex;
 
-        if(normalsBased)
+        if(osgwidget->getNormalsBasedSegmentation())
         {
             //Get the Normal for the triangle primitive
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
@@ -256,7 +243,7 @@ private:
 
         //Find if exists selected map then then remove
         bool unselected = true;
-        if(selectedPrimitives != nullptr && selectedPrimitives->size()>0)
+        if(osgwidget->getEditableModelGroup() != nullptr && selectedPrimitives->size()>0)
         {
             std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator itS;
             for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
@@ -283,7 +270,7 @@ private:
             selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
 
             if(propagate)
-                selectBySegmentation(stp,locBased,normalsBased);
+                selectBySegmentation(stp);
         }
 
         colorVistor->addSelectedPrimitivePtr(selectedPrimitives);
@@ -292,9 +279,6 @@ private:
 
     int m_xMouseCoordAtLastPress;
     int m_yMouseCoordAtLastPress;
-
-    bool locBased;
-    bool normalsBased;
 };
 
 #endif // RAYCASTHELPERS
