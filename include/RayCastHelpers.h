@@ -32,20 +32,12 @@
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
 {
 public:
-    std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
-
     AddEditColoursToGeometryVisitor()
         :osg::NodeVisitor(osg::NodeVisitor::TRAVERSE_ALL_CHILDREN)
-    {
-        selectedPrimitives = nullptr;
-    }
+    {}
 
-    void addSelectedPrimitivePtr(std::multimap<unsigned int,SelectedTrianglePrimitive>* sp)
-    {
-        selectedPrimitives = sp;
-    }
-
-    virtual void apply(osg::Geode& geode)
+    void apply(osg::Geode& geode,
+               std::multimap<unsigned int,SelectedTrianglePrimitive>& selectedPrimitives)
     {
         //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
@@ -69,9 +61,9 @@ public:
                 //qDebug() << "npc ...";
 
 
-                if(selectedPrimitives != nullptr && selectedPrimitives->size()>0)
+                if(selectedPrimitives.size()>0)
                 {
-                    for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+                    for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
                     {
                         SelectedTrianglePrimitive a =(*it).second;
 
@@ -119,29 +111,49 @@ public:
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
-    PickingHandler(OSGWidget* widget,
-                   std::multimap<unsigned int,SelectedTrianglePrimitive>* sp)
+    PickingHandler(OSGWidget* widget)
     {
         osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
-        selectedPrimitives = sp;
+        selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
         addColor();
     }
 
     // EventHandler interface
-    virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*) {
-        if (ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON) {
+    virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*)
+    {
+        if (ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+        {
 
-            if (m_xMouseCoordAtLastPress != ea.getX() || m_yMouseCoordAtLastPress != ea.getY()) {
+            if (m_xMouseCoordAtLastPress != ea.getX() || m_yMouseCoordAtLastPress != ea.getY())
+            {
                 return false;
             }
 
             return selectIntersectedPrimitives(ea, aa);
 
-        } else if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON) {
+        }
+        else if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+        {
             m_xMouseCoordAtLastPress = ea.getX();
             m_yMouseCoordAtLastPress = ea.getY();
+        }
+
+
+        if(ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN)
+        {
+            switch(ea.getKey())
+            {
+            case 'c':
+                qDebug() << " c key pressed";
+                selectedPrimitives->clear();
+                addColor();
+                return true;
+                break;
+            default:
+                return false;
+            }
         }
 
         return false;
@@ -149,7 +161,8 @@ public:
 
 private:
 
-    void addColor(){
+    void addColor()
+    {
 
         if(osgwidget->getEditableModelGroup() == nullptr)
             return;
@@ -158,16 +171,13 @@ private:
         for (i = 0; i < osgwidget->getEditableModelGroup().get()->getNumChildren(); i++)
         {
             osg::Geode* geode = (osg::Geode*)osgwidget->getEditableModelGroup().get()->getChild(i);
-            colorVistor->apply(*geode);
+            colorVistor->apply(*geode,*selectedPrimitives);
         }
 
     }
 
     bool compareNormals(osg::Vec3f m, osg::Vec3f n)
     {
-        //qDebug() << "Comparing Normal: x->" << m.x() << ", y->" << m.y() << ", z-> " << m.z();
-        //qDebug() << "to: x->" << n.x() << ", y->" << n.y() << ", z-> " << n.z();
-
         double weight = osgwidget->getNormalsDistance();
         if(m.x() - n.x() <= weight
                 && m.y() - n.y() <= weight
@@ -201,7 +211,6 @@ private:
 
                     if(compareNormals(selectedNormal,currNormal))
                     {
-                        //qDebug() << "Returned true:";
                         selectPrimitive(stp->drawable.get(),i,false, false);
                     }
                 }
@@ -232,7 +241,7 @@ private:
         return true;
     }
 
-    bool selectPrimitive(osg::Drawable* drawable,
+    void selectPrimitive(osg::Drawable* drawable,
                          unsigned int index,
                          bool propagate,
                          bool onUserAction )
@@ -258,7 +267,7 @@ private:
                 }
             }
 
-            if(!unselected)
+            if(!unselected && onUserAction)
             {
                 selectedPrimitives->erase(itS);
             }
@@ -273,7 +282,6 @@ private:
                 selectBySegmentation(stp);
         }
 
-        colorVistor->addSelectedPrimitivePtr(selectedPrimitives);
         addColor();
     }
 

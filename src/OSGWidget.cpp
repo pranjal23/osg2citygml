@@ -3,7 +3,6 @@
 #include "OSGHelpers.h"
 #include "RayCastHelpers.h"
 
-std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -78,6 +77,11 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
     {
         this->renderEditable();
         return;
+    }
+
+    if( event->key() == Qt::Key_W )
+    {
+        //HANDLED IN PICKING HANDLER... DO NOT CHANGE
     }
 
     this->getEventQueue()->keyPress( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
@@ -320,7 +324,6 @@ void OSGWidget::setFile(QString fileName){
             osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
 
             editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
-            selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
             convertToTrianglePrimitives(false);
             rootSceneGroup->addChild(editableModelGroup.get());
         }
@@ -351,7 +354,7 @@ void OSGWidget::setView(){
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
-    view->addEventHandler(new PickingHandler(this,selectedPrimitives) );
+    view->addEventHandler(new PickingHandler(this) );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );
