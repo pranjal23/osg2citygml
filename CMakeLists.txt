@@ -24,6 +24,7 @@ SET( SOURCES
   src/OSG2CityGML.cpp
   src/OrientationConverter.cpp
   src/OSGConv.cpp
+  src/CityGMLWriter.cpp
 )
 
 SET( HEADERS
@@ -33,6 +34,7 @@ SET( HEADERS
   include/OSGConv.h
   include/OSGHelpers.h
   include/RayCastHelpers.h
+  include/CityGMLWriter.h
 )
 
 FILE(

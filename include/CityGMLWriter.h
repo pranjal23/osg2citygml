@@ -1,0 +1,4 @@
+#ifndef CITYGMLWRITER
+#define CITYGMLWRITER
+
+#endif // CITYGMLWRITER

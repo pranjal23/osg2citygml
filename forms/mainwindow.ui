@@ -503,6 +503,7 @@
    </property>
    <property name="font">
     <font>
+     <family>Arial Narrow</family>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -511,7 +512,7 @@
     <bool>true</bool>
    </property>
    <property name="title">
-    <string>Transforms</string>
+    <string>Controls</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -522,427 +523,663 @@
    <property name="checkable">
     <bool>false</bool>
    </property>
-   <widget class="QGroupBox" name="groupBox_3">
+   <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>450</y>
-      <width>251</width>
-      <height>91</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Segmentation - Normals</string>
-    </property>
-    <widget class="QPushButton" name="multilightsBtn">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>111</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Normals</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QDoubleSpinBox" name="normalDistanceSB">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>50</y>
-       <width>67</width>
-       <height>24</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>160</x>
-       <y>30</y>
-       <width>59</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Weight</string>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_2">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>390</y>
-      <width>251</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Rendering</string>
-    </property>
-    <widget class="QRadioButton" name="flatShadingRb">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>30</y>
-       <width>100</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Original</string>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="smoothShadingRb">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>30</y>
-       <width>91</width>
-       <height>20</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Editable</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox_4">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>540</y>
-      <width>251</width>
-      <height>111</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-    <property name="title">
-     <string>Segmentation - Shape Analysis</string>
-    </property>
-    <widget class="QPushButton" name="boundBoxBtn">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>70</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Cylindrical</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="groundBtn">
-     <property name="geometry">
-      <rect>
-       <x>130</x>
-       <y>70</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Spherical</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="enableLightBtn">
-     <property name="geometry">
-      <rect>
-       <x>70</x>
-       <y>30</y>
-       <width>113</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>0</red>
-           <green>0</green>
-           <blue>0</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="text">
-      <string>Location</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-     <property name="autoDefault">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QGroupBox" name="groupBox">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
+      <x>0</x>
       <y>20</y>
-      <width>251</width>
-      <height>361</height>
+      <width>301</width>
+      <height>651</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
-    <property name="title">
-     <string>Actions</string>
-    </property>
-    <widget class="QCommandLinkButton" name="commandLinkButton">
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>30</y>
-       <width>193</width>
-       <height>41</height>
-      </rect>
-     </property>
-     <property name="palette">
-      <palette>
-       <active>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </active>
-       <inactive>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="255">
-           <red>255</red>
-           <green>255</green>
-           <blue>255</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </inactive>
-       <disabled>
-        <colorrole role="ButtonText">
-         <brush brushstyle="SolidPattern">
-          <color alpha="0">
-           <red>75</red>
-           <green>74</green>
-           <blue>77</blue>
-          </color>
-         </brush>
-        </colorrole>
-       </disabled>
-      </palette>
-     </property>
-     <property name="font">
-      <font>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Open</string>
-     </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>General</string>
+     </attribute>
+     <widget class="QGroupBox" name="groupBox_2">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>150</y>
+        <width>251</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial Narrow</family>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Rendering</string>
+      </property>
+      <widget class="QRadioButton" name="flatShadingRb">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Original</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="smoothShadingRb">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>30</y>
+         <width>91</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Editable</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>0</y>
+        <width>251</width>
+        <height>131</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial Narrow</family>
+        <pointsize>13</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Actions</string>
+      </property>
+      <widget class="QCommandLinkButton" name="commandLinkButton">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>30</y>
+         <width>193</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="0">
+             <red>75</red>
+             <green>74</green>
+             <blue>77</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Open</string>
+       </property>
+      </widget>
+      <widget class="QCommandLinkButton" name="commandLinkButton_2">
+       <property name="geometry">
+        <rect>
+         <x>30</x>
+         <y>80</y>
+         <width>193</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="palette">
+        <palette>
+         <active>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </active>
+         <inactive>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="255">
+             <red>255</red>
+             <green>255</green>
+             <blue>255</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </inactive>
+         <disabled>
+          <colorrole role="ButtonText">
+           <brush brushstyle="SolidPattern">
+            <color alpha="0">
+             <red>75</red>
+             <green>74</green>
+             <blue>77</blue>
+            </color>
+           </brush>
+          </colorrole>
+         </disabled>
+        </palette>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Save to CityGML</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_5">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>290</y>
+        <width>261</width>
+        <height>281</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial Narrow</family>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="title">
+       <string>Segmentation</string>
+      </property>
+      <widget class="QTabWidget" name="tabWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>30</y>
+         <width>261</width>
+         <height>251</height>
+        </rect>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <widget class="QWidget" name="tab_3">
+        <attribute name="title">
+         <string>Normal</string>
+        </attribute>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>261</width>
+           <height>231</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <widget class="QPushButton" name="multilightsBtn">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>40</y>
+            <width>111</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>75</red>
+                <green>74</green>
+                <blue>77</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Normals</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QDoubleSpinBox" name="normalDistanceSB">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>40</y>
+            <width>67</width>
+            <height>24</height>
+           </rect>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>20</y>
+            <width>59</width>
+            <height>16</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Weight</string>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tab_4">
+        <attribute name="title">
+         <string>Shape</string>
+        </attribute>
+        <widget class="QGroupBox" name="groupBox_4">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>261</width>
+           <height>231</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="title">
+          <string/>
+         </property>
+         <widget class="QPushButton" name="groundBtn">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>180</y>
+            <width>113</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>75</red>
+                <green>74</green>
+                <blue>77</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Spherical</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="enableLightBtn">
+          <property name="geometry">
+           <rect>
+            <x>70</x>
+            <y>20</y>
+            <width>113</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>75</red>
+                <green>74</green>
+                <blue>77</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>ON</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="boundBoxBtn">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>130</y>
+            <width>113</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>75</red>
+                <green>74</green>
+                <blue>77</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Cylindrical</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="boundBoxBtn_2">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>113</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="255">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="ButtonText">
+              <brush brushstyle="SolidPattern">
+               <color alpha="0">
+                <red>75</red>
+                <green>74</green>
+                <blue>77</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="text">
+           <string>Plain</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </widget>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="groupBox_6">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>220</y>
+        <width>251</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial Narrow</family>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="title">
+       <string>Selection</string>
+      </property>
+      <widget class="QRadioButton" name="flatShadingRb_2">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>30</y>
+         <width>100</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="smoothShadingRb_2">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>30</y>
+         <width>91</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Deselect</string>
+       </property>
+       <property name="checked">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>CityObject</string>
+     </attribute>
     </widget>
    </widget>
   </widget>
