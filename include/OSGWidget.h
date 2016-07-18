@@ -48,6 +48,7 @@ public:
 
   virtual ~OSGWidget();
   void setFile(QString fileName);
+  void saveObject2File(QString fileName);
   void setView();
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives(bool verbose);

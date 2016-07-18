@@ -35,7 +35,7 @@ void MainWindow::open(){
     QString filename = QFileDialog::getOpenFileName(
                 this,
                 tr("Open 3D Mesh"),
-                QDir::currentPath(),
+                QDir::homePath(),
                 tr("3D Mesh (*.obj *.osg *.ive)") );
     if( !filename.isEmpty() )
     {
@@ -43,9 +43,31 @@ void MainWindow::open(){
     }
 }
 
+void MainWindow::save(){
+    QString filename = QFileDialog::getSaveFileName(
+                this,
+                tr("Save City Object"),
+                QDir::homePath(),
+                tr("CityGML (*.gml)") );
+    if( !filename.isEmpty() )
+    {
+        if(!filename.endsWith(".gml"))
+        {
+            filename.append(".gml");
+        }
+
+        ui->osgWidget->saveObject2File(filename);
+    }
+}
+
 void MainWindow::on_commandLinkButton_clicked()
 {
     open();
+}
+
+void MainWindow::on_commandLinkButton_2_clicked()
+{
+     save();
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -90,3 +112,4 @@ void MainWindow::on_normalDistanceSB_valueChanged(double value)
 {
     ui->osgWidget->setNormalsDistance(value);
 }
+

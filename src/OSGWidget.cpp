@@ -2,6 +2,7 @@
 #include "OSGConv.h"
 #include "OSGHelpers.h"
 #include "RayCastHelpers.h"
+#include "CityGMLWriter.h"
 
 
 OSGWidget::OSGWidget( QWidget* parent,
@@ -330,6 +331,12 @@ void OSGWidget::setFile(QString fileName){
     }
 
     setView();
+}
+
+void OSGWidget::saveObject2File(QString fileName)
+{
+    CityGMLWriter writer(fileName);
+    writer.write(editableModelGroup.get());
 }
 
 void OSGWidget::setView(){
