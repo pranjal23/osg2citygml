@@ -1,5 +1,5 @@
-#ifndef OSGHELPERS
-#define OSGHELPERS
+#ifndef OSGHELPERS_H__
+#define OSGHELPERS_H__
 
 #include <QDebug>
 

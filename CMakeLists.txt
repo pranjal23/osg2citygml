@@ -35,6 +35,7 @@ SET( HEADERS
   include/OSGHelpers.h
   include/RayCastHelpers.h
   include/CityGMLWriter.h
+  include/CityGMLHelper.h
 )
 
 FILE(

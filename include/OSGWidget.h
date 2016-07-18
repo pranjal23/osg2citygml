@@ -82,9 +82,11 @@ private:
   virtual void onHome();
   virtual void onResize( int width, int height );
 
-  bool locationBasedSegmentation = true;
-  bool normalsBasedSegmentation = true;
+  bool locationBasedSegmentation = false;
+  bool normalsBasedSegmentation = false;
   double normalsDistance = 0.0;
+
+  bool selectMode = true;
 
   osgGA::EventQueue* getEventQueue() const;
 

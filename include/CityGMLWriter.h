@@ -1,5 +1,5 @@
-#ifndef CITYGMLWRITER
-#define CITYGMLWRITER
+#ifndef CITYGMLWRITER_H__
+#define CITYGMLWRITER_H__
 
 #include <QString>
 #include <QXmlStreamWriter>
@@ -42,4 +42,4 @@ class CityGMLWriter {
 
 };
 
-#endif // CITYGMLWRITER
+#endif // CITYGMLWRITER_H__

@@ -1,5 +1,5 @@
-#ifndef RAYCASTHELPERS
-#define RAYCASTHELPERS
+#ifndef RAYCASTHELPERS_H__
+#define RAYCASTHELPERS_H__
 
 #include <QDebug>
 
@@ -289,5 +289,5 @@ private:
     int m_yMouseCoordAtLastPress;
 };
 
-#endif // RAYCASTHELPERS
+#endif // RAYCASTHELPERS_H__
 

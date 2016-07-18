@@ -113,3 +113,7 @@ void MainWindow::on_normalDistanceSB_valueChanged(double value)
     ui->osgWidget->setNormalsDistance(value);
 }
 
+void MainWindow::on_selectRB_clicked()
+{
+
+}

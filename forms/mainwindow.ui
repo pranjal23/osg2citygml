@@ -492,7 +492,7 @@
      <x>10</x>
      <y>10</y>
      <width>301</width>
-     <height>671</height>
+     <height>681</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -836,7 +836,7 @@
            <bool>true</bool>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
          </widget>
          <widget class="QDoubleSpinBox" name="normalDistanceSB">
@@ -890,6 +890,9 @@
           <string/>
          </property>
          <widget class="QPushButton" name="groundBtn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -998,13 +1001,16 @@
            <bool>true</bool>
           </property>
           <property name="checked">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="autoDefault">
            <bool>true</bool>
           </property>
          </widget>
          <widget class="QPushButton" name="boundBoxBtn">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -1061,6 +1067,9 @@
           </property>
          </widget>
          <widget class="QPushButton" name="boundBoxBtn_2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -1142,7 +1151,7 @@
       <property name="title">
        <string>Selection</string>
       </property>
-      <widget class="QRadioButton" name="flatShadingRb_2">
+      <widget class="QRadioButton" name="selectRB">
        <property name="geometry">
         <rect>
          <x>20</x>
