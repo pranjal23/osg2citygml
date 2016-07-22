@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED( VERSION 2.8.11 )
 PROJECT( OSG2CityGML )
 
-SET( CMAKE_CXX_FLAGS "-std=c++11 -Wall -pedantic -Wno-long-long" )
+SET( CMAKE_CXX_FLAGS "-std=c++11 -Wall -pedantic" )
 
 SET( CMAKE_INCLUDE_CURRENT_DIR ON )
 SET( CMAKE_AUTOMOC ON )
