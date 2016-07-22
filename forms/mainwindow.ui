@@ -535,7 +535,7 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="genTab">
      <attribute name="title">
       <string>General</string>
      </attribute>
@@ -1185,10 +1185,33 @@
       </widget>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="cityGMLTab">
      <attribute name="title">
-      <string>CityObject</string>
+      <string>CityGML</string>
      </attribute>
+     <widget class="QComboBox" name="appearanceCB">
+      <property name="geometry">
+       <rect>
+        <x>100</x>
+        <y>20</y>
+        <width>181</width>
+        <height>26</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>20</y>
+        <width>81</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Appearance</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>

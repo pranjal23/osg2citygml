@@ -7,6 +7,7 @@
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QtWidgets>
+#include "SchemaValidator.h"
 
 MainWindow::MainWindow( QWidget* parent)
     : QMainWindow( parent)
@@ -18,6 +19,10 @@ MainWindow::MainWindow( QWidget* parent)
     //register for keyevents
     this->setFocusPolicy( Qt::StrongFocus );
     this->setMouseTracking(true);
+
+    //TEST TBR
+    SchemaValidator schemaV;
+    schemaV.validate();
 }
 
 MainWindow::~MainWindow()
