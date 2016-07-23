@@ -361,7 +361,7 @@ osg::ref_ptr<osg::Node> readModel( int argc, char **argv )
 
     osg::Timer_t startTick = osg::Timer::instance()->tick();
 
-    osg::ref_ptr<osg::Node> root = osgDB::readRefNodeFiles(fileNames);
+    osg::ref_ptr<osg::Node> root = osgDB::readNodeFiles(fileNames);
 
     if (root.valid())
     {
