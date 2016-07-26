@@ -1,5 +1,4 @@
 #include "OSGWidget.h"
-#include "OSGConv.h"
 #include "OSGHelpers.h"
 #include "RayCastHelpers.h"
 #include "CityGMLWriter.h"
@@ -300,17 +299,7 @@ void OSGWidget::setFile(QString fileName){
 
     if(!fileName.isEmpty())
     {
-
-        const char* src = fileName.toUtf8().constData();
-
-        char dest[100];
-        memset(dest, '\0', sizeof(dest));
-        strcpy(dest, src);
-
-        char* args[10];
-        args[0] = " ";
-        args[1] = dest;
-        originalModelGroup = readModel(2, args);
+        originalModelGroup = osgDB::readRefNodeFile(fileName.toStdString());
 
         if(originalModelGroup==NULL)
         {

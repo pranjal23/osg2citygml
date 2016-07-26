@@ -283,7 +283,6 @@ private:
 };
 
 
-/*
 osg::Geode* getTriangleGeode()
 {
     osg::Geode* pyramidGeode = new osg::Geode();
@@ -348,7 +347,6 @@ osg::Geode* getTriangleGeode()
 
     return pyramidGeode;
 }
-*/
 
 #endif // OSGHELPERS
 
