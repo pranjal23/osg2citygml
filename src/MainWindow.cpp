@@ -21,8 +21,8 @@ MainWindow::MainWindow( QWidget* parent)
     this->setMouseTracking(true);
 
     //TEST TBR
-   // SchemaValidator schemaV;
-   // schemaV.validate();
+    SchemaValidator schemaV;
+    schemaV.validate();
 }
 
 MainWindow::~MainWindow()
