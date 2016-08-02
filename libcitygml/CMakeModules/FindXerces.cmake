@@ -8,10 +8,14 @@
 
 IF (XERCESC_INCLUDE AND XERCESC_LIBRARY)
 # in cache already
-SET(XERCESC_FIND_QUIETLY TRUE)
+SET(XERCESC_FIND_QUIETLY FALSE)
 ENDIF (XERCESC_INCLUDE AND XERCESC_LIBRARY)
 
-OPTION(XERCESC_STATIC "Set to ON to link your project with static library (instead of DLL)." OFF)
+IF(APPLE)
+  OPTION(XERCESC_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+ELSE(APPLE)
+  OPTION(XERCESC_STATIC "Set to ON to link your project with static library (instead of DLL)." OFF)
+ENDIF(APPLE)
 
 IF (NOT  ${XERCESC_WAS_STATIC} STREQUAL ${XERCESC_STATIC})
 UNSET(XERCESC_LIBRARY CACHE)
