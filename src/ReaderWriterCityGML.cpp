@@ -1,5 +1,8 @@
 #include "ReaderWriterCityGML.h"
 
+// Register with Registry to instantiate the above reader/writer.
+REGISTER_OSGPLUGIN( citygml, ReaderWriterCityGML )
+
 // Read CityGML file using libcitygml and generate the OSG scenegraph
 osgDB::ReaderWriter::ReadResult ReaderWriterCityGML::readNode( const std::string& file, const osgDB::ReaderWriter::Options* options ) const
 {

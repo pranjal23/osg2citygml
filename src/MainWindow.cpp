@@ -3,6 +3,10 @@
 
 #include "OSGWidget.h"
 
+#include <osgDB/Registry>
+#include <osgDB/ReadFile>
+#include <osg/Node>
+
 #include <QDebug>
 #include <QMdiSubWindow>
 #include <QMenuBar>
@@ -20,9 +24,11 @@ MainWindow::MainWindow( QWidget* parent)
     this->setFocusPolicy( Qt::StrongFocus );
     this->setMouseTracking(true);
 
+    osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
+
     //TEST TBR
-    SchemaValidator schemaV;
-    schemaV.validate();
+    //SchemaValidator schemaV;
+    //schemaV.validate();
 }
 
 MainWindow::~MainWindow()
@@ -41,7 +47,7 @@ void MainWindow::open(){
                 this,
                 tr("Open 3D Mesh"),
                 QDir::homePath(),
-                tr("3D Mesh (*.obj *.osg *.ive)") );
+                tr("3D Mesh (*.obj *.osg *.ive *.gml)") );
     if( !filename.isEmpty() )
     {
         onCreateView(filename);

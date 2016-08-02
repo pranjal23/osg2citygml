@@ -299,12 +299,23 @@ void OSGWidget::setFile(QString fileName){
 
     if(!fileName.isEmpty())
     {
+        osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
+
+        std::cout << "Loading file: " << fileName.toStdString() << std::endl;
+        osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(fileName.toStdString(), options);
+        if (node == nullptr) {
+            std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
+            return;
+        }
+        originalModelGroup = node;
+        /*
         originalModelGroup = osgDB::readRefNodeFile(fileName.toStdString());
 
         if(originalModelGroup==NULL)
         {
             return;
         }
+        */
 
         const osg::Group *origGroup = originalModelGroup.get()->asGroup();
 
@@ -314,7 +325,10 @@ void OSGWidget::setFile(QString fileName){
             osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
 
             editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
-            convertToTrianglePrimitives(false);
+            if(!fileName.endsWith(".gml"))
+            {
+                convertToTrianglePrimitives(false);
+            }
             rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
