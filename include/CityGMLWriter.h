@@ -21,6 +21,7 @@
 #include <osg/Depth>
 #include <osg/LightModel>
 #include <osg/ValueObject>
+#include <osg/Notify>
 
 #include <osgDB/Registry>
 #include <osgDB/ReadFile>
@@ -30,7 +31,15 @@
 
 #include <osgUtil/SmoothingVisitor>
 
-#include <osg/Notify>
+#include <citygml/citygml.h>
+#include <citygml/envelope.h>
+#include <citygml/citymodel.h>
+#include <citygml/cityobject.h>
+#include <citygml/geometry.h>
+#include <citygml/polygon.h>
+#include <citygml/material.h>
+#include <citygml/texture.h>
+#include <citygml/citygmllogger.h>
 
 class CityGMLWriter {
     public :
