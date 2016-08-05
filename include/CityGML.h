@@ -37,6 +37,7 @@ class CityGML {
 
     QString namespace_texturedsurface[2] = {"tex", "http://www.opengis.net/citygml/texturedsurface/2.0"};
 
+
 };
 
 class Appearance {

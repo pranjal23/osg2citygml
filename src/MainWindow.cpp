@@ -26,6 +26,9 @@ MainWindow::MainWindow( QWidget* parent)
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
 
+    this->ui->selection_groupbox->setVisible(this->ui->selectionMenuCB->isChecked());
+    this->ui->controlsGroup->setVisible(this->ui->controlMenuCB->isChecked());
+
     //TEST TBR
     //SchemaValidator schemaV;
     //schemaV.validate();
@@ -90,8 +93,8 @@ void MainWindow::keyPressEvent( QKeyEvent* event )
 {
     if( event->key() == Qt::Key_G )
     {
-        bool visiblity = this->ui->controlsGroup->isVisible();
-        this->ui->controlsGroup->setVisible(!visiblity);
+        bool visiblity = this->ui->main_frame->isVisible();
+        this->ui->main_frame->setVisible(!visiblity);
         return;
     }
 
@@ -124,7 +127,20 @@ void MainWindow::on_normalDistanceSB_valueChanged(double value)
     ui->osgWidget->setNormalsDistance(value);
 }
 
-void MainWindow::on_selectRB_clicked()
+void MainWindow::on_selectionMenuCB_toggled(bool checked)
 {
+    this->ui->selection_groupbox->setVisible(checked);
+}
 
+void MainWindow::on_controlMenuCB_toggled(bool checked)
+{
+    this->ui->controlsGroup->setVisible(checked);
+}
+
+void MainWindow::on_flatShadingRb_toggled(bool checked)
+{
+    if(checked)
+        this->ui->osgWidget->renderOriginal();
+    else
+        this->ui->osgWidget->renderEditable();
 }
