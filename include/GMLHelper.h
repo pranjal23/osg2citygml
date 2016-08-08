@@ -1,6 +1,7 @@
-#ifndef GML_H__
-#define GML_H__
+#ifndef GMLHELPER_H__
+#define GMLHELPER_H__
 
+#include <QString>
 
 class GML {
 
@@ -58,4 +59,4 @@ class GML {
 
 };
 
-#endif
+#endif //GMLHELPER_H__

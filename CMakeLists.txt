@@ -50,8 +50,8 @@ SET( HEADERS
   include/OSGHelpers.h
   include/RayCastHelpers.h
   include/CityGMLWriter.h
-  include/CityGML.h
-  include/GML.h
+  include/CityGMLHelper.h
+  include/GMLHelper.h
   include/SchemaValidator.h
   include/ReaderWriterCityGML.h
 )
