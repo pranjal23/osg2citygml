@@ -7,22 +7,22 @@ CityGMLWriter::CityGMLWriter(QString fileName)
     this->fileName = fileName;
 }
 
-void writeDescription(QXmlStreamWriter& xmlWriter)
+void CityGMLWriter::writeDescription(QXmlStreamWriter& xmlWriter)
 {
     xmlWriter.writeStartElement(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_description());
     xmlWriter.writeCharacters(CityGMLNamespace::Application_Name());
     xmlWriter.writeEndElement();
 }
 
-void CityGMLWriter::write(osg::Node* node)
+void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
 {
-    QFile file(fileName);
-    file.open(QIODevice::WriteOnly);
+    xmlWriter.writeStartElement(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_name());
+    xmlWriter.writeCharacters(this->fileName);
+    xmlWriter.writeEndElement();
+}
 
-    //Create CityGML object from OSG Node
-    QXmlStreamWriter xmlWriter(&file);
-    xmlWriter.setAutoFormatting(true);
-
+void CityGMLWriter::writeNameSpaces(QXmlStreamWriter& xmlWriter)
+{
     xmlWriter.writeDefaultNamespace( CityGMLNamespace::namespace_citygml() );
 
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_gml_loc(), CityGMLNamespace::namespace_gml() );
@@ -45,13 +45,25 @@ void CityGMLWriter::write(osg::Node* node)
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_tunnel_loc(), CityGMLNamespace::namespace_tunnel() );
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_vegetation_loc(), CityGMLNamespace::namespace_vegetation() );
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_waterBody_loc(), CityGMLNamespace::namespace_waterBody() );
+}
 
+void CityGMLWriter::write(osg::Node* node)
+{
+    QFile file(fileName);
+    file.open(QIODevice::WriteOnly);
+
+    //Create CityGML object from OSG Node
+    QXmlStreamWriter xmlWriter(&file);
+    xmlWriter.setAutoFormatting(true);
+
+    writeNameSpaces(xmlWriter);
 
     xmlWriter.writeStartDocument();
     xmlWriter.writeStartElement(CityGMLBaseNamespace::PropertyName_FEATURE_CityModel());//CityModel
     xmlWriter.writeAttribute(CityGMLNamespace::namespace_xsi_loc(),CityGMLNamespace::ns_xsi_schema_location() ,CityGMLNamespace::schema_locations());
 
     writeDescription(xmlWriter);
+    writeName(xmlWriter);
 
     xmlWriter.writeEndElement();//CityModel
 

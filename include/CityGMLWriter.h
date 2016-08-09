@@ -48,6 +48,9 @@ class CityGMLWriter {
 
     private :
         QString fileName;
+        void writeDescription(QXmlStreamWriter& xmlWriter);
+        void writeName(QXmlStreamWriter& xmlWriter);
+        void writeNameSpaces(QXmlStreamWriter& xmlWriter);
 
 };
 
