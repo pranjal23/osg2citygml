@@ -11,6 +11,7 @@
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/SmoothingVisitor>
 
+
 const unsigned int FACE_NORMAL_INDEX = 0;
 
 void printPrimSet(osg::PrimitiveSet* prset)

@@ -10,38 +10,94 @@ class CityGMLNamespace {
      */
 
 public:
-    static QString colon = ":";
+    const static QString Application_Name(void){return "OSG2CITYGML";}
 
-    static QString namespace_citygml = "http://www.opengis.net/citygml/2.0";
+    static const QString namespace_citygml(void){return "http://www.opengis.net/citygml/2.0";}
 
-    static QString namespace_appearance[2] = {"app", "http://www.opengis.net/citygml/appearance/2.0"};
+    static const QString namespace_gml(void){return "gml";}
+    static const QString namespace_gml_loc(void){return "http://www.opengis.net/gml";}
 
-    static QString namespace_bridge[2] = {"brdg", "http://www.opengis.net/citygml/bridge/2.0"};
+    static const QString namespace_xsi(void){return "xsi";}
+    static const QString namespace_xsi_loc(void){return "http://www.w3.org/2001/XMLSchema-instance";}
 
-    static QString namespace_building[2] = {"bldg", "http://www.opengis.net/citygml/building/2.0"};
 
-    static QString namespace_citygmlbase[2] = {"core", "http://www.opengis.net/citygml/citygmlbase/2.0"};
+    static const QString namespace_xlink(void){return "xlink";}
+    static const QString namespace_xlink_loc(void){return "http://www.w3.org/1999/xlink"; }
 
-    static QString namespace_cityfurniture[2] = {"frn", "http://www.opengis.net/citygml/cityfurniture/2.0"};
+    static const QString namespace_smil20lang(void){return "smil20lang";}
+    static const QString namespace_smil20lang_loc(void){return "http://www.w3.org/2001/SMIL20/Language";}
 
-    static QString namespace_cityobjectGroup[2] ={"grp", "http://www.opengis.net/citygml/cityobjectgroup/2.0"};
+    static const QString namespace_smil20(void){return "smil20";}
+    static const QString namespace_smil20_loc(void){return "http://www.w3.org/2001/SMIL20/";}
 
-    static QString namespace_generics[2] = {"gen", "http://www.opengis.net/citygml/generics/2.0"};
+    static const QString namespace_xAL(void){return "xAL";}
+    static const QString namespace_xAL_loc(void){return "urn:oasis:names:tc:ciq:xsdschema:xAL:2.0";}
 
-    static QString namespace_landuse[2] = {"luse", "http://www.opengis.net/citygml/landuse/2.0"};
+    static const QString namespace_appearance(void){return "app";}
+    static const QString namespace_appearance_loc(void){return "http://www.opengis.net/citygml/appearance/2.0";}
 
-    static QString namespace_relief[2] = {"dem", "http://www.opengis.net/citygml/relief/2.0"};
+    static const QString namespace_bridge(void){return "brdg";}
+    static const QString namespace_bridge_loc(void){return "http://www.opengis.net/citygml/bridge/2.0";}
 
-    static QString namespace_transportation[2] = {"tran" , "http://www.opengis.net/citygml/transportation/2.0"};
+    static const QString namespace_building(void){return "bldg";}
+    static const QString namespace_building_loc(void){return "http://www.opengis.net/citygml/building/2.0";}
 
-    static QString namespace_tunnel[2] = {"tun", "http://www.opengis.net/citygml/tunnel/2.0"};
+    static const QString namespace_citygmlbase(void){return "core";}
+    const static QString namespace_citygmlbase_loc(void){return "http://www.opengis.net/citygml/citygmlbase/2.0";}
 
-    static QString namespace_vegetation[2] = {"veg", "http://www.opengis.net/citygml/vegetation/2.0"};
+    const static QString namespace_cityfurniture(void){return "frn";}
+    const static QString namespace_cityfurniture_loc(void){return "http://www.opengis.net/citygml/cityfurniture/2.0";}
 
-    static QString namespace_waterBody[2] = {"wtr", "http://www.opengis.net/citygml/waterbody/2.0"};
+    const static QString namespace_cityobjectGroup(void){return "grp";}
+    const static QString namespace_cityobjectGroup_loc(void){return "http://www.opengis.net/citygml/cityobjectgroup/2.0";}
 
-    static QString namespace_texturedsurface[2] = {"tex", "http://www.opengis.net/citygml/texturedsurface/2.0"};
+    const static QString namespace_generics(void){return "gen";}
+    const static QString namespace_generics_loc(void){return "http://www.opengis.net/citygml/generics/2.0";}
 
+    const static QString namespace_landuse(void){return "luse";}
+    const static QString namespace_landuse_loc(void){return "http://www.opengis.net/citygml/landuse/2.0";}
+
+    const static QString namespace_relief(void){return "dem";}
+    const static QString namespace_relief_loc(void){return "http://www.opengis.net/citygml/relief/2.0";}
+
+    const static QString namespace_transportation(void){return "tran";}
+    const static QString namespace_transportation_loc(void){return "http://www.opengis.net/citygml/transportation/2.0";}
+
+    const static QString namespace_tunnel(void){return "tun";}
+    const static QString namespace_tunnel_loc(void){return "http://www.opengis.net/citygml/tunnel/2.0";}
+
+    const static QString namespace_vegetation(void){return "veg";}
+    const static QString namespace_vegetation_loc(void){return "http://www.opengis.net/citygml/vegetation/2.0";}
+
+    const static QString namespace_waterBody(void){return "wtr";}
+    const static QString namespace_waterBody_loc(void){return "http://www.opengis.net/citygml/waterbody/2.0";}
+
+    const static QString namespace_texturedsurface(void){return "tex";}
+    const static QString namespace_texturedsurface_loc(void){return "http://www.opengis.net/citygml/texturedsurface/2.0";}
+
+    const static QString ns_xsi_schema_location(void) {return "schemaLocation";}
+    const static QString schema_locations(void){return "http://www.opengis.net/citygml/relief/1.0 "
+                                      "http://schemas.opengis.net/citygml/relief/1.0/relief.xsd "
+                                      "http://www.opengis.net/citygml/landuse/1.0 "
+                                      "http://schemas.opengis.net/citygml/landuse/1.0/landUse.xsd "
+                                      "http://www.opengis.net/citygml/building/1.0 "
+                                      "http://schemas.opengis.net/citygml/building/1.0/building.xsd "
+                                      "http://www.opengis.net/citygml/cityobjectgroup/1.0 "
+                                      "http://schemas.opengis.net/citygml/cityobjectgroup/1.0/cityObjectGroup.xsd "
+                                      "http://www.opengis.net/citygml/cityfurniture/1.0 "
+                                      "http://schemas.opengis.net/citygml/cityfurniture/1.0/cityFurniture.xsd "
+                                      "http://www.opengis.net/citygml/appearance/1.0 "
+                                      "http://schemas.opengis.net/citygml/appearance/1.0/appearance.xsd "
+                                      "http://www.opengis.net/citygml/texturedsurface/1.0 "
+                                      "http://schemas.opengis.net/citygml/texturedsurface/1.0/texturedSurface.xsd  "
+                                      "http://www.opengis.net/citygml/transportation/1.0 "
+                                      "http://schemas.opengis.net/citygml/transportation/1.0/transportation.xsd "
+                                      "http://www.opengis.net/citygml/waterbody/1.0 "
+                                      "http://schemas.opengis.net/citygml/waterbody/1.0/waterBody.xsd "
+                                      "http://www.opengis.net/citygml/vegetation/1.0 "
+                                      "http://schemas.opengis.net/citygml/vegetation/1.0/vegetation.xsd "
+                                      "http://www.opengis.net/citygml/generics/1.0 "
+                                      "http://schemas.opengis.net/citygml/generics/1.0/generics.xsd";}
 
 };
 
@@ -49,20 +105,11 @@ class CityGMLNameSpaceObject{
 public:
     QString* nameSpaceId;
 
-    CityGMLBaseTypedObject(QString* namespaceid)
+    CityGMLNameSpaceObject(QString* namespaceid)
     {
         nameSpaceId = namespaceid;
     }
 };
-
-static bool isCityGMLNameSpaceObjectEqual(const CityGMLNameSpaceObject& s1, const CityGMLNameSpaceObject& s2)
-{
-    /**
-     * @brief
-     * Returns 0 if the string Ids are equal
-     * */
-    return QString::compare(s1,s2,Qt::CaseSensitivity::CaseSensitive)==0;
-}
 
 class AppearanceNamespace {
     /**
@@ -87,8 +134,18 @@ class BuildingNamespace {
       * Schema Location = "CityGML/building.xsd"
       * Class representing the CityGML bldg namespace
       */
-
-
+public:
+    const static QString PropertyName_FEATURE_Building(void){return "Building";}
+    const static QString PropertyName_FEATURE_BuildingPart(void){return "BuildingPart";}
+    const static QString PropertyName_FEATURE_RoofSurface(void){return "RoofSurface";}
+    const static QString PropertyName_FEATURE_WallSurface(void){return "WallSurface";}
+    const static QString PropertyName_FEATURE_GroundSurface(void){return "GroundSurface";}
+    const static QString PropertyName_FEATURE_ClosureSurface(void){return "ClosureSurface";}
+    const static QString PropertyName_FEATURE_CeilingSurface(void){return "CeilingSurface";}
+    const static QString PropertyName_FEATURE_InteriorWallSurface(void){return "InteriorWallSurface";}
+    const static QString PropertyName_FEATURE_FloorSurface(void){return "FloorSurface";}
+    const static QString PropertyName_FEATURE_OuterCeilingSurface(void){return "OuterCeilingSurface";}
+    const static QString PropertyName_FEATURE_OuterFloorSurface(void){return "OuterFloorSurface";}
 };
 
 class CityGMLBaseNamespace {
@@ -97,22 +154,11 @@ class CityGMLBaseNamespace {
       * Schema Location = "CityGML/cityGMLBase.xsd";
       * Class representing the CityGML core namespace
       */
-
-
-
-    static QString PropertyName_FEATURE_CityModel = "CityModel";
-    static QString PropertyName_FEATURE_CityObjectMember = "cityObjectMember";
-    static QString PropertyName_FEATURE_Address = "Address";
-    static QString PropertyName_OBJECT_ImplicitGeometry = "ImplicitGeometry";
-
-    QString ns_core_CityModel = CityGMLNamespace::namespace_citygmlbase[0]
-            + CityGMLNamespace::colon
-            + PropertyName_FEATURE_CityModel;
-
-    QString ns_core_CityModel = CityGMLNamespace::namespace_citygmlbase[0]
-            + CityGMLNamespace::colon
-            + PropertyName_FEATURE_CityObjectMember;
-
+public:
+    const static QString PropertyName_FEATURE_CityModel(void){return "CityModel";}
+    const static QString PropertyName_FEATURE_CityObjectMember(void){return "cityObjectMember";}
+    const static QString PropertyName_FEATURE_Address(void){return "Address";}
+    const static QString PropertyName_OBJECT_ImplicitGeometry(void){return "ImplicitGeometry";}
 };
 
 class CityFurnitureNamespace {
