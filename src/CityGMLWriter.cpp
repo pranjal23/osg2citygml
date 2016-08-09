@@ -1,23 +1,34 @@
 #include "CityGMLWriter.h"
 #include "CityGMLHelper.h"
 #include "GMLHelper.h"
+#include <QString>
+#include <QFileInfo>
 
 CityGMLWriter::CityGMLWriter(QString fileName)
 {
     this->fileName = fileName;
 }
 
+static QString getElementTagFrom_Namespace_Keyword(QString ns, QString key)
+{
+    return ns + ":" + key;
+}
+
 void CityGMLWriter::writeDescription(QXmlStreamWriter& xmlWriter)
 {
-    xmlWriter.writeStartElement(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_description());
+    QString elementName = getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_description());
+    xmlWriter.writeStartElement(elementName);
     xmlWriter.writeCharacters(CityGMLNamespace::Application_Name());
     xmlWriter.writeEndElement();
 }
 
 void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
 {
-    xmlWriter.writeStartElement(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_name());
-    xmlWriter.writeCharacters(this->fileName);
+    QFileInfo fileInfo(this->fileName);
+    QString filename(fileInfo.fileName());
+    QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_name());
+    xmlWriter.writeStartElement(elementName);
+    xmlWriter.writeCharacters(filename);
     xmlWriter.writeEndElement();
 }
 
