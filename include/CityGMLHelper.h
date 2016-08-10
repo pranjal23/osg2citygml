@@ -101,16 +101,6 @@ public:
 
 };
 
-class CityGMLNameSpaceObject{
-public:
-    QString* nameSpaceId;
-
-    CityGMLNameSpaceObject(QString* namespaceid)
-    {
-        nameSpaceId = namespaceid;
-    }
-};
-
 class AppearanceNamespace {
     /**
       * @brief
@@ -176,7 +166,9 @@ class CityObjectGroupNamespace {
       * Schema Location = "CityGML/cityObjectGroup.xsd"
       * Class representing the CityGML grp namespace
       */
-
+public:
+    const static QString PropertyName_FEATURE_CityObjectGroup(void){return "CityObjectGroup";}
+    const static QString PropertyName_FEATURE_groupMember(void){return "groupMember";}
 };
 
 class GenericCityObjectNamespace {

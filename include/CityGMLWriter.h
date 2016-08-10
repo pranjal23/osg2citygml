@@ -2,6 +2,7 @@
 #define CITYGMLWRITER_H__
 
 #include <QString>
+#include <QFileInfo>
 #include <QXmlStreamWriter>
 #include <QFile>
 #include <QMessageBox>
@@ -44,13 +45,15 @@
 class CityGMLWriter {
     public :
         CityGMLWriter(QString fileName);
-        void write(osg::Node* node);
+        void write(osg::Geode* geode);
 
     private :
         QString fileName;
         void writeDescription(QXmlStreamWriter& xmlWriter);
         void writeName(QXmlStreamWriter& xmlWriter);
         void writeNameSpaces(QXmlStreamWriter& xmlWriter);
+        void writeCityObjectMember(osg::Geode* geode, QXmlStreamWriter& xmlWriter);
+        void writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xmlWriter);
 
 };
 

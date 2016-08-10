@@ -37,7 +37,7 @@ public:
     {}
 
     void apply(osg::Geode& geode,
-               std::multimap<unsigned int,SelectedTrianglePrimitive>& selectedPrimitives)
+               std::multimap<unsigned int,TrianglePrimitive>& selectedPrimitives)
     {
         //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
@@ -63,9 +63,9 @@ public:
 
                 if(selectedPrimitives.size()>0)
                 {
-                    for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
+                    for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
                     {
-                        SelectedTrianglePrimitive a =(*it).second;
+                        TrianglePrimitive a =(*it).second;
 
                         if(a.drawable.get() == geometry->asDrawable())
                         {
@@ -107,7 +107,7 @@ private:
 class PickingHandler : public osgGA::GUIEventHandler {
 public:
     OSGWidget* osgwidget;
-    std::multimap<unsigned int,SelectedTrianglePrimitive>* selectedPrimitives;
+    std::multimap<unsigned int,TrianglePrimitive>* selectedPrimitives;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
@@ -116,7 +116,7 @@ public:
         osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
-        selectedPrimitives = new std::multimap<unsigned int,SelectedTrianglePrimitive>();
+        selectedPrimitives = new std::multimap<unsigned int,TrianglePrimitive>();
         addColor();
     }
 
@@ -187,7 +187,7 @@ private:
         return false;
     }
 
-    void selectBySegmentation(SelectedTrianglePrimitive* stp)
+    void selectBySegmentation(TrianglePrimitive* stp)
     {
         osg::Geometry* geometry = stp->drawable.get()->asGeometry();
         unsigned int primIndx = stp->primitiveIndex;
@@ -246,7 +246,7 @@ private:
                          bool propagate,
                          bool onUserAction )
     {
-        SelectedTrianglePrimitive* stp = new SelectedTrianglePrimitive;
+        TrianglePrimitive* stp = new TrianglePrimitive;
         stp->drawable = drawable;
         stp->primitiveIndex = index;
 
@@ -254,10 +254,10 @@ private:
         bool unselected = true;
         if(osgwidget->getEditableModelGroup() != nullptr && selectedPrimitives->size()>0)
         {
-            std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator itS;
-            for(std::multimap<unsigned int,SelectedTrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+            std::multimap<unsigned int,TrianglePrimitive>::iterator itS;
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
             {
-                SelectedTrianglePrimitive a =(*it).second;
+                TrianglePrimitive a =(*it).second;
                 if(a.drawable.get() == stp->drawable
                         && a.primitiveIndex == stp->primitiveIndex)
                 {
@@ -276,7 +276,7 @@ private:
         //Insert into selected primitives list if newly selected
         if(unselected)
         {
-            selectedPrimitives->insert(std::pair<unsigned int,SelectedTrianglePrimitive>(stp->primitiveIndex,*stp));
+            selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp->primitiveIndex,*stp));
 
             if(propagate)
                 selectBySegmentation(stp);

@@ -1,8 +1,7 @@
 #include "CityGMLWriter.h"
 #include "CityGMLHelper.h"
 #include "GMLHelper.h"
-#include <QString>
-#include <QFileInfo>
+#include "OSGHelpers.h"
 
 CityGMLWriter::CityGMLWriter(QString fileName)
 {
@@ -12,24 +11,6 @@ CityGMLWriter::CityGMLWriter(QString fileName)
 static QString getElementTagFrom_Namespace_Keyword(QString ns, QString key)
 {
     return ns + ":" + key;
-}
-
-void CityGMLWriter::writeDescription(QXmlStreamWriter& xmlWriter)
-{
-    QString elementName = getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_description());
-    xmlWriter.writeStartElement(elementName);
-    xmlWriter.writeCharacters(CityGMLNamespace::Application_Name());
-    xmlWriter.writeEndElement();
-}
-
-void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
-{
-    QFileInfo fileInfo(this->fileName);
-    QString filename(fileInfo.fileName());
-    QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_name());
-    xmlWriter.writeStartElement(elementName);
-    xmlWriter.writeCharacters(filename);
-    xmlWriter.writeEndElement();
 }
 
 void CityGMLWriter::writeNameSpaces(QXmlStreamWriter& xmlWriter)
@@ -58,7 +39,73 @@ void CityGMLWriter::writeNameSpaces(QXmlStreamWriter& xmlWriter)
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_waterBody_loc(), CityGMLNamespace::namespace_waterBody() );
 }
 
-void CityGMLWriter::write(osg::Node* node)
+void CityGMLWriter::writeDescription(QXmlStreamWriter& xmlWriter)
+{
+    QString elementName = getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_description());
+    xmlWriter.writeStartElement(elementName);
+    xmlWriter.writeCharacters(CityGMLNamespace::Application_Name());
+    xmlWriter.writeEndElement();
+}
+
+void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
+{
+    QFileInfo fileInfo(this->fileName);
+    QString filename(fileInfo.fileName());
+    QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_gml(),GMLNamespace::AttributeName_name());
+    xmlWriter.writeStartElement(elementName);
+    xmlWriter.writeCharacters(filename);
+    xmlWriter.writeEndElement();
+}
+
+void CityGMLWriter::writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xmlWriter)
+{
+    QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::PropertyName_FEATURE_CityObjectGroup());
+    xmlWriter.writeStartElement(elementName);
+
+    //TODO: process FOR_EACH name_space and element combo supported
+    {
+        QString elementName2 =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::PropertyName_FEATURE_groupMember());
+        xmlWriter.writeStartElement(elementName2);
+
+        QString name_space = OSGHELPERS::DEFAULT_STR();
+        QString element_name = OSGHELPERS::DEFAULT_STR();
+
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+            CityGMLElement* element;
+            userData->getCityGMLElement(name_space,element_name, element);
+            QList<TrianglePrimitive> elementList = (QList<TrianglePrimitive>)(element->elem_primList);
+            for (unsigned int i = 0; i < elementList.size(); i++)
+            {
+
+                TrianglePrimitive prim = elementList.at(i);
+                osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[prim.primitiveIndex];
+                osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+                xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+            }
+        }
+
+        xmlWriter.writeEndElement();
+    }
+
+    xmlWriter.writeEndElement();
+}
+
+void CityGMLWriter::writeCityObjectMember(osg::Geode* geode, QXmlStreamWriter& xmlWriter)
+{
+    QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_citygmlbase(),CityGMLBaseNamespace::PropertyName_FEATURE_CityObjectMember());
+    xmlWriter.writeStartElement(elementName);
+
+    writeCityObjectGroup(geode,xmlWriter);
+
+    xmlWriter.writeEndElement();
+}
+
+void CityGMLWriter::write(osg::Geode* geode)
 {
     QFile file(fileName);
     file.open(QIODevice::WriteOnly);
@@ -75,6 +122,7 @@ void CityGMLWriter::write(osg::Node* node)
 
     writeDescription(xmlWriter);
     writeName(xmlWriter);
+    writeCityObjectMember(geode,xmlWriter);
 
     xmlWriter.writeEndElement();//CityModel
 

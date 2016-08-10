@@ -11,62 +11,146 @@
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/SmoothingVisitor>
 
+class OSGHELPERS{
+public:
+    const static QString DEFAULT_STR(void){return "DEFAULT";}
 
-const unsigned int FACE_NORMAL_INDEX = 0;
-
-void printPrimSet(osg::PrimitiveSet* prset)
-{
-    unsigned int ic;
-
-    qDebug() << "Prim set type - " << prset->getMode() << ", Vertex Ids: ";
-
-    for (ic=0; ic < prset->getNumIndices(); ic++)
+    static void printPrimSet(osg::PrimitiveSet* prset)
     {
-        unsigned int vertexId = prset->index(ic);
-        qDebug() << vertexId;
+        unsigned int ic;
+
+        qDebug() << "Prim set type - " << prset->getMode() << ", Vertex Ids: ";
+
+        for (ic=0; ic < prset->getNumIndices(); ic++)
+        {
+            unsigned int vertexId = prset->index(ic);
+            qDebug() << vertexId;
+        }
+
+        qDebug() << "";
     }
 
-    qDebug() << "";
-}
-
-void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)
-{
-    osg::notify(osg::WARN) << "Vertex Id: "<< vertexId << ", coordinates: " <<
-                              (* verts)[vertexId].x() << "," <<
-                              (* verts)[vertexId].y() << "," <<
-                              (* verts)[vertexId].z() << std::endl;
-}
-
-void printVertex(const osg::Vec3 vert)
-{
-    osg::notify(osg::WARN) <<
-                              vert.x() << "," <<
-                              vert.y() << "," <<
-                              vert.z() << std::endl;
-}
-
-void printPrimSets(osg::Geode& geode){
-    for(unsigned int i=0;i<geode.getNumDrawables();i++)
+    static QString getPrimSetVerticesAsString(osg::PrimitiveSet* prset, osg::Vec3Array *verts)
     {
-        osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
+        QString vertexes = "";
+        unsigned int ic;
 
-        if(geometry && geometry->getNumPrimitiveSets()>0)
+        for (ic=0; ic < prset->getNumIndices(); ic++)
         {
-            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
-            {
-                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                //printPrimSet(prset);
+            unsigned int vertexId = prset->index(ic);
+            vertexes =  QString::number((* verts)[vertexId].x()) + " " +
+                        QString::number((* verts)[vertexId].y()) + " " +
+                        QString::number((* verts)[vertexId].z());
+        }
 
-                if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+        return vertexes;
+    }
+
+    static void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)
+    {
+        osg::notify(osg::WARN) << "Vertex Id: "<< vertexId << ", coordinates: " <<
+                                  (* verts)[vertexId].x() << "," <<
+                                  (* verts)[vertexId].y() << "," <<
+                                  (* verts)[vertexId].z() << std::endl;
+    }
+
+     static void printVertex(const osg::Vec3 vert)
+    {
+        osg::notify(osg::WARN) <<
+                                  vert.x() << "," <<
+                                  vert.y() << "," <<
+                                  vert.z() << std::endl;
+    }
+
+    static void printPrimSets(osg::Geode& geode){
+        for(unsigned int i=0;i<geode.getNumDrawables();i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
+
+            if(geometry && geometry->getNumPrimitiveSets()>0)
+            {
+                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                 {
-                    qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
+                    //printPrimSet(prset);
+
+                    if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
+                    {
+                        qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
+                    }
                 }
             }
         }
     }
-}
 
-class SelectedTrianglePrimitive
+    osg::Geode* getTriangleGeode()
+    {
+        osg::Geode* pyramidGeode = new osg::Geode();
+        osg::Geometry* pyramidGeometry = new osg::Geometry();
+
+        pyramidGeode->addDrawable(pyramidGeometry);
+
+        osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
+        pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
+        pyramidVertices->push_back( osg::Vec3(10, 0, 0) ); // front right
+        pyramidVertices->push_back( osg::Vec3(10,10, 0) ); // back right
+        pyramidVertices->push_back( osg::Vec3( 0,10, 0) ); // back left
+        pyramidVertices->push_back( osg::Vec3( 5, 5,10) ); // peak
+
+        pyramidGeometry->setVertexArray( pyramidVertices );
+
+        osg::DrawElementsUInt* pyramidBase =
+                new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
+        pyramidBase->push_back(3);
+        pyramidBase->push_back(2);
+        pyramidBase->push_back(1);
+        pyramidBase->push_back(0);
+        pyramidGeometry->addPrimitiveSet(pyramidBase);
+
+        osg::DrawElementsUInt* pyramidFaceOne =
+                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+        pyramidFaceOne->push_back(0);
+        pyramidFaceOne->push_back(1);
+        pyramidFaceOne->push_back(4);
+        pyramidGeometry->addPrimitiveSet(pyramidFaceOne);
+
+        osg::DrawElementsUInt* pyramidFaceTwo =
+                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+        pyramidFaceTwo->push_back(1);
+        pyramidFaceTwo->push_back(2);
+        pyramidFaceTwo->push_back(4);
+        pyramidGeometry->addPrimitiveSet(pyramidFaceTwo);
+
+        osg::DrawElementsUInt* pyramidFaceThree =
+                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+        pyramidFaceThree->push_back(2);
+        pyramidFaceThree->push_back(3);
+        pyramidFaceThree->push_back(4);
+        pyramidGeometry->addPrimitiveSet(pyramidFaceThree);
+
+        osg::DrawElementsUInt* pyramidFaceFour =
+                new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+        pyramidFaceFour->push_back(3);
+        pyramidFaceFour->push_back(0);
+        pyramidFaceFour->push_back(4);
+        pyramidGeometry->addPrimitiveSet(pyramidFaceFour);
+
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 0 red
+        colors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) ); //index 1 green
+        colors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) ); //index 2 blue
+        colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) ); //index 3 white
+        colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 4 red
+
+        pyramidGeometry->setColorArray(colors);
+        pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
+
+        return pyramidGeode;
+    }
+
+};
+
+class TrianglePrimitive : public osg::Referenced
 {
 public:
     osg::ref_ptr<osg::Drawable> drawable;
@@ -81,10 +165,41 @@ public:
     unsigned int vertexId3;
 };
 
+class CityGMLElement : public osg::Referenced
+{
+public:
+    QString nameSpace;
+    QString elementName;
+    QList<TrianglePrimitive> elem_primList;
+
+    CityGMLElement(QString name_space, QString element_name)
+    {
+        nameSpace = name_space;
+        elementName = element_name;
+    }
+};
+
 class UserData  : public osg::Referenced
 {
     public:
         osg::ref_ptr<osg::Vec3Array> faceNormals;
+        QList<CityGMLElement> cityGMLElementList;
+
+        UserData()
+        {
+            CityGMLElement* e = new CityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
+            cityGMLElementList.push_back(*e);
+
+        }
+
+        void getCityGMLElement(QString name_space,QString element_name, CityGMLElement* out)
+        {
+            out = nullptr;
+            foreach (CityGMLElement e, cityGMLElementList) {
+                if(e.nameSpace == name_space && e.elementName == element_name)
+                    out = &e;
+            }
+        }
 };
 
 class ConvertToTrianglePrimitives
@@ -188,6 +303,8 @@ public:
             geometry->getPrimitiveSetList().clear();
 
 
+            UserData* userData = new UserData;
+
             for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
             {
                 osg::DrawElementsUShort* primSet =
@@ -197,8 +314,18 @@ public:
                 primSet->push_back(ti.vertexId2);
                 primSet->push_back(ti.vertexId3);
                 geometry->getPrimitiveSetList().push_back(primSet);
-            }
 
+                TrianglePrimitive* trianglePrimitive = new TrianglePrimitive();
+                trianglePrimitive->drawable = geometry->asDrawable();
+                trianglePrimitive->primitiveIndex = prn;
+
+
+                CityGMLElement* out_element;
+                userData->getCityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR(), out_element);
+
+                //out_element->elem_primList.push_back(*trianglePrimitive);
+
+            }
 
             if(verbose)
             {
@@ -211,7 +338,7 @@ public:
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                 {
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                    printPrimSet(prset);
+                    OSGHELPERS::printPrimSet(prset);
                     osg::notify(osg::WARN) << std::endl;
 
                     if(prset->getMode()!=osg::PrimitiveSet::TRIANGLES)
@@ -229,7 +356,6 @@ public:
             //Generate the Normal for each primitive
             osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
             osg::Vec3Array* faceNormals = new osg::Vec3Array(geometry->getNumPrimitiveSets());
-            UserData* userData = new UserData;
             for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
             {
                 osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
@@ -282,72 +408,6 @@ private:
     }
 
 };
-
-
-osg::Geode* getTriangleGeode()
-{
-    osg::Geode* pyramidGeode = new osg::Geode();
-    osg::Geometry* pyramidGeometry = new osg::Geometry();
-
-    pyramidGeode->addDrawable(pyramidGeometry);
-
-    osg::Vec3Array* pyramidVertices = new osg::Vec3Array;
-    pyramidVertices->push_back( osg::Vec3( 0, 0, 0) ); // front left
-    pyramidVertices->push_back( osg::Vec3(10, 0, 0) ); // front right
-    pyramidVertices->push_back( osg::Vec3(10,10, 0) ); // back right
-    pyramidVertices->push_back( osg::Vec3( 0,10, 0) ); // back left
-    pyramidVertices->push_back( osg::Vec3( 5, 5,10) ); // peak
-
-    pyramidGeometry->setVertexArray( pyramidVertices );
-
-    osg::DrawElementsUInt* pyramidBase =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::QUADS, 0);
-    pyramidBase->push_back(3);
-    pyramidBase->push_back(2);
-    pyramidBase->push_back(1);
-    pyramidBase->push_back(0);
-    pyramidGeometry->addPrimitiveSet(pyramidBase);
-
-    osg::DrawElementsUInt* pyramidFaceOne =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceOne->push_back(0);
-    pyramidFaceOne->push_back(1);
-    pyramidFaceOne->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceOne);
-
-    osg::DrawElementsUInt* pyramidFaceTwo =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceTwo->push_back(1);
-    pyramidFaceTwo->push_back(2);
-    pyramidFaceTwo->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceTwo);
-
-    osg::DrawElementsUInt* pyramidFaceThree =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceThree->push_back(2);
-    pyramidFaceThree->push_back(3);
-    pyramidFaceThree->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceThree);
-
-    osg::DrawElementsUInt* pyramidFaceFour =
-            new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
-    pyramidFaceFour->push_back(3);
-    pyramidFaceFour->push_back(0);
-    pyramidFaceFour->push_back(4);
-    pyramidGeometry->addPrimitiveSet(pyramidFaceFour);
-
-    osg::Vec4Array* colors = new osg::Vec4Array;
-    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 0 red
-    colors->push_back(osg::Vec4(0.0f, 1.0f, 0.0f, 1.0f) ); //index 1 green
-    colors->push_back(osg::Vec4(0.0f, 0.0f, 1.0f, 1.0f) ); //index 2 blue
-    colors->push_back(osg::Vec4(1.0f, 1.0f, 1.0f, 1.0f) ); //index 3 white
-    colors->push_back(osg::Vec4(1.0f, 0.0f, 0.0f, 1.0f) ); //index 4 red
-
-    pyramidGeometry->setColorArray(colors);
-    pyramidGeometry->setColorBinding(osg::Geometry::BIND_PER_VERTEX);
-
-    return pyramidGeode;
-}
 
 #endif // OSGHELPERS
 
