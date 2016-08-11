@@ -57,7 +57,7 @@ void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
     xmlWriter.writeEndElement();
 }
 
-void CityGMLWriter::writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xmlWriter)
+void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& xmlWriter)
 {
     QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::PropertyName_FEATURE_CityObjectGroup());
     xmlWriter.writeStartElement(elementName);
@@ -70,23 +70,37 @@ void CityGMLWriter::writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xm
         QString name_space = OSGHELPERS::DEFAULT_STR();
         QString element_name = OSGHELPERS::DEFAULT_STR();
 
-        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        int i;
+        for (i = 0; i < group->getNumChildren(); i++)
         {
-            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+            osg::Geode* geode = (osg::Geode*)group->getChild(i);
 
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-
-            CityGMLElement* element;
-            userData->getCityGMLElement(name_space,element_name, element);
-            QList<TrianglePrimitive> elementList = (QList<TrianglePrimitive>)(element->elem_primList);
-            for (unsigned int i = 0; i < elementList.size(); i++)
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
             {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                TrianglePrimitive prim = elementList.at(i);
-                osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[prim.primitiveIndex];
-                osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
-                xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                int element_index = userData->getCityGMLElementIndex(name_space,element_name);
+
+                if(element_index >= 0)
+                {
+
+                    CityGMLElement element = userData->cityGMLElementList->at(element_index);
+
+                    QList<TrianglePrimitive>* elementList = dynamic_cast<QList<TrianglePrimitive>*>(element.elem_primList);
+                    for (unsigned int i = 0; i < elementList->size(); i++)
+                    {
+
+                        TrianglePrimitive prim = elementList->at(i);
+                        osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[prim.primitiveIndex];
+                        osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+                        xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+                    }
+                }
+
             }
+
         }
 
         xmlWriter.writeEndElement();
@@ -95,17 +109,17 @@ void CityGMLWriter::writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xm
     xmlWriter.writeEndElement();
 }
 
-void CityGMLWriter::writeCityObjectMember(osg::Geode* geode, QXmlStreamWriter& xmlWriter)
+void CityGMLWriter::writeCityObjectMember(osg::Group* group, QXmlStreamWriter& xmlWriter)
 {
     QString elementName =  getElementTagFrom_Namespace_Keyword(CityGMLNamespace::namespace_citygmlbase(),CityGMLBaseNamespace::PropertyName_FEATURE_CityObjectMember());
     xmlWriter.writeStartElement(elementName);
 
-    writeCityObjectGroup(geode,xmlWriter);
+    writeCityObjectGroup(group,xmlWriter);
 
     xmlWriter.writeEndElement();
 }
 
-void CityGMLWriter::write(osg::Geode* geode)
+void CityGMLWriter::write(osg::Group* group)
 {
     QFile file(fileName);
     file.open(QIODevice::WriteOnly);
@@ -122,7 +136,7 @@ void CityGMLWriter::write(osg::Geode* geode)
 
     writeDescription(xmlWriter);
     writeName(xmlWriter);
-    writeCityObjectMember(geode,xmlWriter);
+    writeCityObjectMember(group,xmlWriter);
 
     xmlWriter.writeEndElement();//CityModel
 

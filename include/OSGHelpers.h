@@ -39,8 +39,8 @@ public:
         {
             unsigned int vertexId = prset->index(ic);
             vertexes =  QString::number((* verts)[vertexId].x()) + " " +
-                        QString::number((* verts)[vertexId].y()) + " " +
-                        QString::number((* verts)[vertexId].z());
+                    QString::number((* verts)[vertexId].y()) + " " +
+                    QString::number((* verts)[vertexId].z());
         }
 
         return vertexes;
@@ -54,7 +54,7 @@ public:
                                   (* verts)[vertexId].z() << std::endl;
     }
 
-     static void printVertex(const osg::Vec3 vert)
+    static void printVertex(const osg::Vec3 vert)
     {
         osg::notify(osg::WARN) <<
                                   vert.x() << "," <<
@@ -170,36 +170,42 @@ class CityGMLElement : public osg::Referenced
 public:
     QString nameSpace;
     QString elementName;
-    QList<TrianglePrimitive> elem_primList;
+    QList<TrianglePrimitive>* elem_primList;
 
     CityGMLElement(QString name_space, QString element_name)
     {
         nameSpace = name_space;
         elementName = element_name;
+        elem_primList = new QList<TrianglePrimitive>();
     }
 };
 
 class UserData  : public osg::Referenced
 {
-    public:
-        osg::ref_ptr<osg::Vec3Array> faceNormals;
-        QList<CityGMLElement> cityGMLElementList;
+public:
+    osg::ref_ptr<osg::Vec3Array> faceNormals;
+    QList<CityGMLElement>* cityGMLElementList;
 
-        UserData()
+    UserData()
+    {
+        cityGMLElementList = new QList<CityGMLElement>();
+        CityGMLElement* e = new CityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
+        cityGMLElementList->push_back(*e);
+
+    }
+
+    int getCityGMLElementIndex(QString name_space,QString element_name)
+    {
+        for (unsigned int i = 0; i < cityGMLElementList->size(); i++)
         {
-            CityGMLElement* e = new CityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
-            cityGMLElementList.push_back(*e);
-
-        }
-
-        void getCityGMLElement(QString name_space,QString element_name, CityGMLElement* out)
-        {
-            out = nullptr;
-            foreach (CityGMLElement e, cityGMLElementList) {
-                if(e.nameSpace == name_space && e.elementName == element_name)
-                    out = &e;
+            CityGMLElement e = cityGMLElementList->at(i);
+            if(e.elementName == element_name && e.nameSpace == name_space)
+            {
+                return i;
             }
         }
+        return -1;
+    }
 };
 
 class ConvertToTrianglePrimitives
@@ -320,10 +326,17 @@ public:
                 trianglePrimitive->primitiveIndex = prn;
 
 
-                CityGMLElement* out_element;
-                userData->getCityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR(), out_element);
+                int element_index = userData->getCityGMLElementIndex(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
 
-                //out_element->elem_primList.push_back(*trianglePrimitive);
+                if(element_index >= 0)
+                {
+                    CityGMLElement default_element = userData->cityGMLElementList->at(element_index);
+                    default_element.elem_primList->push_back(*trianglePrimitive);
+                }
+                else
+                {
+                    osg::notify(osg::WARN) << "default element is NULL";
+                }
 
             }
 
@@ -362,8 +375,8 @@ public:
                 if(prset->getMode()==osg::PrimitiveSet::TRIANGLES)
                 {
                     osg::Vec3f* normal = calculateFaceNormal(&(* verts)[prset->index(0)],
-                                                             &(* verts)[prset->index(1)],
-                                                             &(* verts)[prset->index(2)]);
+                            &(* verts)[prset->index(1)],
+                            &(* verts)[prset->index(2)]);
                     (*faceNormals)[ipr].set(normal->x(),normal->y(),normal->z());
                 }
                 else

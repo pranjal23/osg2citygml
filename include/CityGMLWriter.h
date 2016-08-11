@@ -45,15 +45,15 @@
 class CityGMLWriter {
     public :
         CityGMLWriter(QString fileName);
-        void write(osg::Geode* geode);
+        void write(osg::Group* group);
 
     private :
         QString fileName;
         void writeDescription(QXmlStreamWriter& xmlWriter);
         void writeName(QXmlStreamWriter& xmlWriter);
         void writeNameSpaces(QXmlStreamWriter& xmlWriter);
-        void writeCityObjectMember(osg::Geode* geode, QXmlStreamWriter& xmlWriter);
-        void writeCityObjectGroup(osg::Geode* geode, QXmlStreamWriter& xmlWriter);
+        void writeCityObjectMember(osg::Group* group, QXmlStreamWriter& xmlWriter);
+        void writeCityObjectGroup(osg::Group* group, QXmlStreamWriter& xmlWriter);
 
 };
 

@@ -339,7 +339,7 @@ void OSGWidget::setFile(QString fileName){
 void OSGWidget::saveObject2File(QString fileName)
 {
     CityGMLWriter writer(fileName);
-    writer.write(editableModelGroup.get()->asGeode());
+    writer.write(editableModelGroup.get());
 }
 
 void OSGWidget::setView(){
