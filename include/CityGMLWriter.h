@@ -54,6 +54,7 @@ class CityGMLWriter {
         void writeNameSpaces(QXmlStreamWriter& xmlWriter);
         void writeCityObjectMember(osg::Group* group, QXmlStreamWriter& xmlWriter);
         void writeCityObjectGroup(osg::Group* group, QXmlStreamWriter& xmlWriter);
+        void writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name);
 
 };
 

@@ -125,17 +125,19 @@ class BuildingNamespace {
       * Class representing the CityGML bldg namespace
       */
 public:
-    const static QString PropertyName_FEATURE_Building(void){return "Building";}
-    const static QString PropertyName_FEATURE_BuildingPart(void){return "BuildingPart";}
-    const static QString PropertyName_FEATURE_RoofSurface(void){return "RoofSurface";}
-    const static QString PropertyName_FEATURE_WallSurface(void){return "WallSurface";}
-    const static QString PropertyName_FEATURE_GroundSurface(void){return "GroundSurface";}
-    const static QString PropertyName_FEATURE_ClosureSurface(void){return "ClosureSurface";}
-    const static QString PropertyName_FEATURE_CeilingSurface(void){return "CeilingSurface";}
-    const static QString PropertyName_FEATURE_InteriorWallSurface(void){return "InteriorWallSurface";}
-    const static QString PropertyName_FEATURE_FloorSurface(void){return "FloorSurface";}
-    const static QString PropertyName_FEATURE_OuterCeilingSurface(void){return "OuterCeilingSurface";}
-    const static QString PropertyName_FEATURE_OuterFloorSurface(void){return "OuterFloorSurface";}
+    const static QString FEATURE_Building(void){return "Building";}
+    const static QString FEATURE_BuildingPart(void){return "BuildingPart";}
+    const static QString FEATURE_RoofSurface(void){return "RoofSurface";}
+    const static QString FEATURE_WallSurface(void){return "WallSurface";}
+    const static QString FEATURE_GroundSurface(void){return "GroundSurface";}
+    const static QString FEATURE_ClosureSurface(void){return "ClosureSurface";}
+    const static QString FEATURE_CeilingSurface(void){return "CeilingSurface";}
+    const static QString FEATURE_InteriorWallSurface(void){return "InteriorWallSurface";}
+    const static QString FEATURE_FloorSurface(void){return "FloorSurface";}
+    const static QString FEATURE_OuterCeilingSurface(void){return "OuterCeilingSurface";}
+    const static QString FEATURE_OuterFloorSurface(void){return "OuterFloorSurface";}
+
+    const static QString GEOMETRY_lod3MultiSurface(void){return "lod3MultiSurface";}
 };
 
 class CityGMLBaseNamespace {
@@ -145,10 +147,10 @@ class CityGMLBaseNamespace {
       * Class representing the CityGML core namespace
       */
 public:
-    const static QString PropertyName_FEATURE_CityModel(void){return "CityModel";}
-    const static QString PropertyName_FEATURE_CityObjectMember(void){return "cityObjectMember";}
-    const static QString PropertyName_FEATURE_Address(void){return "Address";}
-    const static QString PropertyName_OBJECT_ImplicitGeometry(void){return "ImplicitGeometry";}
+    const static QString FEATURE_CityModel(void){return "CityModel";}
+    const static QString FEATURE_CityObjectMember(void){return "cityObjectMember";}
+    const static QString FEATURE_Address(void){return "Address";}
+    const static QString OBJECT_ImplicitGeometry(void){return "ImplicitGeometry";}
 };
 
 class CityFurnitureNamespace {
@@ -167,8 +169,8 @@ class CityObjectGroupNamespace {
       * Class representing the CityGML grp namespace
       */
 public:
-    const static QString PropertyName_FEATURE_CityObjectGroup(void){return "CityObjectGroup";}
-    const static QString PropertyName_FEATURE_groupMember(void){return "groupMember";}
+    const static QString FEATURE_CityObjectGroup(void){return "CityObjectGroup";}
+    const static QString FEATURE_groupMember(void){return "groupMember";}
 };
 
 class GenericCityObjectNamespace {
@@ -242,6 +244,5 @@ class TexturedSurfaceNamespace {
       */
 
 };
-
 
 #endif //CITYGMLHELPER_H__

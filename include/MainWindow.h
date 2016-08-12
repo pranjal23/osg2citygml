@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QMenuBar>
 #include <QMainWindow>
+#include "UIHelper.h"
 
 namespace Ui {
     class MainWindow;

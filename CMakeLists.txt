@@ -42,18 +42,20 @@ SET( SOURCES
   src/OSG2CityGML.cpp
   src/CityGMLWriter.cpp
   src/ReaderWriterCityGML.cpp
+  src/UIHelperSingleton.cpp
 )
 
 SET( HEADERS
+  include/CityGMLHelper.h
+  include/CityGMLWriter.h
+  include/GMLHelper.h
   include/MainWindow.h
   include/OSGWidget.h
   include/OSGHelpers.h
   include/RayCastHelpers.h
-  include/CityGMLWriter.h
-  include/CityGMLHelper.h
-  include/GMLHelper.h
-  include/SchemaValidator.h
   include/ReaderWriterCityGML.h
+  include/SchemaValidator.h
+  include/UIHelper.h
 )
 
 FILE(
