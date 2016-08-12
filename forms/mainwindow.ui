@@ -1433,10 +1433,10 @@ QPushButton:checked {
          </font>
         </property>
         <property name="text">
-         <string>Element Type</string>
+         <string>Element</string>
         </property>
        </widget>
-       <widget class="QComboBox" name="appearanceCB">
+       <widget class="QComboBox" name="elementCB">
         <property name="geometry">
          <rect>
           <x>100</x>
@@ -1945,7 +1945,7 @@ QPushButton:checked {
     padding: 2px;</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">

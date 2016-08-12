@@ -11,7 +11,9 @@
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QtWidgets>
+
 #include "SchemaValidator.h"
+#include "UIHelper.h"
 
 MainWindow::MainWindow( QWidget* parent)
     : QMainWindow( parent)
@@ -28,6 +30,13 @@ MainWindow::MainWindow( QWidget* parent)
 
     this->ui->selection_groupbox->setVisible(this->ui->selectionMenuCB->isChecked());
     this->ui->controlsGroup->setVisible(this->ui->controlMenuCB->isChecked());
+
+    UIHelperSingleton* uIHelperSingleton = UIHelperSingleton::getInstance();
+    std::vector<QString> vector= uIHelperSingleton->getLabels();
+    for(int i=0;i<vector.size();i++)
+    {
+        ui->elementCB->addItem(vector.at(i));
+    }
 
     //TEST TBR
     //SchemaValidator schemaV;

@@ -67,3 +67,13 @@ std::map<QString,QString>* UIHelperSingleton::getNameSpaceMap()
 {
     return name_space_map;
 }
+
+std::vector<QString>& UIHelperSingleton::getLabels()
+{
+    std::vector<QString>* vect = new std::vector<QString>();
+    for(int i=0; i<feature_vec->size();i++)
+    {
+        vect->push_back((*name_space_map)[feature_vec->at(i)] + ":" + feature_vec->at(i));
+    }
+    return *vect;
+}

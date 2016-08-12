@@ -21,6 +21,7 @@ public:
     static UIHelperSingleton* getInstance();
     std::vector<QString>* getFeatrueVector();
     std::map<QString,QString>* getNameSpaceMap();
+    std::vector<QString>& getLabels();
 };
 
 
