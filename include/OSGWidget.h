@@ -1,3 +1,4 @@
+#pragma once
 #ifndef OSGWidget_h__
 #define OSGWidget_h__
 
@@ -37,6 +38,8 @@
 #include <QPainter>
 #include <QWheelEvent>
 
+#include "OSGHelpers.h"
+#include "CityGMLWriter.h"
 
 class OSGWidget : public QOpenGLWidget
 {
@@ -60,6 +63,7 @@ public:
   bool getNormalsBasedSegmentation();
   void setNormalsDistance(double value);
   double getNormalsDistance();
+  void selectAllPrimitives();
   osg::ref_ptr<osg::Group> getEditableModelGroup();
 
 protected:
@@ -96,7 +100,6 @@ private:
 
   osg::ref_ptr<osg::Group> editableModelGroup;
   osg::ref_ptr<osg::Node> originalModelGroup;
-
 };
 
 #endif

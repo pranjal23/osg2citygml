@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CITYGMLHELPER_H__
 #define CITYGMLHELPER_H__
 

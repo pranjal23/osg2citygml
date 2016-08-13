@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SCHEMAVALIDATOR_H__
 #define SCHEMAVALIDATOR_H__
 

@@ -147,8 +147,7 @@ public:
             {
             case 'c':
                 qDebug() << " c key pressed";
-                selectedPrimitives->clear();
-                addColor();
+                clearSelectedList();
                 return true;
                 break;
             default:
@@ -157,6 +156,22 @@ public:
         }
 
         return false;
+    }
+
+    void addToSelectedPrimitiveList(QList<TrianglePrimitive>* prim_list)
+    {
+        for(int i=0; i<prim_list->size(); i++)
+        {
+            selectedPrimitives->insert(
+                        std::pair<unsigned int,TrianglePrimitive>(prim_list->at(i).primitiveIndex,prim_list->at(i)));
+        }
+        addColor();
+    }
+
+    void clearSelectedList()
+    {
+        selectedPrimitives->clear();
+        addColor();
     }
 
 private:

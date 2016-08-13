@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CITYGMLWRITER_H__
 #define CITYGMLWRITER_H__
 

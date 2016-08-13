@@ -37,9 +37,8 @@ private slots:
   void on_multilightsBtn_toggled(bool checked);
   void on_normalDistanceSB_valueChanged(double arg1);
   void on_commandLinkButton_2_clicked();
-  void on_selectionMenuCB_toggled(bool checked);
-  void on_controlMenuCB_toggled(bool checked);
   void on_flatShadingRb_toggled(bool checked);
+  void on_AddBtn_clicked();
 };
 
 #endif

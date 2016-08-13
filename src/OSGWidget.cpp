@@ -1,8 +1,7 @@
 #include "OSGWidget.h"
-#include "OSGHelpers.h"
 #include "RayCastHelpers.h"
-#include "CityGMLWriter.h"
 
+osg::ref_ptr<PickingHandler> pickingHandler;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -79,12 +78,35 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
         return;
     }
 
-    if( event->key() == Qt::Key_W )
+    if( event->key() == Qt::Key_C )
     {
         //HANDLED IN PICKING HANDLER... DO NOT CHANGE
     }
 
+    if( event->key() == Qt::Key_Z )
+    {
+        selectAllPrimitives();
+    }
+
     this->getEventQueue()->keyPress( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
+}
+
+void OSGWidget::selectAllPrimitives()
+{
+    pickingHandler.get()->clearSelectedList();
+
+    int i;
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+    {
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            pickingHandler.get()->addToSelectedPrimitiveList(userData->allPrimitivesList);
+        }
+    }
 }
 
 void OSGWidget::keyReleaseEvent( QKeyEvent* event )
@@ -264,6 +286,11 @@ osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
     return editableModelGroup;
 }
 
+void addSelectedPrimitivesToElements(QString name_space, QString element_name)
+{
+
+}
+
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
     ConvertToTrianglePrimitives triangleConverter;
 
@@ -301,7 +328,11 @@ void OSGWidget::setFile(QString fileName){
     {
         osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
 
+        QMessageBox* msg = new QMessageBox();
+        msg->setText( "Loading..." );
+        msg->show();
         std::cout << "Loading file: " << fileName.toStdString() << std::endl;
+
         osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(fileName.toStdString(), options);
         if (node == nullptr) {
             std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
@@ -360,11 +391,12 @@ void OSGWidget::setView(){
     camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
     camera->setGraphicsContext( graphicsWindow_ );
 
+    pickingHandler = new PickingHandler(this);
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
-    view->addEventHandler(new PickingHandler(this) );
+    view->addEventHandler(pickingHandler.get() );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef OSGHELPERS_H__
 #define OSGHELPERS_H__
 
@@ -185,10 +186,13 @@ class UserData  : public osg::Referenced
 public:
     osg::ref_ptr<osg::Vec3Array> faceNormals;
     QList<CityGMLElement>* cityGMLElementList;
+    QList<TrianglePrimitive>* allPrimitivesList;
 
     UserData()
     {
         cityGMLElementList = new QList<CityGMLElement>();
+        allPrimitivesList = new QList<TrianglePrimitive>();
+
         CityGMLElement* e = new CityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
         cityGMLElementList->push_back(*e);
 
@@ -325,17 +329,15 @@ public:
                 trianglePrimitive->drawable = geometry->asDrawable();
                 trianglePrimitive->primitiveIndex = prn;
 
+                //Add primitives to a common list for quick parsing
+                userData->allPrimitivesList->push_back(*trianglePrimitive);
 
+                //Add all elements to default element list
                 int element_index = userData->getCityGMLElementIndex(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
-
                 if(element_index >= 0)
                 {
                     CityGMLElement default_element = userData->cityGMLElementList->at(element_index);
                     default_element.elem_primList->push_back(*trianglePrimitive);
-                }
-                else
-                {
-                    osg::notify(osg::WARN) << "default element is NULL";
                 }
 
             }

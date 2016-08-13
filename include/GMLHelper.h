@@ -1,3 +1,4 @@
+#pragma once
 #ifndef GMLNAMESPACE_H__
 #define GMLNAMESPACE_H__
 

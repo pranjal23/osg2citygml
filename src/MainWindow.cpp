@@ -28,9 +28,6 @@ MainWindow::MainWindow( QWidget* parent)
 
     osgDB::Registry::instance()->addFileExtensionAlias("gml", "citygml");
 
-    this->ui->selection_groupbox->setVisible(this->ui->selectionMenuCB->isChecked());
-    this->ui->controlsGroup->setVisible(this->ui->controlMenuCB->isChecked());
-
     UIHelperSingleton* uIHelperSingleton = UIHelperSingleton::getInstance();
     std::vector<QString> vector= uIHelperSingleton->getLabels();
     for(int i=0;i<vector.size();i++)
@@ -102,8 +99,8 @@ void MainWindow::keyPressEvent( QKeyEvent* event )
 {
     if( event->key() == Qt::Key_G )
     {
-        bool visiblity = this->ui->main_frame->isVisible();
-        this->ui->main_frame->setVisible(!visiblity);
+        bool visible = ui->main_widget->isVisible();
+        ui->main_widget->setVisible(!visible);
         return;
     }
 
@@ -136,20 +133,18 @@ void MainWindow::on_normalDistanceSB_valueChanged(double value)
     ui->osgWidget->setNormalsDistance(value);
 }
 
-void MainWindow::on_selectionMenuCB_toggled(bool checked)
-{
-    this->ui->selection_groupbox->setVisible(checked);
-}
-
-void MainWindow::on_controlMenuCB_toggled(bool checked)
-{
-    this->ui->controlsGroup->setVisible(checked);
-}
-
 void MainWindow::on_flatShadingRb_toggled(bool checked)
 {
     if(checked)
         this->ui->osgWidget->renderOriginal();
     else
         this->ui->osgWidget->renderEditable();
+}
+
+void MainWindow::on_AddBtn_clicked()
+{
+    QString selected = ui->elementCB->itemText(ui->elementCB->currentIndex());
+    QStringList selectedList = selected.split(":");
+    QString name_space = selectedList.at(0);
+    QString element_name = selectedList.at(1);
 }
