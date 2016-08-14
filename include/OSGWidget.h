@@ -65,7 +65,7 @@ public:
   void setNormalsDistance(double value);
   double getNormalsDistance();
   void selectAllPrimitives();
-  void addSelectedToElementList(QString name_space, QString element_name);
+  void tagSelectedItems(QString name_space, QString element_name);
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   TrianglePrimitive& getPrimitive(osg::Drawable* drawable, unsigned int index);
   bool selectMode = true;

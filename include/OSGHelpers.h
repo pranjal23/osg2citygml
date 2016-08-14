@@ -175,25 +175,10 @@ class UserData  : public osg::Referenced
 public:
     osg::ref_ptr<osg::Vec3Array> faceNormals;
     std::multimap<unsigned int,TrianglePrimitive>* allPrimitivesMap;
-    QList<TrianglePrimitive>* allPrimitivesList;
 
     UserData()
     {
         allPrimitivesMap = new std::multimap<unsigned int,TrianglePrimitive>();
-        allPrimitivesList = new QList<TrianglePrimitive>;
-    }
-
-    QList<TrianglePrimitive>* getAllPrimitivesList()
-    {
-        if(allPrimitivesList->size()==0)
-        {
-            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = allPrimitivesMap->begin();it!=allPrimitivesMap->end();it++)
-            {
-                allPrimitivesList->push_back((*it).second);
-            }
-        }
-
-        return allPrimitivesList;
     }
 };
 

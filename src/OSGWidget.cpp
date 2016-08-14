@@ -93,7 +93,7 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
 
 void OSGWidget::selectAllPrimitives()
 {
-    pickingHandler.get()->clearSelectedList();
+    QList<TrianglePrimitive> list;
 
     int i;
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -104,9 +104,16 @@ void OSGWidget::selectAllPrimitives()
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-            pickingHandler.get()->addToSelectedPrimitiveList(userData->getAllPrimitivesList());
+
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            {
+                list.push_back(it->second);
+            }
         }
     }
+
+    pickingHandler.get()->clearSelectedList();
+    pickingHandler.get()->addToSelectedPrimitiveList(list);
 }
 
 void OSGWidget::keyReleaseEvent( QKeyEvent* event )
@@ -286,7 +293,7 @@ osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
     return editableModelGroup;
 }
 
-void OSGWidget::addSelectedToElementList(QString name_space, QString element_name)
+void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
 {
     std::multimap<unsigned int,TrianglePrimitive>* selectedPrimitives =
             pickingHandler.get()->selectedPrimitives;
@@ -294,13 +301,56 @@ void OSGWidget::addSelectedToElementList(QString name_space, QString element_nam
     if(selectedPrimitives->size()<=0)
         return;
 
-    for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+    for(std::multimap<unsigned int,TrianglePrimitive>::iterator itS = selectedPrimitives->begin();itS!=selectedPrimitives->end();itS++)
     {
-        TrianglePrimitive a =(*it).second;
-        a.element_name = element_name;
-        a.name_space = name_space;
+        TrianglePrimitive s = (*itS).second;
+
+        unsigned int i;
+        for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+        {
+            osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
+            {
+                if(s.drawable != geode->getDrawable(i))
+                    continue;
+
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
+                ret = userData->allPrimitivesMap->equal_range(s.primitiveIndex);
+                for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
+                {
+                    s.element_name = element_name;
+                    s.name_space = name_space;
+                    (*it).second = s;
+                }
+            }
+        }
     }
 
+    if(false)
+    {
+        //Test... print out all the element names
+        unsigned int i;
+        for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+        {
+            osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+            for(unsigned int i=0;i<geode->getNumDrawables();i++)
+            {
+
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                {
+                    TrianglePrimitive a = it->second;
+                    qDebug() << a.name_space + ":" + a.element_name ;
+                }
+            }
+
+        }
+    }
 }
 
 TrianglePrimitive& OSGWidget::getPrimitive(osg::Drawable* drawable,

@@ -22,10 +22,6 @@ void UIHelperSingleton::initialize(void)
     feature_vec = new std::vector<QString>();
     name_space_map = new std::map<QString,QString>();
 
-    //Add the default namespace and element
-    feature_vec->push_back(OSGHELPERS::DEFAULT_STR());
-    name_space_map->insert(std::make_pair(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR()));
-
     //Add all relevant building elements for UI
     QString building_namespace = CityGMLNamespace::namespace_building();
     QString Building_feature = BuildingNamespace::FEATURE_Building();
@@ -55,6 +51,10 @@ void UIHelperSingleton::initialize(void)
     QString InteriorWallSurface = BuildingNamespace::FEATURE_InteriorWallSurface();
     feature_vec->push_back(InteriorWallSurface);
     name_space_map->insert(std::make_pair(InteriorWallSurface,building_namespace));
+
+    //Add the default namespace and element
+    feature_vec->push_back(OSGHELPERS::DEFAULT_STR());
+    name_space_map->insert(std::make_pair(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR()));
 
 }
 

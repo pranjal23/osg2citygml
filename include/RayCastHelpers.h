@@ -158,12 +158,12 @@ public:
         return false;
     }
 
-    void addToSelectedPrimitiveList(QList<TrianglePrimitive>* prim_list)
+    void addToSelectedPrimitiveList(QList<TrianglePrimitive>& prim_list)
     {
-        for(int i=0; i<prim_list->size(); i++)
+        for(int i=0; i<prim_list.size(); i++)
         {
             selectedPrimitives->insert(
-                        std::pair<unsigned int,TrianglePrimitive>(prim_list->at(i).primitiveIndex,prim_list->at(i)));
+                        std::pair<unsigned int,TrianglePrimitive>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
         }
         addColor();
     }
@@ -194,9 +194,9 @@ private:
     bool compareNormals(osg::Vec3f m, osg::Vec3f n)
     {
         double weight = osgwidget->getNormalsDistance();
-        if(m.x() - n.x() <= weight
-                && m.y() - n.y() <= weight
-                && m.z() - n.z() <= weight)
+        if(std::abs(m.x() - n.x()) <= weight
+                && std::abs(m.y() - n.y()) <= weight
+                && std::abs(m.z() - n.z()) <= weight)
             return true;
 
         return false;
@@ -247,53 +247,56 @@ private:
         }
 
         selectDeselectPrimitive(firstIntersection.drawable.get(),
-                        firstIntersection.primitiveIndex,
-                        true);
+                                firstIntersection.primitiveIndex,
+                                true);
 
 
         return true;
     }
 
     void selectDeselectPrimitive(osg::Drawable* drawable,
-                         unsigned int index,
-                         bool propagate)
+                                 unsigned int index,
+                                 bool propagate)
     {
 
         TrianglePrimitive stp = osgwidget->getPrimitive(drawable,index);
 
         std::multimap<unsigned int,TrianglePrimitive>::iterator itS;
-        if(osgwidget->getEditableModelGroup() != nullptr && selectedPrimitives->size()>0)
+        if(osgwidget->getEditableModelGroup() != nullptr)
         {
-            std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
-            ret = selectedPrimitives->equal_range(stp.primitiveIndex);
-            for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
+            if(!osgwidget->selectMode)
             {
-                TrianglePrimitive a = it->second;
-                if(a.drawable == stp.drawable)
-                {
-                    itS = it;
-                    break;
-                }
-            }
 
-           if(!osgwidget->selectMode)
-            {
+                std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
+                ret = selectedPrimitives->equal_range(stp.primitiveIndex);
+                for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
+                {
+                    TrianglePrimitive a = it->second;
+                    if(a.drawable == stp.drawable)
+                    {
+                        itS = it;
+                        break;
+                    }
+                }
+
                 selectedPrimitives->erase(itS);
+
                 if(propagate)
                     propagateBySegmentation(stp);
             }
 
-        }
 
-        //Insert into selected primitives list if newly selected
-        if(osgwidget->selectMode)
-        {
-            selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp.primitiveIndex,stp));
-            if(propagate)
-                propagateBySegmentation(stp);
-        }
+            //Insert into selected primitives list if newly selected
+            if(osgwidget->selectMode)
+            {
+                selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp.primitiveIndex,stp));
+                if(propagate)
+                    propagateBySegmentation(stp);
+            }
 
-        addColor();
+            addColor();
+
+        }
     }
 
     int m_xMouseCoordAtLastPress;
