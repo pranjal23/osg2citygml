@@ -147,4 +147,10 @@ void MainWindow::on_AddBtn_clicked()
     QStringList selectedList = selected.split(":");
     QString name_space = selectedList.at(0);
     QString element_name = selectedList.at(1);
+    ui->osgWidget->addSelectedToElementList(name_space,element_name);
+}
+
+void MainWindow::on_pushButton_toggled(bool checked)
+{
+    ui->osgWidget->selectMode = checked;
 }

@@ -202,10 +202,10 @@ private:
         return false;
     }
 
-    void selectBySegmentation(TrianglePrimitive* stp)
+    void propagateBySegmentation(TrianglePrimitive& stp)
     {
-        osg::Geometry* geometry = stp->drawable.get()->asGeometry();
-        unsigned int primIndx = stp->primitiveIndex;
+        osg::Geometry* geometry = stp.drawable.get()->asGeometry();
+        unsigned int primIndx = stp.primitiveIndex;
 
         if(osgwidget->getNormalsBasedSegmentation())
         {
@@ -226,7 +226,7 @@ private:
 
                     if(compareNormals(selectedNormal,currNormal))
                     {
-                        selectPrimitive(stp->drawable.get(),i,false, false);
+                        selectDeselectPrimitive(stp.drawable.get(),i,false);
                     }
                 }
             }
@@ -239,7 +239,6 @@ private:
         if (!aa.computeIntersections(ea, intersections)) {
             return false;
         }
-        //qDebug() << "In selectIntersectedPrimitives...";
 
         osgUtil::LineSegmentIntersector::Intersection firstIntersection = *intersections.begin();
 
@@ -247,54 +246,51 @@ private:
             return false;
         }
 
-        selectPrimitive(firstIntersection.drawable.get(),
+        selectDeselectPrimitive(firstIntersection.drawable.get(),
                         firstIntersection.primitiveIndex,
-                        true,
                         true);
 
 
         return true;
     }
 
-    void selectPrimitive(osg::Drawable* drawable,
+    void selectDeselectPrimitive(osg::Drawable* drawable,
                          unsigned int index,
-                         bool propagate,
-                         bool onUserAction )
+                         bool propagate)
     {
-        TrianglePrimitive* stp = new TrianglePrimitive;
-        stp->drawable = drawable;
-        stp->primitiveIndex = index;
 
-        //Find if exists selected map then then remove
-        bool unselected = true;
+        TrianglePrimitive stp = osgwidget->getPrimitive(drawable,index);
+
+        std::multimap<unsigned int,TrianglePrimitive>::iterator itS;
         if(osgwidget->getEditableModelGroup() != nullptr && selectedPrimitives->size()>0)
         {
-            std::multimap<unsigned int,TrianglePrimitive>::iterator itS;
-            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+            std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
+            ret = selectedPrimitives->equal_range(stp.primitiveIndex);
+            for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
             {
-                TrianglePrimitive a =(*it).second;
-                if(a.drawable.get() == stp->drawable
-                        && a.primitiveIndex == stp->primitiveIndex)
+                TrianglePrimitive a = it->second;
+                if(a.drawable == stp.drawable)
                 {
                     itS = it;
-                    unselected = false;
                     break;
                 }
             }
 
-            if(!unselected && onUserAction)
+           if(!osgwidget->selectMode)
             {
                 selectedPrimitives->erase(itS);
+                if(propagate)
+                    propagateBySegmentation(stp);
             }
+
         }
 
         //Insert into selected primitives list if newly selected
-        if(unselected)
+        if(osgwidget->selectMode)
         {
-            selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp->primitiveIndex,*stp));
-
+            selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp.primitiveIndex,stp));
             if(propagate)
-                selectBySegmentation(stp);
+                propagateBySegmentation(stp);
         }
 
         addColor();

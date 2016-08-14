@@ -104,7 +104,7 @@ void OSGWidget::selectAllPrimitives()
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-            pickingHandler.get()->addToSelectedPrimitiveList(userData->allPrimitivesList);
+            pickingHandler.get()->addToSelectedPrimitiveList(userData->getAllPrimitivesList());
         }
     }
 }
@@ -286,10 +286,51 @@ osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
     return editableModelGroup;
 }
 
-void addSelectedPrimitivesToElements(QString name_space, QString element_name)
+void OSGWidget::addSelectedToElementList(QString name_space, QString element_name)
 {
+    std::multimap<unsigned int,TrianglePrimitive>* selectedPrimitives =
+            pickingHandler.get()->selectedPrimitives;
+
+    if(selectedPrimitives->size()<=0)
+        return;
+
+    for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives->begin();it!=selectedPrimitives->end();it++)
+    {
+        TrianglePrimitive a =(*it).second;
+        a.element_name = element_name;
+        a.name_space = name_space;
+    }
 
 }
+
+TrianglePrimitive& OSGWidget::getPrimitive(osg::Drawable* drawable,
+                                           unsigned int index)
+{
+    unsigned int i;
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+    {
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        {
+            if(drawable!=geode->getDrawable(i))
+                continue;
+
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+            std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
+            ret = userData->allPrimitivesMap->equal_range(index);
+            for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
+            {
+                return it->second;
+            }
+        }
+
+    }
+
+    throw new QException();
+}
+
 
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
     ConvertToTrianglePrimitives triangleConverter;

@@ -156,6 +156,10 @@ class TrianglePrimitive : public osg::Referenced
 public:
     osg::ref_ptr<osg::Drawable> drawable;
     unsigned int primitiveIndex = -1;
+
+    //Citygml related tagging
+    QString name_space = OSGHELPERS::DEFAULT_STR();
+    QString element_name = OSGHELPERS::DEFAULT_STR();
 };
 
 class TriangleIndexes
@@ -166,49 +170,30 @@ public:
     unsigned int vertexId3;
 };
 
-class CityGMLElement : public osg::Referenced
-{
-public:
-    QString nameSpace;
-    QString elementName;
-    QList<TrianglePrimitive>* elem_primList;
-
-    CityGMLElement(QString name_space, QString element_name)
-    {
-        nameSpace = name_space;
-        elementName = element_name;
-        elem_primList = new QList<TrianglePrimitive>();
-    }
-};
-
 class UserData  : public osg::Referenced
 {
 public:
     osg::ref_ptr<osg::Vec3Array> faceNormals;
-    QList<CityGMLElement>* cityGMLElementList;
+    std::multimap<unsigned int,TrianglePrimitive>* allPrimitivesMap;
     QList<TrianglePrimitive>* allPrimitivesList;
 
     UserData()
     {
-        cityGMLElementList = new QList<CityGMLElement>();
-        allPrimitivesList = new QList<TrianglePrimitive>();
-
-        CityGMLElement* e = new CityGMLElement(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
-        cityGMLElementList->push_back(*e);
-
+        allPrimitivesMap = new std::multimap<unsigned int,TrianglePrimitive>();
+        allPrimitivesList = new QList<TrianglePrimitive>;
     }
 
-    int getCityGMLElementIndex(QString name_space,QString element_name)
+    QList<TrianglePrimitive>* getAllPrimitivesList()
     {
-        for (unsigned int i = 0; i < cityGMLElementList->size(); i++)
+        if(allPrimitivesList->size()==0)
         {
-            CityGMLElement e = cityGMLElementList->at(i);
-            if(e.elementName == element_name && e.nameSpace == name_space)
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = allPrimitivesMap->begin();it!=allPrimitivesMap->end();it++)
             {
-                return i;
+                allPrimitivesList->push_back((*it).second);
             }
         }
-        return -1;
+
+        return allPrimitivesList;
     }
 };
 
@@ -329,17 +314,9 @@ public:
                 trianglePrimitive->drawable = geometry->asDrawable();
                 trianglePrimitive->primitiveIndex = prn;
 
-                //Add primitives to a common list for quick parsing
-                userData->allPrimitivesList->push_back(*trianglePrimitive);
-
-                //Add all elements to default element list
-                int element_index = userData->getCityGMLElementIndex(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR());
-                if(element_index >= 0)
-                {
-                    CityGMLElement default_element = userData->cityGMLElementList->at(element_index);
-                    default_element.elem_primList->push_back(*trianglePrimitive);
-                }
-
+                //Add primitives to a common map for quick parsing
+                userData->allPrimitivesMap->insert(
+                            std::pair<unsigned int,TrianglePrimitive>(prn,*trianglePrimitive));
             }
 
             if(verbose)

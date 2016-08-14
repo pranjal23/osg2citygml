@@ -4,6 +4,7 @@
 
 #include <QPoint>
 #include <QOpenGLWidget>
+#include <QException>
 
 #include <osg/ref_ptr>
 
@@ -64,7 +65,10 @@ public:
   void setNormalsDistance(double value);
   double getNormalsDistance();
   void selectAllPrimitives();
+  void addSelectedToElementList(QString name_space, QString element_name);
   osg::ref_ptr<osg::Group> getEditableModelGroup();
+  TrianglePrimitive& getPrimitive(osg::Drawable* drawable, unsigned int index);
+  bool selectMode = true;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -90,7 +94,6 @@ private:
   bool normalsBasedSegmentation = false;
   double normalsDistance = 0.0;
 
-  bool selectMode = true;
 
   osgGA::EventQueue* getEventQueue() const;
 

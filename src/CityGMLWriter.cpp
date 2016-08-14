@@ -70,23 +70,16 @@ void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWrite
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            int element_index = userData->getCityGMLElementIndex(name_space,element_name);
-
-            if(element_index >= 0)
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
             {
-                CityGMLElement element = userData->cityGMLElementList->at(element_index);
-
-                QList<TrianglePrimitive>* elementList = dynamic_cast<QList<TrianglePrimitive>*>(element.elem_primList);
-                for (unsigned int i = 0; i < elementList->size(); i++)
+                TrianglePrimitive a =(*it).second;
+                if(a.element_name == element_name
+                        && a.name_space == name_space)
                 {
-
-
-                    TrianglePrimitive prim = elementList->at(i);
-                    osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[prim.primitiveIndex];
+                    //TODO: Output the geometry as per GML Specifications
+                    osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[a.primitiveIndex];
                     osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
                     xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
-
-
                 }
             }
         }

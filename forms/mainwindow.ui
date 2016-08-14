@@ -532,7 +532,7 @@
     padding: 2px;</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="genTab">
       <attribute name="title">
@@ -1967,6 +1967,12 @@ QPushButton:checked {
        </property>
        <property name="text">
         <string>Select</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>
