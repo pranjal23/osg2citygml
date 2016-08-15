@@ -26,6 +26,7 @@ void CityGMLWriter::writeNameSpaces(QXmlStreamWriter& xmlWriter)
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_smil20_loc(), CityGMLNamespace::namespace_smil20() );
 
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_appearance_loc(), CityGMLNamespace::namespace_appearance() );
+    xmlWriter.writeNamespace( CityGMLNamespace::namespace_building_loc(), CityGMLNamespace::namespace_building() );
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_bridge_loc(), CityGMLNamespace::namespace_bridge() );
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_cityfurniture_loc(), CityGMLNamespace::namespace_cityfurniture() );
     xmlWriter.writeNamespace( CityGMLNamespace::namespace_citygmlbase_loc(), CityGMLNamespace::namespace_citygmlbase() );
@@ -92,41 +93,47 @@ void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWrite
     QString elementName2 =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_groupMember());
     xmlWriter.writeStartElement(elementName2);
 
-    QString elementName3 =  getElementName(name_space,element_name);
-    xmlWriter.writeStartElement(elementName3);
+    if(name_space!=OSGHELPERS::DEFAULT_STR())
+    {
+        QString elementName3 =  getElementName(name_space,element_name);
+        xmlWriter.writeStartElement(elementName3);
+    }
 
     unsigned int j;
     for(j=0; j < list.size(); j++)
     {
-        QString elementName4 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Polygon());
+        QString elementName4 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Triangle());
         xmlWriter.writeStartElement(elementName4);
 
-            QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_exterior());
-            xmlWriter.writeStartElement(elementName5);
+        QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_exterior());
+        xmlWriter.writeStartElement(elementName5);
 
-                QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
-                xmlWriter.writeStartElement(elementName6);
+        QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
+        xmlWriter.writeStartElement(elementName6);
 
-                    QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
-                    xmlWriter.writeStartElement(elementName7);
+        QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
+        xmlWriter.writeStartElement(elementName7);
 
-                        xmlWriter.writeAttribute(GMLNamespace::AttributeName_srsDimension() ,"3");
+        xmlWriter.writeAttribute(GMLNamespace::AttributeName_srsDimension() ,"3");
 
-                        TrianglePrimitive a = list.at(j);
-                        osg::PrimitiveSet* prset = a.drawable->asGeometry()->getPrimitiveSetList()[a.primitiveIndex];
-                        osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(a.drawable->asGeometry()->getVertexArray());
-                        xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+        TrianglePrimitive a = list.at(j);
+        osg::PrimitiveSet* prset = a.drawable->asGeometry()->getPrimitiveSetList()[a.primitiveIndex];
+        osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(a.drawable->asGeometry()->getVertexArray());
+        xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
 
-                    xmlWriter.writeEndElement();
+        xmlWriter.writeEndElement();
 
-                xmlWriter.writeEndElement();
+        xmlWriter.writeEndElement();
 
-            xmlWriter.writeEndElement();
+        xmlWriter.writeEndElement();
 
         xmlWriter.writeEndElement();
     }
 
-    xmlWriter.writeEndElement();
+    if(name_space!=OSGHELPERS::DEFAULT_STR())
+    {
+        xmlWriter.writeEndElement();
+    }
 
     xmlWriter.writeEndElement();
 }

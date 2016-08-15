@@ -3,6 +3,7 @@
 #define OSGHELPERS_H__
 
 #include <QDebug>
+#include <QException>
 
 #include <osg/Group>
 #include <osg/Vec3>
@@ -33,20 +34,37 @@ public:
 
     static QString getPrimSetVerticesAsString(osg::PrimitiveSet* prset, osg::Vec3Array *verts)
     {
-        QString vertexes = "";
+        if(prset->getNumIndices()<3)
+        {
+            throw new QException();
+        }
+
+        QList<QString> list;
+
         unsigned int ic;
-
-        qDebug() << "Number of vertices in the primitive set: " + QString::number(prset->getNumIndices());
-
         for (ic=0; ic < prset->getNumIndices(); ic++)
         {
             unsigned int vertexId = prset->index(ic);
-            vertexes +=  QString::number((* verts)[vertexId].x()) + " " +
-                    QString::number((* verts)[vertexId].y()) + " " +
-                    QString::number((* verts)[vertexId].z());
+            list.push_back(
+                        QString::number((* verts)[vertexId].x()) + " " +
+                        QString::number((* verts)[vertexId].y()) + " " +
+                        QString::number((* verts)[vertexId].z()) + " "
+                        );
         }
 
-        return vertexes;
+        QString vertexes = "";
+
+        unsigned int i;
+        for (i=0; i < list.size(); i++)
+        {
+            vertexes += list.at(i);
+        }
+
+        //Add the first vertex cordinates in the end to complete the Linear Ring
+        vertexes += list.at(0);
+
+
+        return vertexes.trimmed();
     }
 
     static void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)

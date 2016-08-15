@@ -55,6 +55,7 @@ public:
     const static QString GEOMETRY_Surface (void){return  "Surface";}
     const static QString GEOMETRY_CompositeSurface (void){return  "CompositeSurface";}
     const static QString GEOMETRY_Polygon (void){return  "Polygon";}
+    const static QString GEOMETRY_Triangle (void){return  "Triangle";}
     const static QString GEOMETRY_OrientableSurface (void){return  "OrientableSurface";}
     const static QString GEOMETRY_LinearRing (void){return  "LinearRing";}
 
