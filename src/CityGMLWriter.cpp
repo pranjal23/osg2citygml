@@ -60,11 +60,14 @@ void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
 
 void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name)
 {
-    int i;
-    for (i = 0; i < group->getNumChildren(); i++)
+    QList<TrianglePrimitive> list;
+
+    unsigned int k;
+    for (k = 0; k < group->getNumChildren(); k++)
     {
-        osg::Geode* geode = (osg::Geode*)group->getChild(i);
-        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        osg::Geode* geode = (osg::Geode*)group->getChild(k);
+        unsigned int i;
+        for(i=0; i < geode->getNumDrawables(); i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
@@ -76,14 +79,56 @@ void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWrite
                 if(a.element_name == element_name
                         && a.name_space == name_space)
                 {
-                    //TODO: Output the geometry as per GML Specifications
-                    osg::PrimitiveSet* prset = geometry->getPrimitiveSetList()[a.primitiveIndex];
-                    osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
-                    xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+                    list.push_back(a);
                 }
             }
         }
     }
+
+    if(list.size()<=0)
+        return;
+
+    //Write CityGMLElement from UI
+    QString elementName2 =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_groupMember());
+    xmlWriter.writeStartElement(elementName2);
+
+    QString elementName3 =  getElementName(name_space,element_name);
+    xmlWriter.writeStartElement(elementName3);
+
+    unsigned int j;
+    for(j=0; j < list.size(); j++)
+    {
+        QString elementName4 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Polygon());
+        xmlWriter.writeStartElement(elementName4);
+
+            QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_exterior());
+            xmlWriter.writeStartElement(elementName5);
+
+                QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
+                xmlWriter.writeStartElement(elementName6);
+
+                    QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
+                    xmlWriter.writeStartElement(elementName7);
+
+                        xmlWriter.writeAttribute(GMLNamespace::AttributeName_srsDimension() ,"3");
+
+                        TrianglePrimitive a = list.at(j);
+                        osg::PrimitiveSet* prset = a.drawable->asGeometry()->getPrimitiveSetList()[a.primitiveIndex];
+                        osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(a.drawable->asGeometry()->getVertexArray());
+                        xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
+
+                    xmlWriter.writeEndElement();
+
+                xmlWriter.writeEndElement();
+
+            xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+    }
+
+    xmlWriter.writeEndElement();
+
+    xmlWriter.writeEndElement();
 }
 
 void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& xmlWriter)
@@ -95,22 +140,13 @@ void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& x
     std::vector<QString>* feature_vector = uIHelperSingleton->getFeatrueVector();
     std::map<QString,QString>*name_space_map = uIHelperSingleton->getNameSpaceMap();
 
-    for(int i=0; i<feature_vector->size(); i++)
+    unsigned int i;
+    for( i=0; i<feature_vector->size(); i++)
     {
-        QString elementName2 =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_groupMember());
-        xmlWriter.writeStartElement(elementName2);
-
         QString element_name = feature_vector->at(i);
         QString name_space = (*name_space_map)[element_name];
 
-        QString elementName3 =  getElementName(name_space,element_name);
-        xmlWriter.writeStartElement(elementName3);
-
         writeGeometry(group , xmlWriter, name_space, element_name);
-
-        xmlWriter.writeEndElement();
-
-        xmlWriter.writeEndElement();
     }
 
     xmlWriter.writeEndElement();

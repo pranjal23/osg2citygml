@@ -36,10 +36,12 @@ public:
         QString vertexes = "";
         unsigned int ic;
 
+        qDebug() << "Number of vertices in the primitive set: " + QString::number(prset->getNumIndices());
+
         for (ic=0; ic < prset->getNumIndices(); ic++)
         {
             unsigned int vertexId = prset->index(ic);
-            vertexes =  QString::number((* verts)[vertexId].x()) + " " +
+            vertexes +=  QString::number((* verts)[vertexId].x()) + " " +
                     QString::number((* verts)[vertexId].y()) + " " +
                     QString::number((* verts)[vertexId].z());
         }
