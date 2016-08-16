@@ -66,6 +66,8 @@ public:
   double getNormalsDistance();
   void selectAllPrimitives();
   void tagSelectedItems(QString name_space, QString element_name);
+  void selectElementItems(QString name_space, QString element_name);
+
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   TrianglePrimitive& getPrimitive(osg::Drawable* drawable, unsigned int index);
 

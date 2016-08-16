@@ -69,6 +69,14 @@ void UIHelperSingleton::initialize(void)
     feature_vec->push_back(OuterFloorSurface_feature);
     name_space_map->insert(std::make_pair(OuterFloorSurface_feature,building_namespace));
 
+    QString Door_feature = BuildingNamespace::FEATURE_Door();
+    feature_vec->push_back(Door_feature);
+    name_space_map->insert(std::make_pair(Door_feature,building_namespace));
+
+    QString Window_feature = BuildingNamespace::FEATURE_Window();
+    feature_vec->push_back(Window_feature);
+    name_space_map->insert(std::make_pair(Window_feature,building_namespace));
+
     //Add the default namespace and element
     //feature_vec->push_back(OSGHELPERS::DEFAULT_STR());
     //name_space_map->insert(std::make_pair(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR()));

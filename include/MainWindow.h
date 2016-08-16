@@ -40,6 +40,7 @@ private slots:
   void on_flatShadingRb_toggled(bool checked);
   void on_AddBtn_clicked();
   void on_pushButton_toggled(bool checked);
+  void on_elemSelBtn_clicked();
 };
 
 #endif

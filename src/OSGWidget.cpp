@@ -92,31 +92,6 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
     this->getEventQueue()->keyPress( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
 }
 
-void OSGWidget::selectAllPrimitives()
-{
-    QList<TrianglePrimitive> list;
-
-    int i;
-    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
-    {
-        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
-        for(unsigned int i=0;i<geode->getNumDrawables();i++)
-        {
-            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-
-            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
-            {
-                list.push_back(it->second);
-            }
-        }
-    }
-
-    pickingHandler.get()->clearSelectedList();
-    pickingHandler.get()->addToSelectedPrimitiveList(list);
-}
-
 void OSGWidget::keyReleaseEvent( QKeyEvent* event )
 {
     QString keyString   = event->text();
@@ -292,6 +267,62 @@ double OSGWidget::getNormalsDistance()
 osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
 {
     return editableModelGroup;
+}
+
+void OSGWidget::selectAllPrimitives()
+{
+    QList<TrianglePrimitive> list;
+
+    int i;
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+    {
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            {
+                list.push_back(it->second);
+            }
+        }
+    }
+
+    pickingHandler.get()->clearSelectedList();
+    pickingHandler.get()->addToSelectedPrimitiveList(list);
+}
+
+void OSGWidget::selectElementItems(QString name_space, QString element_name)
+{
+    QList<TrianglePrimitive> list;
+
+    unsigned int k;
+    for (k = 0; k < editableModelGroup.get()->getNumChildren(); k++)
+    {
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(k);
+        unsigned int i;
+        for(i=0; i < geode->getNumDrawables(); i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+            for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            {
+                TrianglePrimitive a =(*it).second;
+                if(a.element_name == element_name
+                        && a.name_space == name_space)
+                {
+                    list.push_back(a);
+                }
+            }
+        }
+    }
+
+    //pickingHandler.get()->clearSelectedList();
+    pickingHandler.get()->addToSelectedPrimitiveList(list);
 }
 
 void OSGWidget::tagSelectedItems(QString name_space, QString element_name)

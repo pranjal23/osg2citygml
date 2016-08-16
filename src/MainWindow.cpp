@@ -33,6 +33,8 @@ MainWindow::MainWindow( QWidget* parent)
     for(int i=0;i<vector.size();i++)
     {
         ui->elementCB->addItem(vector.at(i));
+
+        ui->elementSelectCB->addItem(vector.at(i));
     }
 
     //TEST TBR
@@ -153,4 +155,13 @@ void MainWindow::on_AddBtn_clicked()
 void MainWindow::on_pushButton_toggled(bool checked)
 {
     ui->osgWidget->selectMode = checked;
+}
+
+void MainWindow::on_elemSelBtn_clicked()
+{
+    QString selected = ui->elementSelectCB->itemText(ui->elementSelectCB->currentIndex());
+    QStringList selectedList = selected.split(":");
+    QString name_space = selectedList.at(0);
+    QString element_name = selectedList.at(1);
+    ui->osgWidget->selectElementItems(name_space,element_name);
 }
