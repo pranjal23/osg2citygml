@@ -43,19 +43,22 @@
 #include <citygml/texture.h>
 #include <citygml/citygmllogger.h>
 
+#include "OSGWidget.h"
+
 class CityGMLWriter {
     public :
-        CityGMLWriter(QString fileName);
+        CityGMLWriter(QString fileName, OSGWidget* osgwidget);
         void write(osg::Group* group);
 
     private :
         QString fileName;
+        OSGWidget* osgwidget;
         void writeDescription(QXmlStreamWriter& xmlWriter);
         void writeName(QXmlStreamWriter& xmlWriter);
         void writeNameSpaces(QXmlStreamWriter& xmlWriter);
         void writeCityObjectMember(osg::Group* group, QXmlStreamWriter& xmlWriter);
         void writeCityObjectGroup(osg::Group* group, QXmlStreamWriter& xmlWriter);
-        void writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name);
+        void writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name);
 
 };
 

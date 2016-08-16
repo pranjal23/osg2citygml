@@ -138,7 +138,12 @@ public:
     const static QString FEATURE_OuterCeilingSurface(void){return "OuterCeilingSurface";}
     const static QString FEATURE_OuterFloorSurface(void){return "OuterFloorSurface";}
 
-    const static QString GEOMETRY_lod3MultiSurface(void){return "lod3MultiSurface";}
+    const static QString TYPE_lod1MultiSurface(void){return "lod1MultiSurface";}
+    const static QString TYPE_lod2MultiSurface(void){return "lod2MultiSurface";}
+    const static QString TYPE_lod3MultiSurface(void){return "lod3MultiSurface";}
+    const static QString TYPE_lod4MultiSurface(void){return "lod4MultiSurface";}
+
+    const static QString META_boundedBy(void){return "boundedBy";}
 };
 
 class CityGMLBaseNamespace {

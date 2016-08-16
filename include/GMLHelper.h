@@ -70,6 +70,7 @@ public:
      */
     const static QString GEOMETRY_exterior (void){return  "exterior";}
     const static QString GEOMETRY_posList (void){return  "posList";}
+    const static QString GEOMETRY_pos (void){return  "pos";}
 
 
 };

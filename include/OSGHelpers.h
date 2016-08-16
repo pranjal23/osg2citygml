@@ -32,7 +32,7 @@ public:
         qDebug() << "";
     }
 
-    static QString getPrimSetVerticesAsString(osg::PrimitiveSet* prset, osg::Vec3Array *verts)
+    static QList<QString> getPrimSetVerticesAsString(osg::PrimitiveSet* prset, osg::Vec3Array *verts)
     {
         if(prset->getNumIndices()<3)
         {
@@ -48,23 +48,14 @@ public:
             list.push_back(
                         QString::number((* verts)[vertexId].x()) + " " +
                         QString::number((* verts)[vertexId].y()) + " " +
-                        QString::number((* verts)[vertexId].z()) + " "
+                        QString::number((* verts)[vertexId].z())
                         );
         }
 
-        QString vertexes = "";
+        QString firstVertex = list.at(0);
+        list.push_back(firstVertex);
 
-        unsigned int i;
-        for (i=0; i < list.size(); i++)
-        {
-            vertexes += list.at(i);
-        }
-
-        //Add the first vertex cordinates in the end to complete the Linear Ring
-        vertexes += list.at(0);
-
-
-        return vertexes.trimmed();
+        return list;
     }
 
     static void printVertexArray(unsigned int vertexId, const osg::Vec3Array *verts)

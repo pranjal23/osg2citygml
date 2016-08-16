@@ -40,7 +40,7 @@
 #include <QWheelEvent>
 
 #include "OSGHelpers.h"
-#include "CityGMLWriter.h"
+
 
 class OSGWidget : public QOpenGLWidget
 {
@@ -68,7 +68,9 @@ public:
   void tagSelectedItems(QString name_space, QString element_name);
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   TrianglePrimitive& getPrimitive(osg::Drawable* drawable, unsigned int index);
+
   bool selectMode = true;
+  bool cityObjectGroup = false;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );

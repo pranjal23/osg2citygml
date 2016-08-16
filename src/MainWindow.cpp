@@ -56,7 +56,7 @@ void MainWindow::open(){
                 this,
                 tr("Open 3D Mesh"),
                 QDir::homePath(),
-                tr("3D Mesh (*.obj *.osg *.ive *.gml)") );
+                tr("3D Mesh (*.obj *.osg *.ive)") );
     if( !filename.isEmpty() )
     {
         onCreateView(filename);

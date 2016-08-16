@@ -1,5 +1,6 @@
 #include "OSGWidget.h"
 #include "RayCastHelpers.h"
+#include "CityGMLWriter.h"
 
 osg::ref_ptr<PickingHandler> pickingHandler;
 
@@ -460,7 +461,7 @@ void OSGWidget::setFile(QString fileName){
 
 void OSGWidget::saveObject2File(QString fileName)
 {
-    CityGMLWriter writer(fileName);
+    CityGMLWriter writer(fileName, this);
     writer.write(editableModelGroup.get());
 }
 

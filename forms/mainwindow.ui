@@ -973,7 +973,7 @@ QPushButton:checked {
 }</string>
        </property>
        <property name="text">
-        <string>Add to group</string>
+        <string>Add Element</string>
        </property>
       </widget>
       <widget class="QLabel" name="label_2">
@@ -1005,6 +1005,19 @@ QPushButton:checked {
          <width>251</width>
          <height>41</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="cityObjectGroupCB">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>170</y>
+         <width>171</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>City Object Group</string>
        </property>
       </widget>
      </widget>

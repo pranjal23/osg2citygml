@@ -4,9 +4,10 @@
 #include "OSGHelpers.h"
 #include "UIHelper.h"
 
-CityGMLWriter::CityGMLWriter(QString fileName)
+CityGMLWriter::CityGMLWriter(QString fileName, OSGWidget* osgwidget)
 {
     this->fileName = fileName;
+    this->osgwidget = osgwidget;
 }
 
 static QString getElementName(QString ns, QString key)
@@ -59,7 +60,7 @@ void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
     xmlWriter.writeEndElement();
 }
 
-void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name)
+void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name)
 {
     QList<TrianglePrimitive> list;
 
@@ -89,59 +90,94 @@ void CityGMLWriter::writeGeometry(osg::Group* group , QXmlStreamWriter& xmlWrite
     if(list.size()<=0)
         return;
 
-    //Write CityGMLElement from UI
-    QString elementName2 =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_groupMember());
-    xmlWriter.writeStartElement(elementName2);
-
-    if(name_space!=OSGHELPERS::DEFAULT_STR())
-    {
-        QString elementName3 =  getElementName(name_space,element_name);
-        xmlWriter.writeStartElement(elementName3);
-    }
+    QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
+    xmlWriter.writeStartElement(elementName1);
 
     unsigned int j;
     for(j=0; j < list.size(); j++)
     {
-        QString elementName4 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Triangle());
+        QString elementName2 =  getElementName(name_space,BuildingNamespace::META_boundedBy());
+        xmlWriter.writeStartElement(elementName2);
+
+        QString elementName3 =  getElementName(name_space,element_name);
+        xmlWriter.writeStartElement(elementName3);
+
+        QString elementName4 =  getElementName(name_space,BuildingNamespace::TYPE_lod2MultiSurface());
         xmlWriter.writeStartElement(elementName4);
 
-        QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_exterior());
+        QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_MultiSurface());
         xmlWriter.writeStartElement(elementName5);
 
-        QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
+        QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_surfaceMember());
         xmlWriter.writeStartElement(elementName6);
 
-        QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
-        xmlWriter.writeStartElement(elementName7);
 
-        xmlWriter.writeAttribute(GMLNamespace::AttributeName_srsDimension() ,"3");
+
+        //This can be reused at other places
+        {
+        QString elementName40 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Polygon());
+        xmlWriter.writeStartElement(elementName40);
+
+        QString elementName50 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_exterior());
+        xmlWriter.writeStartElement(elementName50);
+
+        QString elementName60 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
+        xmlWriter.writeStartElement(elementName60);
 
         TrianglePrimitive a = list.at(j);
         osg::PrimitiveSet* prset = a.drawable->asGeometry()->getPrimitiveSetList()[a.primitiveIndex];
         osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(a.drawable->asGeometry()->getVertexArray());
-        xmlWriter.writeCharacters(OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr));
 
-        xmlWriter.writeEndElement();
+        QList<QString> vertexStrlist = OSGHELPERS::getPrimSetVerticesAsString(prset,vecArr);
 
-        xmlWriter.writeEndElement();
+        unsigned int i;
+        for (i=0; i < vertexStrlist.size(); i++)
+        {
+            QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
+            xmlWriter.writeStartElement(elementName7);
 
-        xmlWriter.writeEndElement();
+            xmlWriter.writeCharacters(vertexStrlist.at(i));
 
-        xmlWriter.writeEndElement();
+            xmlWriter.writeEndElement();
+
+        }
+
+        xmlWriter.writeEndElement();//40
+
+        xmlWriter.writeEndElement();//50
+
+        xmlWriter.writeEndElement();//60
+        }
+
+
+
+
+        xmlWriter.writeEndElement(); //6
+
+        xmlWriter.writeEndElement(); //5
+
+        xmlWriter.writeEndElement(); //4
+
+        xmlWriter.writeEndElement(); //3
+
+        xmlWriter.writeEndElement(); //2
+
     }
 
-    if(name_space!=OSGHELPERS::DEFAULT_STR())
-    {
-        xmlWriter.writeEndElement();
-    }
 
     xmlWriter.writeEndElement();
 }
 
 void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& xmlWriter)
 {
-    QString elementName =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_CityObjectGroup());
-    xmlWriter.writeStartElement(elementName);
+    if(osgwidget->cityObjectGroup)
+    {
+        QString elementName =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_CityObjectGroup());
+        xmlWriter.writeStartElement(elementName);
+
+        QString elementName2 =  getElementName(CityGMLNamespace::namespace_cityobjectGroup(),CityObjectGroupNamespace::FEATURE_groupMember());
+        xmlWriter.writeStartElement(elementName2);
+    }
 
     UIHelperSingleton* uIHelperSingleton = UIHelperSingleton::getInstance();
     std::vector<QString>* feature_vector = uIHelperSingleton->getFeatrueVector();
@@ -153,10 +189,18 @@ void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& x
         QString element_name = feature_vector->at(i);
         QString name_space = (*name_space_map)[element_name];
 
-        writeGeometry(group , xmlWriter, name_space, element_name);
+        if(name_space==CityGMLNamespace::namespace_building())
+        {
+            writeBuildingGeometry(group , xmlWriter, name_space, element_name);
+        }
     }
 
-    xmlWriter.writeEndElement();
+    if(osgwidget->cityObjectGroup)
+    {
+        xmlWriter.writeEndElement();
+
+        xmlWriter.writeEndElement();
+    }
 }
 
 void CityGMLWriter::writeCityObjectMember(osg::Group* group, QXmlStreamWriter& xmlWriter)
