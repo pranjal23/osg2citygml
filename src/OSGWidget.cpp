@@ -269,6 +269,30 @@ osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
     return editableModelGroup;
 }
 
+QList<PolygonNode>& OSGWidget::getAllPolygonNodes()
+{
+    QList<PolygonNode>* list = new QList<PolygonNode>();
+
+    int i;
+    for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
+    {
+        osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
+        for(unsigned int i=0; i<geode->getNumDrawables(); i++)
+        {
+            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+            for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            {
+                list->push_back(it->second);
+            }
+        }
+    }
+
+    return *list;
+}
+
 void OSGWidget::selectAllPolygons()
 {
     QList<PolygonNode> list;
@@ -277,7 +301,7 @@ void OSGWidget::selectAllPolygons()
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
     {
         osg::Geode* geode = (osg::Geode*)editableModelGroup.get()->getChild(i);
-        for(unsigned int i=0;i<geode->getNumDrawables();i++)
+        for(unsigned int i=0; i<geode->getNumDrawables(); i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
@@ -418,7 +442,6 @@ PolygonNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
                 return it->second;
             }
         }
-
     }
 
     throw new QException();
@@ -436,6 +459,8 @@ void OSGWidget::convertToTrianglePrimitives(bool verbose){
         triangleConverter.setVerbose(verbose);
         triangleConverter.apply(geode);
     }
+
+    triangleConverter.generateNormals(editableModelGroup.get());
 }
 
 void OSGWidget::renderOriginal()
@@ -515,6 +540,14 @@ void OSGWidget::setView(){
 
     stateSet->setAttributeAndModes( material, osg::StateAttribute::ON );
     stateSet->setMode( GL_DEPTH_TEST, osg::StateAttribute::ON );
+
+    stateSet->setMode(GL_BLEND, osg::StateAttribute::ON);
+    stateSet->setRenderingHint(osg::StateSet::TRANSPARENT_BIN);
+    stateSet->setRenderBinDetails(1, "DepthSortedBin");
+
+    osg::CullFace* cull = new osg::CullFace();
+    cull->setMode(osg::CullFace::BACK);
+    stateSet->setAttributeAndModes(cull, osg::StateAttribute::ON);
 
     osg::Camera* camera = new osg::Camera;
     camera->setViewport( 0, 0, this->width(), this->height() );

@@ -162,7 +162,7 @@ public:
 
 };
 
-class PolygonNode : public osg::Referenced
+class PolygonNode
 {
 public:
     osg::ref_ptr<osg::Drawable> drawable;
@@ -171,6 +171,8 @@ public:
     //Citygml related tagging
     QString name_space = OSGHELPERS::DEFAULT_STR();
     QString element_name = OSGHELPERS::DEFAULT_STR();
+
+    osg::Vec3f* faceNormal;
 };
 
 class TriangleIndexes
@@ -184,7 +186,6 @@ public:
 class UserData  : public osg::Referenced
 {
 public:
-    osg::ref_ptr<osg::Vec3Array> faceNormals;
     std::multimap<unsigned int,PolygonNode>* allPrimitivesMap;
 
     UserData()
@@ -341,30 +342,65 @@ public:
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
 
-            //Generate the Normal for each primitive
-            osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
-            osg::Vec3Array* faceNormals = new osg::Vec3Array(geometry->getNumPrimitiveSets());
-            for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
-            {
-                osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-                if(prset->getMode()==osg::PrimitiveSet::TRIANGLES)
-                {
-                    osg::Vec3f* normal = calculateFaceNormal(&(* verts)[prset->index(0)],
-                            &(* verts)[prset->index(1)],
-                            &(* verts)[prset->index(2)]);
-                    (*faceNormals)[ipr].set(normal->x(),normal->y(),normal->z());
-                }
-                else
-                {
-                    qDebug() << "PRSET TYPE: " << prset->getMode() << ", NOT TRIANGLES" ;
-                }
-            }
-
-            userData->faceNormals = osg::ref_ptr<osg::Vec3Array>(faceNormals);
-
             geometry->getOrCreateUserDataContainer()->setUserData(userData);
         }
 
+    }
+
+    void generateNormals(osg::Group* group)
+    {
+        //Generate the Normal for each primitive        
+        unsigned int k;
+        for (k = 0; k < group->getNumChildren(); k++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(k);
+            unsigned int i;
+            for(i=0; i < geode->getNumDrawables(); i++)
+            {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                {
+                    PolygonNode a =(*it).second;
+
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(a.primitiveIndex);
+                    osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+                    if(prset->getNumIndices()>=3)
+                    {
+                        osg::Vec3f* normal = calculateFaceNormal(&(* verts)[prset->index(0)],
+                                &(* verts)[prset->index(1)],
+                                &(* verts)[prset->index(2)]);
+                       a.faceNormal = normal;
+                       (*it).second = a;
+                    }
+                }
+            }
+        }
+
+
+        if(false)
+        {
+            //Test... print out all the element names
+            unsigned int i;
+            for (i = 0; i < group->getNumChildren(); i++)
+            {
+                osg::Geode* geode = (osg::Geode*)group->getChild(i);
+                for(unsigned int j=0;j<geode->getNumDrawables();j++)
+                {
+
+                    osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(j));
+                    UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                    for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                    {
+                        PolygonNode a = it->second;
+                        qDebug() << a.faceNormal ;
+                    }
+                }
+            }
+        }
     }
 
     void setVerbose(bool v){

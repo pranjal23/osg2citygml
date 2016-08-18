@@ -489,8 +489,8 @@
   <widget class="QTabWidget" name="main_widget">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>20</y>
+     <x>0</x>
+     <y>40</y>
      <width>361</width>
      <height>621</height>
     </rect>
@@ -506,7 +506,7 @@
     padding: 2px;</string>
    </property>
    <property name="currentIndex">
-    <number>0</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -865,7 +865,7 @@ QPushButton:checked {
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>90</y>
+        <y>80</y>
         <width>191</width>
         <height>20</height>
        </rect>
@@ -2019,6 +2019,32 @@ QPushButton:checked {
      </widget>
     </widget>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="showMenuCB">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>10</y>
+     <width>141</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: beige;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 2px;
+    border-color: yellow;
+    font: bold 14px;
+    min-width: 2em;
+    padding: 2px;</string>
+   </property>
+   <property name="text">
+    <string>Show Menu</string>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

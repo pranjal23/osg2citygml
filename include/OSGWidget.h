@@ -16,6 +16,7 @@
 #include <osg/DisplaySettings>
 #include <osg/Material>
 #include <osg/StateSet>
+#include <osg/CullFace>
 
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
@@ -71,6 +72,7 @@ public:
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   PolygonNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
+  QList<PolygonNode>& getAllPolygonNodes();
 
   bool selectMode = true;
   bool cityObjectGroup = false;

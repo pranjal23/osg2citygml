@@ -28,11 +28,11 @@ private:
   virtual void keyPressEvent( QKeyEvent* event );
   virtual void mousePressEvent(QMouseEvent* event);
   virtual void mouseMoveEvent(QMouseEvent* event);
+  void showMenu();
 
 private slots:
   void open();
   void save();
-  void on_multilightsBtn_toggled(bool checked);
   void on_normalDistanceSB_valueChanged(double arg1);
   void on_flatShadingRb_toggled(bool checked);
   void on_AddBtn_clicked();
@@ -42,6 +42,8 @@ private slots:
   void on_selectBtn_toggled(bool checked);
   void on_clearSelBtn_clicked();
   void on_selectAllBtn_clicked();
+  void on_showMenuCB_toggled(bool checked);
+  void on_multilightsBtn_toggled(bool checked);
 };
 
 #endif

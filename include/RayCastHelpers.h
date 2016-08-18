@@ -143,7 +143,6 @@ public:
             switch(ea.getKey())
             {
             case 'c':
-                qDebug() << " c key pressed";
                 clearSelectedList();
                 return true;
                 break;
@@ -201,30 +200,21 @@ private:
 
     void propagateBySegmentation(PolygonNode& stp)
     {
-        osg::Geometry* geometry = stp.drawable.get()->asGeometry();
-        unsigned int primIndx = stp.primitiveIndex;
-
         if(osgwidget->getNormalsBasedSegmentation())
         {
-            //Get the Normal for the triangle primitive
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-            osg::Vec3Array* faceNormals
-                    = dynamic_cast<osg::Vec3Array*>(userData->faceNormals.get());
+            osg::Vec3f selectedNormal = *(stp.faceNormal);
 
-            osg::Vec3f selectedNormal = (*faceNormals)[primIndx];
-            if(faceNormals != nullptr)
+            QList<PolygonNode> list = osgwidget->getAllPolygonNodes();
+            for (unsigned int i = 0; i < list.size(); i++)
             {
-                for (unsigned int i = 0; i < faceNormals->size(); i++)
+                if(i == stp.primitiveIndex && list.at(i).drawable == stp.drawable)
+                    continue;
+
+                osg::Vec3f currNormal = *(list.at(i).faceNormal);
+
+                if(compareNormals(selectedNormal,currNormal))
                 {
-                    if(i == primIndx)
-                        continue;
-
-                    osg::Vec3f currNormal = (*faceNormals)[i];
-
-                    if(compareNormals(selectedNormal,currNormal))
-                    {
-                        selectDeselectPrimitive(stp.drawable.get(),i,false);
-                    }
+                    selectDeselectPrimitive(list.at(i).drawable,list.at(i).primitiveIndex,false);
                 }
             }
         }

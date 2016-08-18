@@ -89,10 +89,9 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::keyPressEvent( QKeyEvent* event )
 {
-    if( event->key() == Qt::Key_G )
+    if( event->key() == Qt::Key_M )
     {
-        bool visible = ui->main_widget->isVisible();
-        ui->main_widget->setVisible(!visible);
+        showMenu();
         return;
     }
 
@@ -101,18 +100,17 @@ void MainWindow::keyPressEvent( QKeyEvent* event )
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
-    qDebug() << " MouseEvent in main window 1 ";
     QCoreApplication::sendEvent(this->ui->osgWidget,event);
 }
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event){
-    qDebug() << " MouseEvent in main window 2 ";
     QCoreApplication::sendEvent(this->ui->osgWidget,event);
 }
 
-void MainWindow::on_multilightsBtn_toggled(bool checked)
+void MainWindow::showMenu()
 {
-    ui->osgWidget->setNormalsBasedSegmentation(checked);
+    bool visible = ui->main_widget->isVisible();
+    ui->main_widget->setVisible(!visible);
 }
 
 void MainWindow::on_normalDistanceSB_valueChanged(double value)
@@ -177,4 +175,14 @@ void MainWindow::on_clearSelBtn_clicked()
 void MainWindow::on_selectAllBtn_clicked()
 {
     ui->osgWidget->selectAllPolygons();
+}
+
+void MainWindow::on_showMenuCB_toggled(bool checked)
+{
+    showMenu();
+}
+
+void MainWindow::on_multilightsBtn_toggled(bool checked)
+{
+     ui->osgWidget->setNormalsBasedSegmentation(checked);
 }
