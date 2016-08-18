@@ -162,7 +162,7 @@ public:
 
 };
 
-class TrianglePrimitive : public osg::Referenced
+class PolygonNode : public osg::Referenced
 {
 public:
     osg::ref_ptr<osg::Drawable> drawable;
@@ -185,11 +185,11 @@ class UserData  : public osg::Referenced
 {
 public:
     osg::ref_ptr<osg::Vec3Array> faceNormals;
-    std::multimap<unsigned int,TrianglePrimitive>* allPrimitivesMap;
+    std::multimap<unsigned int,PolygonNode>* allPrimitivesMap;
 
     UserData()
     {
-        allPrimitivesMap = new std::multimap<unsigned int,TrianglePrimitive>();
+        allPrimitivesMap = new std::multimap<unsigned int,PolygonNode>();
     }
 };
 
@@ -306,13 +306,13 @@ public:
                 primSet->push_back(ti.vertexId3);
                 geometry->getPrimitiveSetList().push_back(primSet);
 
-                TrianglePrimitive* trianglePrimitive = new TrianglePrimitive();
+                PolygonNode* trianglePrimitive = new PolygonNode();
                 trianglePrimitive->drawable = geometry->asDrawable();
                 trianglePrimitive->primitiveIndex = prn;
 
                 //Add primitives to a common map for quick parsing
                 userData->allPrimitivesMap->insert(
-                            std::pair<unsigned int,TrianglePrimitive>(prn,*trianglePrimitive));
+                            std::pair<unsigned int,PolygonNode>(prn,*trianglePrimitive));
             }
 
             if(verbose)

@@ -37,7 +37,7 @@ public:
     {}
 
     void apply(osg::Geode& geode,
-               std::multimap<unsigned int,TrianglePrimitive>& selectedPrimitives)
+               std::multimap<unsigned int,PolygonNode>& selectedPrimitives)
     {
         //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
@@ -63,9 +63,9 @@ public:
 
                 if(selectedPrimitives.size()>0)
                 {
-                    for(std::multimap<unsigned int,TrianglePrimitive>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
+                    for(std::multimap<unsigned int,PolygonNode>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
                     {
-                        TrianglePrimitive a =(*it).second;
+                        PolygonNode a =(*it).second;
 
                         if(a.drawable.get() == geometry->asDrawable())
                         {
@@ -73,15 +73,12 @@ public:
                             unsigned int ipr = (*it).first;
                             osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
 
-                            //qDebug() << "Colored primitive-> " << ipr;
-                            //printPrimSet(prset);
-
-                            col = getNewColor(x);
-                            (*colours)[prset->index(0)].set(col->x(),col->y(),col->z(),col->w());
-                            col = getNewColor(x);
-                            (*colours)[prset->index(1)].set(col->x(),col->y(),col->z(),col->w());
-                            col = getNewColor(x);
-                            (*colours)[prset->index(2)].set(col->x(),col->y(),col->z(),col->w());
+                            unsigned int ic;
+                            for (ic=0; ic < prset->getNumIndices(); ic++)
+                            {
+                                col = getNewColor(x);
+                                (*colours)[prset->index(ic)].set(col->x(),col->y(),col->z(),col->w());
+                            }
                         }
                     }
                 }
@@ -107,7 +104,7 @@ private:
 class PickingHandler : public osgGA::GUIEventHandler {
 public:
     OSGWidget* osgwidget;
-    std::multimap<unsigned int,TrianglePrimitive>* selectedPrimitives;
+    std::multimap<unsigned int,PolygonNode>* selectedPrimitives;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
@@ -116,7 +113,7 @@ public:
         osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
-        selectedPrimitives = new std::multimap<unsigned int,TrianglePrimitive>();
+        selectedPrimitives = new std::multimap<unsigned int,PolygonNode>();
         addColor();
     }
 
@@ -158,12 +155,12 @@ public:
         return false;
     }
 
-    void addToSelectedPrimitiveList(QList<TrianglePrimitive>& prim_list)
+    void addToSelectedPrimitiveList(QList<PolygonNode>& prim_list)
     {
         for(int i=0; i<prim_list.size(); i++)
         {
             selectedPrimitives->insert(
-                        std::pair<unsigned int,TrianglePrimitive>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
+                        std::pair<unsigned int,PolygonNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
         }
         addColor();
     }
@@ -202,7 +199,7 @@ private:
         return false;
     }
 
-    void propagateBySegmentation(TrianglePrimitive& stp)
+    void propagateBySegmentation(PolygonNode& stp)
     {
         osg::Geometry* geometry = stp.drawable.get()->asGeometry();
         unsigned int primIndx = stp.primitiveIndex;
@@ -249,7 +246,7 @@ private:
         selectDeselectPrimitive(firstIntersection.drawable.get(),
                                 firstIntersection.primitiveIndex,
                                 true);
-
+        addColor();
 
         return true;
     }
@@ -259,42 +256,43 @@ private:
                                  bool propagate)
     {
 
-        TrianglePrimitive stp = osgwidget->getPrimitive(drawable,index);
+        PolygonNode stp = osgwidget->getPolygonNode(drawable,index);
 
-        std::multimap<unsigned int,TrianglePrimitive>::iterator itS;
+        std::multimap<unsigned int,PolygonNode>::iterator itS;
         if(osgwidget->getEditableModelGroup() != nullptr)
         {
             if(!osgwidget->selectMode)
             {
-
-                std::pair <std::multimap<unsigned int,TrianglePrimitive>::iterator, std::multimap<unsigned int,TrianglePrimitive>::iterator> ret;
+                bool selected = false;
+                std::pair <std::multimap<unsigned int,PolygonNode>::iterator, std::multimap<unsigned int,PolygonNode>::iterator> ret;
                 ret = selectedPrimitives->equal_range(stp.primitiveIndex);
-                for (std::multimap<unsigned int,TrianglePrimitive>::iterator it=ret.first; it!=ret.second; ++it)
+                for (std::multimap<unsigned int,PolygonNode>::iterator it=ret.first; it!=ret.second; ++it)
                 {
-                    TrianglePrimitive a = it->second;
+                    PolygonNode a = it->second;
                     if(a.drawable == stp.drawable)
                     {
                         itS = it;
+                        selected = true;
                         break;
                     }
                 }
 
-                selectedPrimitives->erase(itS);
-
-                if(propagate)
-                    propagateBySegmentation(stp);
+                if(selected)
+                {
+                    selectedPrimitives->erase(itS);
+                    if(propagate)
+                        propagateBySegmentation(stp);
+                }
             }
 
 
             //Insert into selected primitives list if newly selected
             if(osgwidget->selectMode)
             {
-                selectedPrimitives->insert(std::pair<unsigned int,TrianglePrimitive>(stp.primitiveIndex,stp));
+                selectedPrimitives->insert(std::pair<unsigned int,PolygonNode>(stp.primitiveIndex,stp));
                 if(propagate)
                     propagateBySegmentation(stp);
             }
-
-            addColor();
 
         }
     }

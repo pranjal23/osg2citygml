@@ -32,15 +32,16 @@ private:
 private slots:
   void open();
   void save();
-  void on_commandLinkButton_clicked();
-  void on_enableLightBtn_toggled(bool checked);
   void on_multilightsBtn_toggled(bool checked);
   void on_normalDistanceSB_valueChanged(double arg1);
-  void on_commandLinkButton_2_clicked();
   void on_flatShadingRb_toggled(bool checked);
   void on_AddBtn_clicked();
-  void on_pushButton_toggled(bool checked);
   void on_elemSelBtn_clicked();
+  void on_open_btn_clicked();
+  void on_save_btn_clicked();
+  void on_selectBtn_toggled(bool checked);
+  void on_clearSelBtn_clicked();
+  void on_selectAllBtn_clicked();
 };
 
 #endif

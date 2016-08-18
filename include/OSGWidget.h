@@ -64,12 +64,13 @@ public:
   bool getNormalsBasedSegmentation();
   void setNormalsDistance(double value);
   double getNormalsDistance();
-  void selectAllPrimitives();
+  void selectAllPolygons();
+  void clearAllSelection();
   void tagSelectedItems(QString name_space, QString element_name);
   void selectElementItems(QString name_space, QString element_name);
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
-  TrianglePrimitive& getPrimitive(osg::Drawable* drawable, unsigned int index);
+  PolygonNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
 
   bool selectMode = true;
   bool cityObjectGroup = false;

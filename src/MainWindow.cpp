@@ -82,16 +82,6 @@ void MainWindow::save(){
     }
 }
 
-void MainWindow::on_commandLinkButton_clicked()
-{
-    open();
-}
-
-void MainWindow::on_commandLinkButton_2_clicked()
-{
-     save();
-}
-
 void MainWindow::resizeEvent(QResizeEvent* event)
 {
     ui->osgWidget->resizeWidget(this->width(),this->height());
@@ -118,11 +108,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 void MainWindow::mouseMoveEvent(QMouseEvent *event){
     qDebug() << " MouseEvent in main window 2 ";
     QCoreApplication::sendEvent(this->ui->osgWidget,event);
-}
-
-void MainWindow::on_enableLightBtn_toggled(bool checked)
-{
-    ui->osgWidget->setLocationBasedSegmentation(checked);
 }
 
 void MainWindow::on_multilightsBtn_toggled(bool checked)
@@ -152,11 +137,6 @@ void MainWindow::on_AddBtn_clicked()
     ui->osgWidget->tagSelectedItems(name_space,element_name);
 }
 
-void MainWindow::on_pushButton_toggled(bool checked)
-{
-    ui->osgWidget->selectMode = checked;
-}
-
 void MainWindow::on_elemSelBtn_clicked()
 {
     QString selected = ui->elementSelectCB->itemText(ui->elementSelectCB->currentIndex());
@@ -164,4 +144,37 @@ void MainWindow::on_elemSelBtn_clicked()
     QString name_space = selectedList.at(0);
     QString element_name = selectedList.at(1);
     ui->osgWidget->selectElementItems(name_space,element_name);
+}
+
+void MainWindow::on_open_btn_clicked()
+{
+    open();
+}
+
+void MainWindow::on_save_btn_clicked()
+{
+    save();
+}
+
+void MainWindow::on_selectBtn_toggled(bool checked)
+{
+    ui->osgWidget->selectMode = checked;
+    if(checked)
+    {
+        ui->selectBtn->setText("Select Mode");
+    }
+    else
+    {
+        ui->selectBtn->setText("Deselect Mode");
+    }
+}
+
+void MainWindow::on_clearSelBtn_clicked()
+{
+    ui->osgWidget->clearAllSelection();
+}
+
+void MainWindow::on_selectAllBtn_clicked()
+{
+    ui->osgWidget->selectAllPolygons();
 }
