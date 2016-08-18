@@ -506,7 +506,7 @@
     padding: 2px;</string>
    </property>
    <property name="currentIndex">
-    <number>2</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab">
     <attribute name="title">
@@ -691,8 +691,8 @@ QPushButton:checked {
        <string>Open</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>../resources/open.png</normaloff>../resources/open.png</iconset>
+       <iconset resource="../resources/resources.qrc">
+        <normaloff>:/images/open.png</normaloff>:/images/open.png</iconset>
       </property>
      </widget>
      <widget class="QCommandLinkButton" name="save_btn">
@@ -854,8 +854,8 @@ QPushButton:checked {
        <string>Save to CityGML</string>
       </property>
       <property name="icon">
-       <iconset>
-        <normaloff>../resources/save.png</normaloff>../resources/save.png</iconset>
+       <iconset resource="../resources/resources.qrc">
+        <normaloff>:/images/save.png</normaloff>:/images/save.png</iconset>
       </property>
      </widget>
      <widget class="QCheckBox" name="addToSceneCB">
@@ -2056,6 +2056,8 @@ QPushButton:checked {
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>
