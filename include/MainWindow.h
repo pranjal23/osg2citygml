@@ -43,7 +43,7 @@ private slots:
   void on_clearSelBtn_clicked();
   void on_selectAllBtn_clicked();
   void on_showMenuCB_toggled(bool checked);
-  void on_multilightsBtn_toggled(bool checked);
+  void on_normalsBtn_toggled(bool checked);
 };
 
 #endif

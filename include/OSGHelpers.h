@@ -162,17 +162,33 @@ public:
 
 };
 
-class PolygonNode
+class PrimitiveNode
 {
 public:
+    unsigned int nodeId = 0;
     osg::ref_ptr<osg::Drawable> drawable;
-    unsigned int primitiveIndex = -1;
+    unsigned int primitiveIndex = 0;
 
     //Citygml related tagging
     QString name_space = OSGHELPERS::DEFAULT_STR();
     QString element_name = OSGHELPERS::DEFAULT_STR();
 
     osg::Vec3f* faceNormal;
+    osg::Vec3f* centroid;
+};
+
+class Edge
+{
+public:
+    osg::ref_ptr<osg::Drawable> toDrawable;
+    unsigned int primitiveIndex = -1;
+
+    /**
+     * @brief Method from which weight is generated
+     * 1. Maximum links to a PolygonNode is 2 times the number of vertices in the PolygonNode
+     * 2.
+     */
+    int weight=0;
 };
 
 class TriangleIndexes
@@ -186,19 +202,19 @@ public:
 class UserData  : public osg::Referenced
 {
 public:
-    std::multimap<unsigned int,PolygonNode>* allPrimitivesMap;
+    std::multimap<unsigned int,PrimitiveNode>* allPrimitivesMap;
 
     UserData()
     {
-        allPrimitivesMap = new std::multimap<unsigned int,PolygonNode>();
+        allPrimitivesMap = new std::multimap<unsigned int,PrimitiveNode>();
     }
 };
 
-class ConvertToTrianglePrimitives
+class TrianglePrimitivesConverter
 {
 public:
 
-    ConvertToTrianglePrimitives(){}
+    TrianglePrimitivesConverter(){}
 
     bool verbose = false;
     bool printIndexes = false;
@@ -291,11 +307,7 @@ public:
 
             }
 
-            //osg::notify(osg::WARN) << "---- PRINTING BEFORE REMOVAL OF PRIMITIVES ----" << std::endl;
             geometry->getPrimitiveSetList().clear();
-
-
-            UserData* userData = new UserData;
 
             for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
             {
@@ -306,14 +318,6 @@ public:
                 primSet->push_back(ti.vertexId2);
                 primSet->push_back(ti.vertexId3);
                 geometry->getPrimitiveSetList().push_back(primSet);
-
-                PolygonNode* trianglePrimitive = new PolygonNode();
-                trianglePrimitive->drawable = geometry->asDrawable();
-                trianglePrimitive->primitiveIndex = prn;
-
-                //Add primitives to a common map for quick parsing
-                userData->allPrimitivesMap->insert(
-                            std::pair<unsigned int,PolygonNode>(prn,*trianglePrimitive));
             }
 
             if(verbose)
@@ -341,15 +345,59 @@ public:
             //Generate New Normals
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
+        }
 
-            geometry->getOrCreateUserDataContainer()->setUserData(userData);
+    }
+
+
+    void setVerbose(bool v){
+        verbose = v;
+    }
+};
+
+class MetaInformationGenerator
+{
+public:
+    void generate(osg::Group* group)
+    {
+        generateUserData(group);
+        generateNormals(group);
+        generateCentroids(group);
+    }
+
+    void generateUserData(osg::Group* group)
+    {
+        //Generate the Normal for each primitive
+        unsigned int k;
+        for (k = 0; k < group->getNumChildren(); k++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(k);
+            unsigned int i;
+            for(i=0; i < geode->getNumDrawables(); i++)
+            {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+                UserData* userData = new UserData;
+                for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
+                {
+                    PrimitiveNode* polygonNode = new PrimitiveNode();
+                    polygonNode->drawable = geometry->asDrawable();
+                    polygonNode->primitiveIndex = ipr;
+
+                    //Add primitives to a common map for quick parsing
+                    userData->allPrimitivesMap->insert(
+                             std::pair<unsigned int,PrimitiveNode>(ipr,*polygonNode));
+                }
+
+                geometry->getOrCreateUserDataContainer()->setUserData(userData);
+            }
         }
 
     }
 
     void generateNormals(osg::Group* group)
     {
-        //Generate the Normal for each primitive        
+        //Generate the Normal for each primitive
         unsigned int k;
         for (k = 0; k < group->getNumChildren(); k++)
         {
@@ -361,9 +409,9 @@ public:
 
                 UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-                for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
                 {
-                    PolygonNode a =(*it).second;
+                    PrimitiveNode a =(*it).second;
 
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(a.primitiveIndex);
                     osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
@@ -378,33 +426,11 @@ public:
                 }
             }
         }
-
-
-        if(false)
-        {
-            //Test... print out all the element names
-            unsigned int i;
-            for (i = 0; i < group->getNumChildren(); i++)
-            {
-                osg::Geode* geode = (osg::Geode*)group->getChild(i);
-                for(unsigned int j=0;j<geode->getNumDrawables();j++)
-                {
-
-                    osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(j));
-                    UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
-
-                    for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
-                    {
-                        PolygonNode a = it->second;
-                        qDebug() << a.faceNormal ;
-                    }
-                }
-            }
-        }
     }
 
-    void setVerbose(bool v){
-        verbose = v;
+    void generateCentroids(osg::Group* group)
+    {
+
     }
 
 private:
@@ -431,6 +457,26 @@ private:
         return normal;
     }
 
+    osg::Vec3f* calculatePolygonCentroid(QList<osg::Vec3f>& list)
+    {
+
+        osg::Vec3f* centroid = new osg::Vec3f;
+        centroid->set(0.0f,0.0f,0.0f);
+
+        for(unsigned int i=0; i<list.size();i++)
+        {
+            osg::Vec3f U = list.at(i);
+            centroid->x() += U.x();
+            centroid->y() += U.y();
+            centroid->z() += U.z();
+        }
+
+        centroid->x() = centroid->x()/list.size();
+        centroid->y() = centroid->y()/list.size();
+        centroid->z() = centroid->z()/list.size();
+
+        return centroid;
+    }
 };
 
 #endif // OSGHELPERS

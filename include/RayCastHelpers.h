@@ -37,7 +37,7 @@ public:
     {}
 
     void apply(osg::Geode& geode,
-               std::multimap<unsigned int,PolygonNode>& selectedPrimitives)
+               std::multimap<unsigned int,PrimitiveNode>& selectedPrimitives)
     {
         //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
@@ -63,9 +63,9 @@ public:
 
                 if(selectedPrimitives.size()>0)
                 {
-                    for(std::multimap<unsigned int,PolygonNode>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
+                    for(std::multimap<unsigned int,PrimitiveNode>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
                     {
-                        PolygonNode a =(*it).second;
+                        PrimitiveNode a =(*it).second;
 
                         if(a.drawable.get() == geometry->asDrawable())
                         {
@@ -104,7 +104,7 @@ private:
 class PickingHandler : public osgGA::GUIEventHandler {
 public:
     OSGWidget* osgwidget;
-    std::multimap<unsigned int,PolygonNode>* selectedPrimitives;
+    std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
@@ -113,7 +113,7 @@ public:
         osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
-        selectedPrimitives = new std::multimap<unsigned int,PolygonNode>();
+        selectedPrimitives = new std::multimap<unsigned int,PrimitiveNode>();
         addColor();
     }
 
@@ -154,12 +154,12 @@ public:
         return false;
     }
 
-    void addToSelectedPrimitiveList(QList<PolygonNode>& prim_list)
+    void addToSelectedPrimitiveList(QList<PrimitiveNode>& prim_list)
     {
         for(int i=0; i<prim_list.size(); i++)
         {
             selectedPrimitives->insert(
-                        std::pair<unsigned int,PolygonNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
+                        std::pair<unsigned int,PrimitiveNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
         }
         addColor();
     }
@@ -198,13 +198,13 @@ private:
         return false;
     }
 
-    void propagateBySegmentation(PolygonNode& stp)
+    void propagateBySegmentation(PrimitiveNode& stp)
     {
         if(osgwidget->getNormalsBasedSegmentation())
         {
             osg::Vec3f selectedNormal = *(stp.faceNormal);
 
-            QList<PolygonNode> list = osgwidget->getAllPolygonNodes();
+            QList<PrimitiveNode> list = osgwidget->getAllPolygonNodes();
             for (unsigned int i = 0; i < list.size(); i++)
             {
                 if(i == stp.primitiveIndex && list.at(i).drawable == stp.drawable)
@@ -246,19 +246,19 @@ private:
                                  bool propagate)
     {
 
-        PolygonNode stp = osgwidget->getPolygonNode(drawable,index);
+        PrimitiveNode stp = osgwidget->getPolygonNode(drawable,index);
 
-        std::multimap<unsigned int,PolygonNode>::iterator itS;
+        std::multimap<unsigned int,PrimitiveNode>::iterator itS;
         if(osgwidget->getEditableModelGroup() != nullptr)
         {
             if(!osgwidget->selectMode)
             {
                 bool selected = false;
-                std::pair <std::multimap<unsigned int,PolygonNode>::iterator, std::multimap<unsigned int,PolygonNode>::iterator> ret;
+                std::pair <std::multimap<unsigned int,PrimitiveNode>::iterator, std::multimap<unsigned int,PrimitiveNode>::iterator> ret;
                 ret = selectedPrimitives->equal_range(stp.primitiveIndex);
-                for (std::multimap<unsigned int,PolygonNode>::iterator it=ret.first; it!=ret.second; ++it)
+                for (std::multimap<unsigned int,PrimitiveNode>::iterator it=ret.first; it!=ret.second; ++it)
                 {
-                    PolygonNode a = it->second;
+                    PrimitiveNode a = it->second;
                     if(a.drawable == stp.drawable)
                     {
                         itS = it;
@@ -279,7 +279,7 @@ private:
             //Insert into selected primitives list if newly selected
             if(osgwidget->selectMode)
             {
-                selectedPrimitives->insert(std::pair<unsigned int,PolygonNode>(stp.primitiveIndex,stp));
+                selectedPrimitives->insert(std::pair<unsigned int,PrimitiveNode>(stp.primitiveIndex,stp));
                 if(propagate)
                     propagateBySegmentation(stp);
             }

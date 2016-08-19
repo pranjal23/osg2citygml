@@ -91,7 +91,7 @@ void MainWindow::keyPressEvent( QKeyEvent* event )
 {
     if( event->key() == Qt::Key_M )
     {
-        showMenu();
+        ui->showMenuCB->toggle();
         return;
     }
 
@@ -182,7 +182,18 @@ void MainWindow::on_showMenuCB_toggled(bool checked)
     showMenu();
 }
 
-void MainWindow::on_multilightsBtn_toggled(bool checked)
+void MainWindow::on_normalsBtn_toggled(bool checked)
 {
-     ui->osgWidget->setNormalsBasedSegmentation(checked);
+    ui->osgWidget->setNormalsBasedSegmentation(checked);
+
+    if(checked)
+    {
+        ui->spatialGrp->setEnabled(true);
+        ui->spatialBtn->setEnabled(true);
+    }
+    else
+    {
+        ui->spatialBtn->setEnabled(false);
+        ui->spatialBtn->setEnabled(false);
+    }
 }

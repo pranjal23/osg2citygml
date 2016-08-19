@@ -269,9 +269,9 @@ osg::ref_ptr<osg::Group> OSGWidget::getEditableModelGroup()
     return editableModelGroup;
 }
 
-QList<PolygonNode>& OSGWidget::getAllPolygonNodes()
+QList<PrimitiveNode>& OSGWidget::getAllPolygonNodes()
 {
-    QList<PolygonNode>* list = new QList<PolygonNode>();
+    QList<PrimitiveNode>* list = new QList<PrimitiveNode>();
 
     int i;
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -283,7 +283,7 @@ QList<PolygonNode>& OSGWidget::getAllPolygonNodes()
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
             {
                 list->push_back(it->second);
             }
@@ -295,7 +295,7 @@ QList<PolygonNode>& OSGWidget::getAllPolygonNodes()
 
 void OSGWidget::selectAllPolygons()
 {
-    QList<PolygonNode> list;
+    QList<PrimitiveNode> list;
 
     int i;
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -307,7 +307,7 @@ void OSGWidget::selectAllPolygons()
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
             {
                 list.push_back(it->second);
             }
@@ -327,7 +327,7 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
     if(!editableModelGroup.get())
         return;
 
-    QList<PolygonNode> list;
+    QList<PrimitiveNode> list;
 
     unsigned int k;
     for (k = 0; k < editableModelGroup.get()->getNumChildren(); k++)
@@ -340,9 +340,9 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
             {
-                PolygonNode a =(*it).second;
+                PrimitiveNode a =(*it).second;
                 if(a.element_name == element_name
                         && a.name_space == name_space)
                 {
@@ -362,15 +362,15 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
 
 void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
 {
-    std::multimap<unsigned int,PolygonNode>* selectedPrimitives =
+    std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives =
             pickingHandler.get()->selectedPrimitives;
 
     if(selectedPrimitives->size()<=0)
         return;
 
-    for(std::multimap<unsigned int,PolygonNode>::iterator itS = selectedPrimitives->begin();itS!=selectedPrimitives->end();itS++)
+    for(std::multimap<unsigned int,PrimitiveNode>::iterator itS = selectedPrimitives->begin();itS!=selectedPrimitives->end();itS++)
     {
-        PolygonNode s = (*itS).second;
+        PrimitiveNode s = (*itS).second;
 
         unsigned int i;
         for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -384,9 +384,9 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
                 UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-                std::pair <std::multimap<unsigned int,PolygonNode>::iterator, std::multimap<unsigned int,PolygonNode>::iterator> ret;
+                std::pair <std::multimap<unsigned int,PrimitiveNode>::iterator, std::multimap<unsigned int,PrimitiveNode>::iterator> ret;
                 ret = userData->allPrimitivesMap->equal_range(s.primitiveIndex);
-                for (std::multimap<unsigned int,PolygonNode>::iterator it=ret.first; it!=ret.second; ++it)
+                for (std::multimap<unsigned int,PrimitiveNode>::iterator it=ret.first; it!=ret.second; ++it)
                 {
                     s.element_name = element_name;
                     s.name_space = name_space;
@@ -409,9 +409,9 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
                 UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-                for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
                 {
-                    PolygonNode a = it->second;
+                    PrimitiveNode a = it->second;
                     qDebug() << a.name_space + ":" + a.element_name ;
                 }
             }
@@ -420,7 +420,7 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
     }
 }
 
-PolygonNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
+PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
                                            unsigned int index)
 {
     unsigned int i;
@@ -435,9 +435,9 @@ PolygonNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            std::pair <std::multimap<unsigned int,PolygonNode>::iterator, std::multimap<unsigned int,PolygonNode>::iterator> ret;
+            std::pair <std::multimap<unsigned int,PrimitiveNode>::iterator, std::multimap<unsigned int,PrimitiveNode>::iterator> ret;
             ret = userData->allPrimitivesMap->equal_range(index);
-            for (std::multimap<unsigned int,PolygonNode>::iterator it=ret.first; it!=ret.second; ++it)
+            for (std::multimap<unsigned int,PrimitiveNode>::iterator it=ret.first; it!=ret.second; ++it)
             {
                 return it->second;
             }
@@ -449,7 +449,7 @@ PolygonNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
 
 
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
-    ConvertToTrianglePrimitives triangleConverter;
+    TrianglePrimitivesConverter triangleConverter;
 
     int i;
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -459,8 +459,6 @@ void OSGWidget::convertToTrianglePrimitives(bool verbose){
         triangleConverter.setVerbose(verbose);
         triangleConverter.apply(geode);
     }
-
-    triangleConverter.generateNormals(editableModelGroup.get());
 }
 
 void OSGWidget::renderOriginal()
@@ -515,6 +513,9 @@ void OSGWidget::setFile(QString fileName){
             {
                 convertToTrianglePrimitives(false);
             }
+
+            MetaInformationGenerator metaG;
+            metaG.generate(editableModelGroup.get());
 
             rootSceneGroup->addChild(editableModelGroup.get());
         }

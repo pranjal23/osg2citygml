@@ -71,8 +71,8 @@ public:
   void selectElementItems(QString name_space, QString element_name);
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
-  PolygonNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
-  QList<PolygonNode>& getAllPolygonNodes();
+  PrimitiveNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
+  QList<PrimitiveNode>& getAllPolygonNodes();
 
   bool selectMode = true;
   bool cityObjectGroup = false;

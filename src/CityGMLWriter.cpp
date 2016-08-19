@@ -62,7 +62,7 @@ void CityGMLWriter::writeName(QXmlStreamWriter& xmlWriter)
 
 void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& xmlWriter, QString name_space, QString element_name)
 {
-    QList<PolygonNode> list;
+    QList<PrimitiveNode> list;
 
     unsigned int k;
     for (k = 0; k < group->getNumChildren(); k++)
@@ -75,9 +75,9 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            for(std::multimap<unsigned int,PolygonNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
             {
-                PolygonNode a =(*it).second;
+                PrimitiveNode a =(*it).second;
                 if(a.element_name == element_name
                         && a.name_space == name_space)
                 {
@@ -124,7 +124,7 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         QString elementName60 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_LinearRing());
         xmlWriter.writeStartElement(elementName60);
 
-        PolygonNode a = list.at(j);
+        PrimitiveNode a = list.at(j);
         osg::PrimitiveSet* prset = a.drawable->asGeometry()->getPrimitiveSetList()[a.primitiveIndex];
         osg::Vec3Array* vecArr = dynamic_cast<osg::Vec3Array*>(a.drawable->asGeometry()->getVertexArray());
 
