@@ -49,6 +49,7 @@ public:
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::MATERIAL);
                 geometry->getOrCreateStateSet()->removeAttribute(osg::StateAttribute::COLORMASK);
 
+                //Set all the vertex colors to editable color
                 osg::Vec4Array* colours =
                         new osg::Vec4Array(geometry->getVertexArray()->getNumElements());
                 int x = 0;
@@ -57,8 +58,6 @@ public:
                 {
                     (*colours)[ci].set(col->x(),col->y(),col->z(),col->w());
                 }
-
-                //qDebug() << "npc ...";
 
 
                 if(selectedPrimitives.size()>0)
@@ -73,16 +72,18 @@ public:
                             unsigned int ipr = (*it).first;
                             osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
 
-                            unsigned int ic;
-                            for (ic=0; ic < prset->getNumIndices(); ic++)
+                            if(prset)
                             {
-                                col = getNewColor(x);
-                                (*colours)[prset->index(ic)].set(col->x(),col->y(),col->z(),col->w());
+                                unsigned int ic;
+                                for (ic=0; ic < prset->getNumIndices(); ic++)
+                                {
+                                    col = getNewColor(x);
+                                    (*colours)[prset->index(ic)].set(col->x(),col->y(),col->z(),col->w());
+                                }
                             }
                         }
                     }
                 }
-
 
                 geometry->setColorArray(colours, osg::Array::BIND_PER_VERTEX);
             }
@@ -228,6 +229,7 @@ private:
         }
 
         osgUtil::LineSegmentIntersector::Intersection firstIntersection = *intersections.begin();
+
 
         if (firstIntersection.drawable == nullptr) {
             return false;

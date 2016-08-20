@@ -387,15 +387,19 @@ public:
                 UserData* userData = new UserData;
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                 {
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
 
-                    PrimitiveNode* primitiveNode = new PrimitiveNode();
-                    primitiveNode->drawable = geometry->asDrawable();
-                    primitiveNode->primitiveIndex = ipr;
+                    if(prset->getNumIndices()>=3)
+                    {
+                        PrimitiveNode* primitiveNode = new PrimitiveNode();
+                        primitiveNode->drawable = geometry->asDrawable();
+                        primitiveNode->primitiveIndex = ipr;
 
-                    userData->primitivesMap->insert(
-                             std::pair<unsigned int,PrimitiveNode>(ipr,*primitiveNode));
+                        userData->primitivesMap->insert(
+                                 std::pair<unsigned int,PrimitiveNode>(ipr,*primitiveNode));
+                    }
+
                 }
-
                 geometry->getOrCreateUserDataContainer()->setUserData(userData);
             }
         }
@@ -423,7 +427,8 @@ public:
                     osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
                     if(prset->getNumIndices()>=3)
                     {
-                        osg::Vec3f* normal = calculateFaceNormal(&(* verts)[prset->index(0)],
+                        osg::Vec3f* normal =
+                                calculateFaceNormal(&(* verts)[prset->index(0)],
                                 &(* verts)[prset->index(1)],
                                 &(* verts)[prset->index(2)]);
                        a.faceNormal = normal;
