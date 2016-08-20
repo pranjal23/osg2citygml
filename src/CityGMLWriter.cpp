@@ -75,7 +75,7 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
 
             UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-            for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+            for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
             {
                 PrimitiveNode a =(*it).second;
                 if(a.element_name == element_name

@@ -56,7 +56,7 @@ public:
   void saveObject2File(QString fileName);
   void setView();
   void resizeWidget(int width, int height);
-  void convertToTrianglePrimitives(bool verbose);
+  void convertToTrianglePrimitives(bool verbose=false);
   void renderOriginal();
   void renderEditable();
   void setLocationBasedSegmentation(bool checked);

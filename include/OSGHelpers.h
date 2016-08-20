@@ -202,22 +202,31 @@ public:
 class UserData  : public osg::Referenced
 {
 public:
-    std::multimap<unsigned int,PrimitiveNode>* allPrimitivesMap;
+    std::map<unsigned int,PrimitiveNode>* primitivesMap;
 
     UserData()
     {
-        allPrimitivesMap = new std::multimap<unsigned int,PrimitiveNode>();
+        primitivesMap = new std::map<unsigned int,PrimitiveNode>();
     }
 };
 
 class TrianglePrimitivesConverter
 {
 public:
-
     TrianglePrimitivesConverter(){}
 
     bool verbose = false;
     bool printIndexes = false;
+    virtual void apply(osg::Group* group)
+    {
+        unsigned int i;
+        for (i = 0; i < group->getNumChildren(); i++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(i);
+            apply(geode);
+        }
+    }
+
     virtual void apply(osg::Geode* geode)
     {
         //first convert to triangle strip
@@ -346,9 +355,7 @@ public:
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
         }
-
     }
-
 
     void setVerbose(bool v){
         verbose = v;
@@ -380,13 +387,13 @@ public:
                 UserData* userData = new UserData;
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                 {
-                    PrimitiveNode* polygonNode = new PrimitiveNode();
-                    polygonNode->drawable = geometry->asDrawable();
-                    polygonNode->primitiveIndex = ipr;
 
-                    //Add primitives to a common map for quick parsing
-                    userData->allPrimitivesMap->insert(
-                             std::pair<unsigned int,PrimitiveNode>(ipr,*polygonNode));
+                    PrimitiveNode* primitiveNode = new PrimitiveNode();
+                    primitiveNode->drawable = geometry->asDrawable();
+                    primitiveNode->primitiveIndex = ipr;
+
+                    userData->primitivesMap->insert(
+                             std::pair<unsigned int,PrimitiveNode>(ipr,*primitiveNode));
                 }
 
                 geometry->getOrCreateUserDataContainer()->setUserData(userData);
@@ -397,7 +404,6 @@ public:
 
     void generateNormals(osg::Group* group)
     {
-        //Generate the Normal for each primitive
         unsigned int k;
         for (k = 0; k < group->getNumChildren(); k++)
         {
@@ -409,7 +415,7 @@ public:
 
                 UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
 
-                for(std::multimap<unsigned int,PrimitiveNode>::iterator it = userData->allPrimitivesMap->begin();it!=userData->allPrimitivesMap->end();it++)
+                for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
                 {
                     PrimitiveNode a =(*it).second;
 
@@ -477,6 +483,11 @@ private:
 
         return centroid;
     }
+};
+
+class PrimitiveGraphGenerator
+{
+
 };
 
 #endif // OSGHELPERS
