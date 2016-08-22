@@ -34,7 +34,7 @@ private slots:
   void open();
   void save();
   void on_normalDistanceSB_valueChanged(double arg1);
-  void on_flatShadingRb_toggled(bool checked);
+  void on_originalRenderRb_toggled(bool checked);
   void on_AddBtn_clicked();
   void on_elemSelBtn_clicked();
   void on_open_btn_clicked();
@@ -44,6 +44,7 @@ private slots:
   void on_selectAllBtn_clicked();
   void on_showMenuCB_toggled(bool checked);
   void on_normalsBtn_toggled(bool checked);
+  void on_normalGylphCB_toggled(bool checked);
 };
 
 #endif

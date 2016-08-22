@@ -76,6 +76,7 @@ public:
 
   bool selectMode = true;
   bool cityObjectGroup = false;
+  bool showNormalGlyph = false;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -96,6 +97,7 @@ private:
 
   virtual void onHome();
   virtual void onResize( int width, int height );
+  void addGlyph();
 
   bool locationBasedSegmentation = false;
   bool normalsBasedSegmentation = false;
@@ -110,6 +112,8 @@ private:
 
   osg::ref_ptr<osg::Group> editableModelGroup;
   osg::ref_ptr<osg::Node> originalModelGroup;
+
+  osg::ref_ptr<osg::Node> glyphGroup;
 };
 
 #endif

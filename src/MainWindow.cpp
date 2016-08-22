@@ -89,6 +89,18 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 
 void MainWindow::keyPressEvent( QKeyEvent* event )
 {
+    if( event->key() == Qt::Key_Q )
+    {
+        ui->originalRenderRb->toggle();
+        return;
+    }
+
+    if( event->key() == Qt::Key_W )
+    {
+        ui->editableRenderRb->toggle();
+        return;
+    }
+
     if( event->key() == Qt::Key_M )
     {
         ui->showMenuCB->toggle();
@@ -116,14 +128,6 @@ void MainWindow::showMenu()
 void MainWindow::on_normalDistanceSB_valueChanged(double value)
 {
     ui->osgWidget->setNormalsDistance(value);
-}
-
-void MainWindow::on_flatShadingRb_toggled(bool checked)
-{
-    if(checked)
-        this->ui->osgWidget->renderOriginal();
-    else
-        this->ui->osgWidget->renderEditable();
 }
 
 void MainWindow::on_AddBtn_clicked()
@@ -196,4 +200,22 @@ void MainWindow::on_normalsBtn_toggled(bool checked)
         ui->spatialBtn->setEnabled(false);
         ui->spatialBtn->setEnabled(false);
     }
+}
+
+void MainWindow::on_normalGylphCB_toggled(bool checked)
+{
+    ui->osgWidget->showNormalGlyph = checked;
+
+    if(ui->originalRenderRb->isChecked())
+        ui->osgWidget->renderOriginal();
+    else
+        ui->osgWidget->renderEditable();
+}
+
+void MainWindow::on_originalRenderRb_toggled(bool checked)
+{
+    if(checked)
+        this->ui->osgWidget->renderOriginal();
+    else
+        this->ui->osgWidget->renderEditable();
 }

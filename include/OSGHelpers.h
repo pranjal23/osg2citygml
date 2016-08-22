@@ -177,7 +177,7 @@ public:
     osg::Vec3f* centroid;
 };
 
-class Edge
+class Link
 {
 public:
     osg::ref_ptr<osg::Drawable> toDrawable;
@@ -441,7 +441,79 @@ public:
 
     void generateCentroids(osg::Group* group)
     {
+        unsigned int k;
+        for (k = 0; k < group->getNumChildren(); k++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(k);
+            unsigned int i;
+            for(i=0; i < geode->getNumDrawables(); i++)
+            {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
+                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+
+                for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
+                {
+                    PrimitiveNode a =(*it).second;
+
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(a.primitiveIndex);
+                    osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+                    if(prset->getNumIndices()>=3)
+                    {
+                        QList<osg::Vec3f> list;
+                        for(unsigned int idx=0; idx<prset->getNumIndices(); idx++)
+                        {
+                            list.push_back((* verts)[prset->index(idx)]);
+                        }
+                        osg::Vec3f* centroid =
+                                calculatePolygonCentroid(list);
+                       a.centroid = centroid;
+                       (*it).second = a;
+                    }
+                }
+            }
+        }
+    }
+
+    osg::Geometry* getNormalsGlyphGeometry(QList<PrimitiveNode> list)
+    {
+        osg::Geometry* linesGeom = new osg::Geometry();
+        osg::Vec3f unitVec;
+        unitVec.set(1.0f,1.0f,1.0f);
+
+        unsigned int numOfPoints = list.size()*2;
+        osg::Vec3Array* vertices = new osg::Vec3Array(numOfPoints);
+        unsigned int ipr = 0;
+        unsigned int i = 0;
+        for(ipr=0; ipr<list.size();ipr++)
+        {
+            const PrimitiveNode node = list.at(ipr);
+
+            const osg::Vec3f begin = *(node.centroid);
+            const osg::Vec3f end = *(node.centroid) + (*(node.faceNormal)/4);
+            (*vertices)[i].set(begin.x(),begin.y(),begin.z());
+            (*vertices)[i+1].set(end.x(),end.y(),end.z());
+            linesGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,i,2));
+            i=i+2;
+        }
+
+        // pass the created vertex array to the points geometry object.
+        linesGeom->setVertexArray(vertices);
+
+        // set the colors as before, plus using the aobve
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        colors->push_back(osg::Vec4(1.0f,1.0f,0.0f,1.0f));
+        linesGeom->setColorArray(colors);
+        linesGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+
+        // set the normal in the same way color.
+        osg::Vec3Array* normals = new osg::Vec3Array;
+        normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
+        linesGeom->setNormalArray(normals);
+        linesGeom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+        return linesGeom;
     }
 
 private:
@@ -492,7 +564,13 @@ private:
 
 class PrimitiveGraphGenerator
 {
+public:
+    PrimitiveGraphGenerator(){}
 
+    void addNode()
+    {
+
+    }
 };
 
 #endif // OSGHELPERS

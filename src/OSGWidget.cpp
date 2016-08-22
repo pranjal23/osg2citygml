@@ -67,18 +67,6 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
         return;
     }
 
-    if( event->key() == Qt::Key_Q )
-    {
-        this->renderOriginal();
-        return;
-    }
-
-    if( event->key() == Qt::Key_W )
-    {
-        this->renderEditable();
-        return;
-    }
-
     if( event->key() == Qt::Key_C )
     {
         //HANDLED IN PICKING HANDLER... DO NOT CHANGE
@@ -449,18 +437,22 @@ void OSGWidget::convertToTrianglePrimitives(bool verbose){
 
 void OSGWidget::renderOriginal()
 {
-    rootSceneGroup->removeChild(0,1);
+    rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
 
-    //Plain OSG Render
+    //Original Model Render
     rootSceneGroup->addChild(originalModelGroup.get());
+
+    addGlyph();
 }
 
 void OSGWidget::renderEditable()
 {
-    rootSceneGroup->removeChild(0,1);
+    rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
 
-    //Editable OSG Render
+    //Editable Model Render
     rootSceneGroup->addChild(editableModelGroup.get());
+
+    addGlyph();
 }
 
 void OSGWidget::setFile(QString fileName){
@@ -554,4 +546,17 @@ void OSGWidget::setView(){
     viewer_->addView( view );
     viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );
     viewer_->realize();
+}
+
+void OSGWidget::addGlyph()
+{
+    osg::Geode* glyphGeode = new osg::Geode();
+    MetaInformationGenerator gen;
+
+    if(showNormalGlyph)
+    {
+        glyphGeode->addDrawable(gen.getNormalsGlyphGeometry(getAllPolygonNodes()));
+    }
+
+    rootSceneGroup.get()->addChild(glyphGeode->asGroup());
 }
