@@ -229,13 +229,13 @@ public:
 
     virtual void apply(osg::Geode* geode)
     {
-        //first convert to triangle strip
         osgUtil::TriStripVisitor triStripVisitor;
         geode->accept(triStripVisitor);
 
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+            geometry->setUseVertexBufferObjects(true);
 
             std::vector<TriangleIndexes> addPrimSetIndexes;
 
@@ -243,17 +243,10 @@ public:
             {
                 osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
 
-                //osg::notify(osg::WARN) << "PRSET CLASS NAME: " << prset->getCompoundClassName();
-
-                //osg::notify(osg::WARN) << "---- PRINTING BEFORE PARSING OF PRIMITIVES ----" << std::endl;
-                // for each primitive analyze its type and work accordingly...
                 switch (prset->getMode())
                 {
                 case osg::PrimitiveSet::TRIANGLES:
                 {
-
-                    //osg::notify(osg::WARN) << "In triangles - ";
-
                     unsigned int ja;
                     for (ja=0; ja<=prset->getNumIndices()-3; )
                     {
@@ -278,8 +271,6 @@ public:
 
                 case osg::PrimitiveSet::TRIANGLE_STRIP:
                 {
-                    //osg::notify(osg::WARN) << "In triangle strip - ";
-
                     unsigned int ja;
                     for (ja=0; ja<prset->getNumIndices()-2; ja++)
                     {
@@ -316,13 +307,15 @@ public:
 
             }
 
+
+            //Free memory
             geometry->getPrimitiveSetList().clear();
 
             for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
             {
                 osg::DrawElementsUShort* primSet =
                         new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, 0);
-                TriangleIndexes ti = addPrimSetIndexes.at(prn);
+                TriangleIndexes ti = addPrimSetIndexes[prn];
                 primSet->push_back(ti.vertexId1);
                 primSet->push_back(ti.vertexId2);
                 primSet->push_back(ti.vertexId3);
@@ -475,14 +468,11 @@ public:
         }
     }
 
-    osg::Geometry* getNormalsGlyphGeometry(QList<PrimitiveNode> list)
+    osg::Geometry* getNormalsGlyphGeometry(const QList<PrimitiveNode> list)
     {
         osg::Geometry* linesGeom = new osg::Geometry();
-        osg::Vec3f unitVec;
-        unitVec.set(1.0f,1.0f,1.0f);
+        osg::Vec3Array* vertices = new osg::Vec3Array;
 
-        unsigned int numOfPoints = list.size()*2;
-        osg::Vec3Array* vertices = new osg::Vec3Array(numOfPoints);
         unsigned int ipr = 0;
         unsigned int i = 0;
         for(ipr=0; ipr<list.size();ipr++)
@@ -491,8 +481,8 @@ public:
 
             const osg::Vec3f begin = *(node.centroid);
             const osg::Vec3f end = *(node.centroid) + (*(node.faceNormal)/4);
-            (*vertices)[i].set(begin.x(),begin.y(),begin.z());
-            (*vertices)[i+1].set(end.x(),end.y(),end.z());
+            vertices->push_back(osg::Vec3f(begin.x(),begin.y(),begin.z()));
+            vertices->push_back(osg::Vec3f(end.x(),end.y(),end.z()));
             linesGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,i,2));
             i=i+2;
         }
@@ -506,7 +496,6 @@ public:
         linesGeom->setColorArray(colors);
         linesGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
 
-
         // set the normal in the same way color.
         osg::Vec3Array* normals = new osg::Vec3Array;
         normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
@@ -516,10 +505,62 @@ public:
         return linesGeom;
     }
 
+    osg::Geometry* getPolygonsGlyphGeometry(QList<PrimitiveNode> list)
+    {
+        osg::Geometry* polyGeom = new osg::Geometry();
+        osg::Vec3Array* vertices = new osg::Vec3Array;
+
+        unsigned int ipr;
+        unsigned int vertCount=0;
+        for(ipr=0; ipr < list.size(); ipr++)
+        {
+            PrimitiveNode node = list.at(ipr);
+
+            /*
+            osg::Geometry* geometry = node.drawable->asGeometry();
+            osg::PrimitiveSet* prset=geometry->getPrimitiveSet(node.primitiveIndex);
+            osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+
+
+            for(unsigned int j=0; j <= prset->getNumIndices();j++)
+            {
+                unsigned int q = 0;
+                if(j<prset->getNumInstances())
+                {
+                    q=j;
+                }
+
+                const osg::Vec3f vec = verts->at(prset->index(q));
+             */
+
+                vertices->push_back(*(node.centroid));
+                vertCount++;
+            //}
+        }
+
+        polyGeom->setVertexArray(vertices);
+        polyGeom->addPrimitiveSet(new osg::DrawArrays(osg::PrimitiveSet::LINES,0,vertCount));
+
+        // set the colors as before, plus using the aobve
+        osg::Vec4Array* colors = new osg::Vec4Array;
+        colors->push_back(osg::Vec4(1.0f,1.0f,1.0f,1.0f));
+        polyGeom->setColorArray(colors);
+        polyGeom->setColorBinding(osg::Geometry::BIND_OVERALL);
+
+
+        // set the normal in the same way color.
+        osg::Vec3Array* normals = new osg::Vec3Array;
+        normals->push_back(osg::Vec3(0.0f,-1.0f,0.0f));
+        polyGeom->setNormalArray(normals);
+        polyGeom->setNormalBinding(osg::Geometry::BIND_OVERALL);
+
+
+        return polyGeom;
+    }
+
 private:
     osg::Vec3f* calculateFaceNormal(osg::Vec3f* p1,osg::Vec3f* p2,osg::Vec3f* p3)
     {
-
         osg::Vec3f U;
         U.x() = p2->x() - p1->x();
         U.y() = p2->y() - p1->y();
@@ -569,7 +610,10 @@ public:
 
     void addNode()
     {
-
+        // 1.0 - Sort list by centroid
+        // Check if the nearest centroid are from same drawable then add link
+        // If not from same drawable check is a vertice is very close to any vertices, then add link
+        // maxmimum 6 links per node
     }
 };
 

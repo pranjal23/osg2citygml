@@ -51,41 +51,28 @@ public:
 
                 //Set all the vertex colors to editable color
                 osg::Vec4Array* colours =
-                        new osg::Vec4Array(geometry->getVertexArray()->getNumElements());
+                        new osg::Vec4Array(geometry->getNumPrimitiveSets());
                 int x = 0;
                 osg::Vec4* col = getNewColor(x);
-                for(unsigned int ci=0;ci<colours->size();ci++)
+                for(unsigned int ci=0;ci<geometry->getNumPrimitiveSets();ci++)
                 {
                     (*colours)[ci].set(col->x(),col->y(),col->z(),col->w());
                 }
-
 
                 if(selectedPrimitives.size()>0)
                 {
                     for(std::multimap<unsigned int,PrimitiveNode>::iterator it = selectedPrimitives.begin();it!=selectedPrimitives.end();it++)
                     {
                         PrimitiveNode a =(*it).second;
-
                         if(a.drawable.get() == geometry->asDrawable())
                         {
                             x = 1;
-                            unsigned int ipr = (*it).first;
-                            osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
-
-                            if(prset)
-                            {
-                                unsigned int ic;
-                                for (ic=0; ic < prset->getNumIndices(); ic++)
-                                {
-                                    col = getNewColor(x);
-                                    (*colours)[prset->index(ic)].set(col->x(),col->y(),col->z(),col->w());
-                                }
-                            }
+                            col = getNewColor(x);
+                            (*colours)[a.primitiveIndex].set(col->x(),col->y(),col->z(),col->w());
                         }
                     }
                 }
-
-                geometry->setColorArray(colours, osg::Array::BIND_PER_VERTEX);
+                geometry->setColorArray(colours, osg::Array::BIND_PER_PRIMITIVE_SET);
             }
         }
     }
@@ -95,7 +82,7 @@ public:
 private:
     osg::Vec4* getNewColor(int x){
         if(x == 0)
-            return new osg::Vec4(1.0f,0.5f,1.0f,1.0f);
+            return new osg::Vec4(1.0f,0.5f,0.5f,1.0f);
         else
             return new osg::Vec4(0.5f,1.0f,1.0f,1.0f);
     }

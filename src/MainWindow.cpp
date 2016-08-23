@@ -206,16 +206,15 @@ void MainWindow::on_normalGylphCB_toggled(bool checked)
 {
     ui->osgWidget->showNormalGlyph = checked;
 
-    if(ui->originalRenderRb->isChecked())
-        ui->osgWidget->renderOriginal();
-    else
-        ui->osgWidget->renderEditable();
+    ui->osgWidget->renderModel();
 }
 
 void MainWindow::on_originalRenderRb_toggled(bool checked)
 {
     if(checked)
-        this->ui->osgWidget->renderOriginal();
+        this->ui->osgWidget->renderEditableMode = false;
     else
-        this->ui->osgWidget->renderEditable();
+        this->ui->osgWidget->renderEditableMode = true;
+
+     ui->osgWidget->renderModel();
 }

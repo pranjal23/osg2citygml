@@ -57,8 +57,7 @@ public:
   void setView();
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives(bool verbose=false);
-  void renderOriginal();
-  void renderEditable();
+  void renderModel();
   void setLocationBasedSegmentation(bool checked);
   bool getLocationBasedSegmentation();
   void setNormalsBasedSegmentation(bool checked);
@@ -77,6 +76,8 @@ public:
   bool selectMode = true;
   bool cityObjectGroup = false;
   bool showNormalGlyph = false;
+  bool showPolygonEdges = false;
+  bool renderEditableMode = true;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );

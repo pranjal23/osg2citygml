@@ -435,22 +435,23 @@ void OSGWidget::convertToTrianglePrimitives(bool verbose){
 
 }
 
-void OSGWidget::renderOriginal()
+void OSGWidget::renderModel()
 {
-    rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
+    if(renderEditableMode)
+    {
+        rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
 
-    //Original Model Render
-    rootSceneGroup->addChild(originalModelGroup.get());
+        //Editable Model Render
+        rootSceneGroup->addChild(editableModelGroup.get());
+    }
+    else
+    {
+        rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
 
-    addGlyph();
-}
+        //Original Model Render
+        rootSceneGroup->addChild(originalModelGroup.get());
 
-void OSGWidget::renderEditable()
-{
-    rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
-
-    //Editable Model Render
-    rootSceneGroup->addChild(editableModelGroup.get());
+    }
 
     addGlyph();
 }
@@ -491,12 +492,12 @@ void OSGWidget::setFile(QString fileName){
 
             MetaInformationGenerator metaG;
             metaG.generate(editableModelGroup.get());
-
-            rootSceneGroup->addChild(editableModelGroup.get());
         }
     }
 
     setView();
+    renderModel();
+    this->onHome();
 }
 
 void OSGWidget::saveObject2File(QString fileName)
@@ -550,13 +551,20 @@ void OSGWidget::setView(){
 
 void OSGWidget::addGlyph()
 {
-    osg::Geode* glyphGeode = new osg::Geode();
-    MetaInformationGenerator gen;
 
     if(showNormalGlyph)
     {
+        MetaInformationGenerator gen;
+        osg::Geode* glyphGeode = new osg::Geode();
         glyphGeode->addDrawable(gen.getNormalsGlyphGeometry(getAllPolygonNodes()));
+        rootSceneGroup.get()->addChild(glyphGeode->asGroup());
     }
 
-    rootSceneGroup.get()->addChild(glyphGeode->asGroup());
+    if(showPolygonEdges)
+    {
+        MetaInformationGenerator gen;
+        osg::Geode* edgesGeode = new osg::Geode();
+        edgesGeode->addDrawable(gen.getPolygonsGlyphGeometry(getAllPolygonNodes()));
+        rootSceneGroup.get()->addChild(edgesGeode->asGroup());
+    }
 }
