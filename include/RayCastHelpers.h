@@ -28,7 +28,6 @@
 #include "OSGHelpers.h"
 #include "OSGWidget.h"
 
-
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor
 {
 public:
@@ -108,6 +107,9 @@ public:
     // EventHandler interface
     virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*)
     {
+        if(!osgwidget->renderEditableMode)
+            return false;
+
         if (ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
         {
 
@@ -188,7 +190,7 @@ private:
 
     void propagateBySegmentation(PrimitiveNode& stp)
     {
-        if(osgwidget->getNormalsBasedSegmentation())
+        if(osgwidget->getNormalsBasedSegmentation() && !osgwidget->getLocationBasedSegmentation())
         {
             osg::Vec3f selectedNormal = *(stp.faceNormal);
 
@@ -204,6 +206,13 @@ private:
                 {
                     selectDeselectPrimitive(list.at(i).drawable,list.at(i).primitiveIndex,false);
                 }
+            }
+        }
+        else if(osgwidget->getLocationBasedSegmentation())
+        {
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                selectDeselectPrimitive(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex,false);
             }
         }
     }

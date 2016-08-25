@@ -45,6 +45,7 @@ private slots:
   void on_showMenuCB_toggled(bool checked);
   void on_normalsBtn_toggled(bool checked);
   void on_normalGylphCB_toggled(bool checked);
+  void on_spatialBtn_toggled(bool checked);
 };
 
 #endif

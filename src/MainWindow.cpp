@@ -218,3 +218,8 @@ void MainWindow::on_originalRenderRb_toggled(bool checked)
 
      ui->osgWidget->renderModel();
 }
+
+void MainWindow::on_spatialBtn_toggled(bool checked)
+{
+    ui->osgWidget->setLocationBasedSegmentation(checked);
+}

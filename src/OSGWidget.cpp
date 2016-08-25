@@ -404,8 +404,7 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
     }
 }
 
-PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
-                                           unsigned int index)
+PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable, unsigned int index)
 {
     unsigned int i;
     for (i = 0; i < editableModelGroup.get()->getNumChildren(); i++)
@@ -426,7 +425,6 @@ PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable,
     qDebug() << "No Polygon Node found, throwing exception!!!";
     throw new QException();
 }
-
 
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
     TrianglePrimitivesConverter triangleConverter;
@@ -560,7 +558,7 @@ void OSGWidget::addGlyph()
         rootSceneGroup.get()->addChild(glyphGeode->asGroup());
     }
 
-    if(showPolygonEdges)
+    if(drawGraphEdges)
     {
         MetaInformationGenerator gen;
         osg::Geode* edgesGeode = new osg::Geode();

@@ -76,7 +76,7 @@ public:
   bool selectMode = true;
   bool cityObjectGroup = false;
   bool showNormalGlyph = false;
-  bool showPolygonEdges = false;
+  bool drawGraphEdges = false;
   bool renderEditableMode = true;
 
 protected:
