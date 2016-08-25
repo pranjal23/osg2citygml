@@ -269,7 +269,7 @@ QList<PrimitiveNode>& OSGWidget::getAllPolygonNodes()
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
             for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
             {
@@ -293,7 +293,7 @@ void OSGWidget::selectAllPolygons()
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
             for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
             {
@@ -326,7 +326,7 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
             for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
             {
@@ -370,7 +370,7 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
                     continue;
 
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
                 PrimitiveNode p = (*(userData->primitivesMap))[s.primitiveIndex];
                 p.element_name = element_name;
@@ -391,7 +391,7 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
             {
 
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
                 {
@@ -416,7 +416,7 @@ PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable, unsigned int i
                 continue;
 
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
             return (*(userData->primitivesMap))[index];
         }

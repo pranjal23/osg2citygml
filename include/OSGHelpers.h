@@ -215,13 +215,13 @@ public:
     unsigned int vertexId3;
 };
 
-class UserData  : public osg::Referenced
+class GraphData  : public osg::Referenced
 {
 public:
     std::map<unsigned int,PrimitiveNode>* primitivesMap;
     std::map<unsigned int,VertexLinks>* vertexNodeMap; //Links vertexes to primitive id's
 
-    UserData()
+    GraphData()
     {
         primitivesMap = new std::map<unsigned int,PrimitiveNode>();
         vertexNodeMap = new std::map<unsigned int,VertexLinks>();
@@ -397,7 +397,7 @@ public:
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                UserData* userData = new UserData;
+                GraphData* userData = new GraphData;
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
                 {
                     osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
@@ -430,7 +430,7 @@ public:
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
                 {
@@ -463,7 +463,7 @@ public:
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
                 {
@@ -499,7 +499,7 @@ public:
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                 std::map<unsigned int,VertexLinks>* vertexNodeMap = userData->vertexNodeMap;
 
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
@@ -538,7 +538,7 @@ public:
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-                UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                 std::map<unsigned int,VertexLinks>* vertexNodeMap = userData->vertexNodeMap;
 
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)

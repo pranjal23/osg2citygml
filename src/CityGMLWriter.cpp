@@ -73,7 +73,7 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
 
-            UserData* userData = dynamic_cast<UserData*>(geometry->getUserData());
+            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
             for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
             {
