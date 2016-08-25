@@ -189,17 +189,6 @@ void MainWindow::on_showMenuCB_toggled(bool checked)
 void MainWindow::on_normalsBtn_toggled(bool checked)
 {
     ui->osgWidget->setNormalsBasedSegmentation(checked);
-
-    if(checked)
-    {
-        ui->spatialGrp->setEnabled(true);
-        ui->spatialBtn->setEnabled(true);
-    }
-    else
-    {
-        ui->spatialBtn->setEnabled(false);
-        ui->spatialBtn->setEnabled(false);
-    }
 }
 
 void MainWindow::on_normalGylphCB_toggled(bool checked)

@@ -88,14 +88,14 @@ private:
 
 };
 
-class PickingHandler : public osgGA::GUIEventHandler {
+class SelectionHandler : public osgGA::GUIEventHandler {
 public:
     OSGWidget* osgwidget;
     std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
 
-    PickingHandler(OSGWidget* widget)
+    SelectionHandler(OSGWidget* widget)
     {
         osgwidget = widget;
         m_xMouseCoordAtLastPress = -1;
@@ -104,7 +104,6 @@ public:
         addColor();
     }
 
-    // EventHandler interface
     virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*)
     {
         if(!osgwidget->renderEditableMode)
@@ -192,28 +191,44 @@ private:
     {
         if(osgwidget->getNormalsBasedSegmentation() && !osgwidget->getLocationBasedSegmentation())
         {
-            osg::Vec3f selectedNormal = *(stp.faceNormal);
-
-            QList<PrimitiveNode> list = osgwidget->getAllPolygonNodes();
-            for (unsigned int i = 0; i < list.size(); i++)
-            {
-                if(i == stp.primitiveIndex && list.at(i).drawable == stp.drawable)
-                    continue;
-
-                osg::Vec3f currNormal = *(list.at(i).faceNormal);
-
-                if(compareNormals(selectedNormal,currNormal))
-                {
-                    selectDeselectPrimitive(list.at(i).drawable,list.at(i).primitiveIndex,false);
-                }
-            }
+            segmentByNormalsOnly(stp);
         }
         else if(osgwidget->getLocationBasedSegmentation())
         {
-            for(unsigned int i=0; i < stp.links->size(); i++)
+            segmentBySpatialLocation(stp);
+        }
+    }
+
+    void segmentByNormalsOnly(PrimitiveNode& stp)
+    {
+        osg::Vec3f selectedNormal = *(stp.faceNormal);
+
+        QList<PrimitiveNode> list = osgwidget->getAllPolygonNodes();
+        for (unsigned int i = 0; i < list.size(); i++)
+        {
+            if(i == stp.primitiveIndex && list.at(i).drawable == stp.drawable)
+                continue;
+
+            osg::Vec3f currNormal = *(list.at(i).faceNormal);
+
+            if(compareNormals(selectedNormal,currNormal))
             {
-                selectDeselectPrimitive(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex,false);
+                selectDeselectPrimitive(list.at(i).drawable,list.at(i).primitiveIndex,false);
             }
+        }
+    }
+
+    void segmentBySpatialLocation(PrimitiveNode& stp)
+    {
+        QList<unsigned int> linksVisited;
+        segmentBySpatialLocation(stp,linksVisited);
+    }
+
+    void segmentBySpatialLocation(PrimitiveNode &stp, QList<unsigned int>& linksVisited)
+    {
+        for(unsigned int i=0; i < stp.links->size(); i++)
+        {
+            selectDeselectPrimitive(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex,false);
         }
     }
 

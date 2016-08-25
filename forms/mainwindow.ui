@@ -1629,7 +1629,7 @@ QPushButton:checked {
       </widget>
       <widget class="QGroupBox" name="spatialGrp">
        <property name="enabled">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
        <property name="geometry">
         <rect>
@@ -1644,12 +1644,12 @@ QPushButton:checked {
        </property>
        <widget class="QPushButton" name="spatialBtn">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>40</y>
+          <y>30</y>
           <width>186</width>
           <height>32</height>
          </rect>
@@ -1800,6 +1800,109 @@ QPushButton:checked {
         </property>
         <property name="checked">
          <bool>false</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="plainRb">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>70</y>
+          <width>141</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Plain</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="sphericalRb">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>100</y>
+          <width>141</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Spherical</string>
+        </property>
+       </widget>
+       <widget class="QRadioButton" name="cylindricalRb">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>130</y>
+          <width>141</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Cylindrical</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>30</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Offset</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="plainOffset">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>70</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="sphericalOffset">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>100</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="cylindricalOffset">
+        <property name="geometry">
+         <rect>
+          <x>250</x>
+          <y>130</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
         </property>
        </widget>
       </widget>

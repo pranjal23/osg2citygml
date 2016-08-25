@@ -2,7 +2,7 @@
 #include "RayCastHelpers.h"
 #include "CityGMLWriter.h"
 
-osg::ref_ptr<PickingHandler> pickingHandler;
+osg::ref_ptr<SelectionHandler> pickingHandler;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -530,7 +530,7 @@ void OSGWidget::setView(){
     camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
     camera->setGraphicsContext( graphicsWindow_ );
 
-    pickingHandler = new PickingHandler(this);
+    pickingHandler = new SelectionHandler(this);
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
