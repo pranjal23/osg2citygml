@@ -101,7 +101,7 @@ public:
         m_xMouseCoordAtLastPress = -1;
         m_yMouseCoordAtLastPress = -1;
         selectedPrimitives = new std::multimap<unsigned int,PrimitiveNode>();
-        addColor();
+        colorify();
     }
 
     virtual bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa, osg::Object*, osg::NodeVisitor*)
@@ -150,18 +150,15 @@ public:
             selectedPrimitives->insert(
                         std::pair<unsigned int,PrimitiveNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
         }
-        addColor();
     }
 
     void clearSelectedList()
     {
         selectedPrimitives->clear();
-        addColor();
+        colorify();
     }
 
-private:
-
-    void addColor()
+    void colorify()
     {
 
         if(osgwidget->getEditableModelGroup() == nullptr)
@@ -176,6 +173,8 @@ private:
 
     }
 
+private:
+
     bool compareNormals(osg::Vec3f m, osg::Vec3f n)
     {
         double weight = osgwidget->getNormalsDistance();
@@ -187,7 +186,7 @@ private:
         return false;
     }
 
-    void propagateBySegmentation(PrimitiveNode& stp)
+    void selectBySegmentation(PrimitiveNode& stp)
     {
         if(osgwidget->getNormalsBasedSegmentation() && !osgwidget->getLocationBasedSegmentation())
         {
@@ -206,29 +205,43 @@ private:
         QList<PrimitiveNode> list = osgwidget->getAllPolygonNodes();
         for (unsigned int i = 0; i < list.size(); i++)
         {
-            if(i == stp.primitiveIndex && list.at(i).drawable == stp.drawable)
-                continue;
-
-            osg::Vec3f currNormal = *(list.at(i).faceNormal);
+            PrimitiveNode node = list[i];
+            osg::Vec3f currNormal = *(node.faceNormal);
 
             if(compareNormals(selectedNormal,currNormal))
             {
-                selectDeselectPrimitive(list.at(i).drawable,list.at(i).primitiveIndex,false);
+                selectPrimitive(node);
             }
         }
     }
 
     void segmentBySpatialLocation(PrimitiveNode& stp)
     {
-        QList<unsigned int> linksVisited;
-        segmentBySpatialLocation(stp,linksVisited);
+        QList<unsigned int>* nodesVisited = new QList<unsigned int>();
+        segmentBySpatialLocation(stp,nodesVisited);
     }
 
-    void segmentBySpatialLocation(PrimitiveNode &stp, QList<unsigned int>& linksVisited)
+    void segmentBySpatialLocation(PrimitiveNode &stp, QList<unsigned int>* nodesVisited)
     {
+        selectPrimitive(stp);
+        if(false)
+        {
+            qDebug() << "Node selected: " << QString::number(stp.nodeId)
+                     << ", number of links: " << QString::number(stp.links->size());
+        }
+        nodesVisited->push_back(stp.nodeId);
         for(unsigned int i=0; i < stp.links->size(); i++)
         {
-            selectDeselectPrimitive(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex,false);
+            PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+            if(!nodesVisited->contains(node.nodeId))
+            {
+                segmentBySpatialLocation(node, nodesVisited);
+            }
+            else if(false)
+            {
+               qDebug() << "Iteration: " << QString::number(i) << ", Node: " << QString::number(node.nodeId)
+                        << " not visited" ;
+            }
         }
     }
 
@@ -246,21 +259,24 @@ private:
             return false;
         }
 
-        selectDeselectPrimitive(firstIntersection.drawable.get(),
-                                firstIntersection.primitiveIndex,
-                                true);
-        addColor();
+
+        PrimitiveNode stp = osgwidget->getPolygonNode(firstIntersection.drawable,firstIntersection.primitiveIndex);
+        if(osgwidget->getNormalsBasedSegmentation() || osgwidget->getLocationBasedSegmentation())
+        {
+            selectBySegmentation(stp);
+        }
+        else
+        {
+            selectPrimitive(stp);
+        }
+
+        colorify();
 
         return true;
     }
 
-    void selectDeselectPrimitive(osg::Drawable* drawable,
-                                 unsigned int index,
-                                 bool propagate)
+    void selectPrimitive(PrimitiveNode& stp)
     {
-
-        PrimitiveNode stp = osgwidget->getPolygonNode(drawable,index);
-
         std::multimap<unsigned int,PrimitiveNode>::iterator itS;
         if(osgwidget->getEditableModelGroup() != nullptr)
         {
@@ -283,18 +299,13 @@ private:
                 if(selected)
                 {
                     selectedPrimitives->erase(itS);
-                    if(propagate)
-                        propagateBySegmentation(stp);
                 }
             }
-
 
             //Insert into selected primitives list if newly selected
             if(osgwidget->selectMode)
             {
                 selectedPrimitives->insert(std::pair<unsigned int,PrimitiveNode>(stp.primitiveIndex,stp));
-                if(propagate)
-                    propagateBySegmentation(stp);
             }
 
         }

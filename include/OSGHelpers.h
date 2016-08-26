@@ -166,10 +166,10 @@ public:
 class VertexLinks
 {
 public:
-    QList<unsigned int>* primitiveIds;
+    QSet<unsigned int>* primitiveIds;
     VertexLinks()
     {
-        primitiveIds = new QList<unsigned int>();
+        primitiveIds = new QSet<unsigned int>();
     }
 };
 
@@ -184,6 +184,47 @@ public:
      * 1. Maximum weight is 100
      */
     unsigned int weight=0;
+
+    int compare(const Link& link) const
+    {
+        if(this->drawable != link.drawable)
+        {
+            if(this->drawable > link.drawable)
+            {
+                return 1;
+            }
+            else if(this->drawable < link.drawable)
+            {
+                return -1;
+            }
+        }
+
+        if(this->drawable==link.drawable)
+        {
+            if(this->primitiveIndex > link.primitiveIndex)
+            {
+                return 1;
+            }
+            else if(this->primitiveIndex < link.primitiveIndex)
+            {
+                return -1;
+            }
+        }
+
+        return 0;
+    }
+
+    bool operator == (const Link& d) const{
+       return (compare(d)==0);
+    }
+
+    bool operator < (const Link& d) const{
+      return compare(d)<0;
+    }
+
+    bool operator > (const Link& d) const{
+      return compare(d)>0;
+    }
 };
 
 class PrimitiveNode
@@ -373,21 +414,22 @@ public:
     }
 };
 
-class MetaInformationGenerator
+class GraphGenerator
 {
 public:
+    unsigned int maxId=0;
+
     void generate(osg::Group* group)
     {
-        generateUserData(group);
+        generateGraphData(group);
         generateNormals(group);
         generateCentroids(group);
         generateVertexLinks(group);
         generateLinks(group);
     }
 
-    void generateUserData(osg::Group* group)
+    void generateGraphData(osg::Group* group)
     {
-        //Generate the Normal for each primitive
         unsigned int k;
         for (k = 0; k < group->getNumChildren(); k++)
         {
@@ -404,12 +446,14 @@ public:
 
                     if(prset->getNumIndices()>=3)
                     {
-                        PrimitiveNode* primitiveNode = new PrimitiveNode();
-                        primitiveNode->drawable = geometry->asDrawable();
-                        primitiveNode->primitiveIndex = ipr;
+                        PrimitiveNode primitiveNode;
+                        primitiveNode.drawable = geometry->asDrawable();
+                        primitiveNode.primitiveIndex = ipr;
+                        primitiveNode.nodeId = maxId;
+                        maxId++;
 
                         userData->primitivesMap->insert(
-                                    std::pair<unsigned int,PrimitiveNode>(ipr,*primitiveNode));
+                                    std::pair<unsigned int,PrimitiveNode>(ipr,primitiveNode));
                     }
 
                 }
@@ -511,14 +555,14 @@ public:
                     {
                         unsigned int vertexId = prset->index(idx);
                         VertexLinks vertexLinks = (*vertexNodeMap)[vertexId];
-                        vertexLinks.primitiveIds->push_back(a.primitiveIndex);
+                        vertexLinks.primitiveIds->insert(a.primitiveIndex);
 
                         if(false)
                         {
                             qDebug() << "Vertex Id: " << QString::number(vertexId) << ", Linked Primitive Ids: ";
-                            for(unsigned int zz=0; zz< vertexLinks.primitiveIds->size(); zz++)
+                            for(QSet<unsigned int>::iterator it =vertexLinks.primitiveIds->begin(); it != vertexLinks.primitiveIds->end(); it++)
                             {
-                                qDebug() << QString::number(vertexLinks.primitiveIds->at(zz)) << " | ";
+                                qDebug() << QString::number(*it) << " | ";
                             }
                         }
                     }
@@ -549,14 +593,15 @@ public:
                     {
                         unsigned int vertexId = prset->index(idx);
                         const VertexLinks vertexLinks = vertexNodeMap->at(vertexId);
-                        QSet<unsigned int> set = QSet<unsigned int>::fromList(*(vertexLinks.primitiveIds));
+                        QSet<unsigned int> set = *(vertexLinks.primitiveIds);
                         for(QSet<unsigned int>::iterator it =set.begin(); it != set.end(); it++)
                         {
-                            Link* l = new Link();
-                            l->drawable = geometry->asDrawable();
-                            l->primitiveIndex = *it;
-                            l->weight = 100;
-                            a.links->push_back(*l);
+                            Link l;
+                            l.drawable = geometry->asDrawable();
+                            l.primitiveIndex = *it;
+                            l.weight = 100;
+                            if(!a.links->contains(l))
+                                a.links->push_back(l);
                         }
                     }
                     (*it).second = a;
@@ -565,6 +610,54 @@ public:
         }
     }
 
+private:
+    osg::Vec3f* calculateFaceNormal(osg::Vec3f* p1,osg::Vec3f* p2,osg::Vec3f* p3)
+    {
+        osg::Vec3f U;
+        U.x() = p2->x() - p1->x();
+        U.y() = p2->y() - p1->y();
+        U.z() = p2->z() - p1->z();
+
+        osg::Vec3f V;
+        V.x() = p3->x() - p1->x();
+        V.y() = p3->y() - p1->y();
+        V.z() = p3->z() - p1->z();
+
+        osg::Vec3f* normal = new osg::Vec3f;
+        normal->x() = (U.y()*V.z()) - (U.z()*V.y());
+        normal->y() = (U.z()*V.x()) - (U.x()*V.z());
+        normal->z() = (U.x()*V.y()) - (U.y()*V.x());
+
+        normal->normalize();
+
+        return normal;
+    }
+
+    osg::Vec3f* calculatePolygonCentroid(QList<osg::Vec3f>& list)
+    {
+
+        osg::Vec3f* centroid = new osg::Vec3f;
+        centroid->set(0.0f,0.0f,0.0f);
+
+        for(unsigned int i=0; i<list.size();i++)
+        {
+            osg::Vec3f U = list.at(i);
+            centroid->x() += U.x();
+            centroid->y() += U.y();
+            centroid->z() += U.z();
+        }
+
+        centroid->x() = centroid->x()/list.size();
+        centroid->y() = centroid->y()/list.size();
+        centroid->z() = centroid->z()/list.size();
+
+        return centroid;
+    }
+};
+
+class GlyphHelper
+{
+public:
     osg::Geometry* getNormalsGlyphGeometry(const QList<PrimitiveNode>& list)
     {
         osg::Geometry* linesGeom = new osg::Geometry();
@@ -653,55 +746,12 @@ public:
         return polyGeom;
     }
 
-private:
-    osg::Vec3f* calculateFaceNormal(osg::Vec3f* p1,osg::Vec3f* p2,osg::Vec3f* p3)
-    {
-        osg::Vec3f U;
-        U.x() = p2->x() - p1->x();
-        U.y() = p2->y() - p1->y();
-        U.z() = p2->z() - p1->z();
-
-        osg::Vec3f V;
-        V.x() = p3->x() - p1->x();
-        V.y() = p3->y() - p1->y();
-        V.z() = p3->z() - p1->z();
-
-        osg::Vec3f* normal = new osg::Vec3f;
-        normal->x() = (U.y()*V.z()) - (U.z()*V.y());
-        normal->y() = (U.z()*V.x()) - (U.x()*V.z());
-        normal->z() = (U.x()*V.y()) - (U.y()*V.x());
-
-        normal->normalize();
-
-        return normal;
-    }
-
-    osg::Vec3f* calculatePolygonCentroid(QList<osg::Vec3f>& list)
-    {
-
-        osg::Vec3f* centroid = new osg::Vec3f;
-        centroid->set(0.0f,0.0f,0.0f);
-
-        for(unsigned int i=0; i<list.size();i++)
-        {
-            osg::Vec3f U = list.at(i);
-            centroid->x() += U.x();
-            centroid->y() += U.y();
-            centroid->z() += U.z();
-        }
-
-        centroid->x() = centroid->x()/list.size();
-        centroid->y() = centroid->y()/list.size();
-        centroid->z() = centroid->z()/list.size();
-
-        return centroid;
-    }
 };
 
-class PrimitiveGraphGenerator
+class PrimitiveGraphEnhancer
 {
 public:
-    PrimitiveGraphGenerator(){}
+    PrimitiveGraphEnhancer(){}
     QMap<osg::Drawable, std::vector<int>>* container;
 
     void generateLinksFromNearbyVertices(std::vector<PrimitiveNode>& vector)

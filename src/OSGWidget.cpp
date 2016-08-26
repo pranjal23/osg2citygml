@@ -2,7 +2,7 @@
 #include "RayCastHelpers.h"
 #include "CityGMLWriter.h"
 
-osg::ref_ptr<SelectionHandler> pickingHandler;
+osg::ref_ptr<SelectionHandler> selectionHandler;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -302,12 +302,14 @@ void OSGWidget::selectAllPolygons()
         }
     }
 
-    pickingHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->colorify();
 }
 
 void OSGWidget::clearAllSelection()
 {
-    pickingHandler.get()->clearSelectedList();
+    selectionHandler.get()->clearSelectedList();
+    selectionHandler.get()->colorify();
 }
 
 void OSGWidget::selectElementItems(QString name_space, QString element_name)
@@ -340,8 +342,8 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
         }
     }
 
-    //pickingHandler.get()->clearSelectedList();
-    pickingHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->colorify();
 
     QMessageBox* msg = new QMessageBox();
     msg->setText( "Selected " + QString::number(list.size()) + " polygons!!!" );
@@ -351,7 +353,7 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
 void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
 {
     std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives =
-            pickingHandler.get()->selectedPrimitives;
+            selectionHandler.get()->selectedPrimitives;
 
     if(selectedPrimitives->size()<=0)
         return;
@@ -396,7 +398,13 @@ void OSGWidget::tagSelectedItems(QString name_space, QString element_name)
                 for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
                 {
                     PrimitiveNode a = it->second;
-                    qDebug() << a.name_space + ":" + a.element_name ;
+                    qDebug() << a.name_space << ":" << a.element_name << ", Links: " ;
+
+                    for(unsigned int k =0; k<a.links->size();k++)
+                    {
+                        qDebug() << QString::number(a.links->at(k).primitiveIndex);
+                    }
+
                 }
             }
 
@@ -488,7 +496,7 @@ void OSGWidget::setFile(QString fileName){
 
             convertToTrianglePrimitives();
 
-            MetaInformationGenerator metaG;
+            GraphGenerator metaG;
             metaG.generate(editableModelGroup.get());
         }
     }
@@ -530,12 +538,12 @@ void OSGWidget::setView(){
     camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
     camera->setGraphicsContext( graphicsWindow_ );
 
-    pickingHandler = new SelectionHandler(this);
+    selectionHandler = new SelectionHandler(this);
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     view->addEventHandler( new osgViewer::StatsHandler );
-    view->addEventHandler(pickingHandler.get() );
+    view->addEventHandler(selectionHandler.get() );
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );
@@ -552,7 +560,7 @@ void OSGWidget::addGlyph()
 
     if(showNormalGlyph)
     {
-        MetaInformationGenerator gen;
+        GlyphHelper gen;
         osg::Geode* glyphGeode = new osg::Geode();
         glyphGeode->addDrawable(gen.getNormalsGlyphGeometry(getAllPolygonNodes()));
         rootSceneGroup.get()->addChild(glyphGeode->asGroup());
@@ -560,7 +568,7 @@ void OSGWidget::addGlyph()
 
     if(drawGraphEdges)
     {
-        MetaInformationGenerator gen;
+        GlyphHelper gen;
         osg::Geode* edgesGeode = new osg::Geode();
         edgesGeode->addDrawable(gen.getPolygonsGlyphGeometry(getAllPolygonNodes()));
         rootSceneGroup.get()->addChild(edgesGeode->asGroup());
