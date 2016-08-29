@@ -220,5 +220,5 @@ void MainWindow::on_regenerate_graph_btn_clicked()
 
 void MainWindow::on_shapeBtn_toggled(bool checked)
 {
-
+    ui->osgWidget->setShapeBasedSegmentation(checked);
 }

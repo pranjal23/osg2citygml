@@ -1931,7 +1931,7 @@ QPushButton:checked {
           </rect>
          </property>
          <property name="text">
-          <string>Shape</string>
+          <string>Cylindrical</string>
          </property>
         </widget>
         <widget class="QDoubleSpinBox" name="sphericalOffset">
@@ -2152,7 +2152,7 @@ QPushButton:checked {
           </rect>
          </property>
          <property name="text">
-          <string>Shape</string>
+          <string>Spherical</string>
          </property>
         </widget>
         <widget class="QDoubleSpinBox" name="cylindricalOffset">

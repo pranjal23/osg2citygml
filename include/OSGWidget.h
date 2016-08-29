@@ -41,6 +41,7 @@
 #include <QWheelEvent>
 
 #include "GeometryHandler.h"
+#include "UIHelper.h"
 
 
 class OSGWidget : public QOpenGLWidget
@@ -82,6 +83,8 @@ public:
   bool renderEditableMode = true;
 
   float link_vert_dist = 0.0001;
+
+  Shape shape_to_segment = Shape::Plain;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );

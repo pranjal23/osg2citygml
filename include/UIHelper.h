@@ -6,9 +6,6 @@
 #include <vector>
 #include <map>
 
-#include "CityGMLHelper.h"
-#include "GeometryHandler.h"
-
 class UIHelperSingleton
 {
 private:
@@ -23,6 +20,8 @@ public:
     std::map<QString,QString>* getNameSpaceMap();
     std::vector<QString>& getLabels();
 };
+
+enum Shape { Plain, Spherical, Cylindrical };
 
 
 #endif //UIHELPER_H__

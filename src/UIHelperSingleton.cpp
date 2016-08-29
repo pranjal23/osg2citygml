@@ -1,4 +1,6 @@
 #include "UIHelper.h"
+#include "CityGMLHelper.h"
+#include "GeometryHandler.h"
 
 static UIHelperSingleton* theUIHelper = nullptr;
 

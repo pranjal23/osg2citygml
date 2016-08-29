@@ -187,17 +187,38 @@ private:
 
     void selectBySegmentation(PrimitiveNode& stp)
     {
-        if(osgwidget->getNormalsBasedSegmentation() && !osgwidget->getLocationBasedSegmentation())
+        bool normals = osgwidget->getNormalsBasedSegmentation();
+        bool spatial = osgwidget->getLocationBasedSegmentation();
+        bool shapes = osgwidget->getShapeBasedSegmentation();
+
+        bool normalsOnly = normals && !spatial && !shapes;
+        bool spatialOnly = !normals && spatial && !shapes;
+        bool shapeOnly = !normals && !spatial && shapes;
+
+        bool normalsNspatial = normals && spatial && !shapes;
+        bool spatialNshape = !normals && spatial && shapes;
+
+        bool normalsNspatialNshape = normals && spatial && shapes;
+
+        if(normalsOnly)
         {
             segmentByNormalsOnly(stp);
         }
-        else if(osgwidget->getLocationBasedSegmentation() && !osgwidget->getNormalsBasedSegmentation())
+        else if(spatialOnly)
         {
             segmentBySpatialLocationOnly(stp);
         }
-        else if(osgwidget->getNormalsBasedSegmentation() && osgwidget->getLocationBasedSegmentation())
+        else if(shapeOnly)
+        {
+            segmentByShapeOnly(stp);
+        }
+        else if(normalsNspatial)
         {
             segmentByNormalsAndLocation(stp);
+        }
+        else if(spatialNshape)
+        {
+            segmentBySpatialNShape(stp);
         }
     }
 
@@ -284,13 +305,94 @@ private:
                 {
                     segmentByNormalsAndLocation(node, selectedNormal, nodesVisited, nodesSelected);
                 }
-                else if(false)
+            }
+        }
+    }
+
+    void segmentByShapeOnly(PrimitiveNode& stp)
+    {
+        if(osgwidget->shape_to_segment==Shape::Plain)
+        {
+            osg::PrimitiveSet* prset = stp.drawable->asGeometry()->getPrimitiveSet(stp.primitiveIndex);
+            osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>(stp.drawable->asGeometry()->getVertexArray());
+            if(prset->getNumIndices()>=3)
+            {
+                osg::Vec3f& U = (* verts)[prset->index(0)];
+                osg::Vec3f& V = (* verts)[prset->index(1)];
+                osg::Vec3f& W = (* verts)[prset->index(2)];
+
+                QList<PrimitiveNode> list = osgwidget->getAllPolygonNodes();
+                for (unsigned int i = 0; i < list.size(); i++)
                 {
-                   qDebug() << "Iteration: " << QString::number(i) << ", Node: " << QString::number(node.nodeId)
-                            << " not visited" ;
+                    PrimitiveNode node = list[i];
+
+                    if(isCoplanar(U,V,W,*(node.centroid)))
+                    {
+                        selectPrimitive(node);
+                    }
                 }
             }
         }
+    }
+
+    void segmentBySpatialNShape(PrimitiveNode& stp)
+    {
+        QList<unsigned int>* nodesVisited = new QList<unsigned int>();
+        QList<PrimitiveNode>* nodesSelected = new QList<PrimitiveNode>();
+
+        segmentBySpatialNShape(stp,nodesVisited,nodesSelected);
+
+        QList<PrimitiveNode> list = (*nodesSelected);
+        for (unsigned int i = 0; i < list.size(); i++)
+        {
+            selectPrimitive(list[i]);
+        }
+
+        nodesSelected->clear();
+        nodesVisited->clear();
+    }
+
+    void segmentBySpatialNShape(PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected)
+    {
+        if(osgwidget->shape_to_segment==Shape::Plain)
+        {
+            osg::PrimitiveSet* prset = stp.drawable->asGeometry()->getPrimitiveSet(stp.primitiveIndex);
+            osg::Vec3Array* verts = dynamic_cast<osg::Vec3Array*>(stp.drawable->asGeometry()->getVertexArray());
+            if(prset->getNumIndices()>=3)
+            {
+                osg::Vec3f& U = (* verts)[prset->index(0)];
+                osg::Vec3f& V = (* verts)[prset->index(1)];
+                osg::Vec3f& W = (* verts)[prset->index(2)];
+                segmentPlainSpatial(U,V,W,stp,nodesVisited,nodesSelected);
+            }
+        }
+    }
+
+    void segmentPlainSpatial(osg::Vec3f& U, osg::Vec3f& V, osg::Vec3f& W, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected)
+    {
+        nodesVisited->push_back(stp.nodeId);
+        if(isCoplanar(U,V,W,*(stp.centroid)))
+        {
+            nodesSelected->push_back(stp);
+
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+                if(!nodesVisited->contains(node.nodeId))
+                {
+                    segmentPlainSpatial(U,V,W,node,nodesVisited,nodesSelected);
+                }
+            }
+        }
+    }
+
+    /**
+     * @brief: (W - U)*[(V-U)^(Z - W)]=0
+     * Check if four points are coplanar
+     */
+    bool isCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z)
+    {
+        return ((W - U)*((V-U)^(Z - W)))==0;
     }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
@@ -309,7 +411,9 @@ private:
 
 
         PrimitiveNode stp = osgwidget->getPolygonNode(firstIntersection.drawable,firstIntersection.primitiveIndex);
-        if(osgwidget->getNormalsBasedSegmentation() || osgwidget->getLocationBasedSegmentation())
+        if(osgwidget->getNormalsBasedSegmentation()
+                || osgwidget->getLocationBasedSegmentation()
+                || osgwidget->getShapeBasedSegmentation())
         {
             selectBySegmentation(stp);
         }
