@@ -79,6 +79,8 @@ public:
   bool drawGraphEdges = false;
   bool renderEditableMode = true;
 
+  float link_vert_dist = 0.0001;
+
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
   virtual void paintGL();

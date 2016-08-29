@@ -496,8 +496,11 @@ void OSGWidget::setFile(QString fileName){
 
             convertToTrianglePrimitives();
 
-            GraphGenerator metaG;
-            metaG.generate(editableModelGroup.get());
+            GraphGenerator grapGen;
+            grapGen.generate(editableModelGroup.get());
+
+            //GraphEnhancer grapEnhan;
+            //grapEnhan.generateLinksFromNearbyVertices(editableModelGroup.get(),link_vert_dist);
         }
     }
 

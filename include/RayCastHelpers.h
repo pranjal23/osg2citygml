@@ -160,7 +160,6 @@ public:
 
     void colorify()
     {
-
         if(osgwidget->getEditableModelGroup() == nullptr)
             return;
 
@@ -192,9 +191,13 @@ private:
         {
             segmentByNormalsOnly(stp);
         }
-        else if(osgwidget->getLocationBasedSegmentation())
+        else if(osgwidget->getLocationBasedSegmentation() && !osgwidget->getNormalsBasedSegmentation())
         {
-            segmentBySpatialLocation(stp);
+            segmentBySpatialLocationOnly(stp);
+        }
+        else if(osgwidget->getNormalsBasedSegmentation() && osgwidget->getLocationBasedSegmentation())
+        {
+            segmentByNormalsAndLocation(stp);
         }
     }
 
@@ -215,13 +218,15 @@ private:
         }
     }
 
-    void segmentBySpatialLocation(PrimitiveNode& stp)
+    void segmentBySpatialLocationOnly(PrimitiveNode& stp)
     {
         QList<unsigned int>* nodesVisited = new QList<unsigned int>();
-        segmentBySpatialLocation(stp,nodesVisited);
+        segmentBySpatialLocationOnly(stp,nodesVisited);
+
+        nodesVisited->clear();
     }
 
-    void segmentBySpatialLocation(PrimitiveNode &stp, QList<unsigned int>* nodesVisited)
+    void segmentBySpatialLocationOnly(PrimitiveNode &stp, QList<unsigned int>* nodesVisited)
     {
         selectPrimitive(stp);
         if(false)
@@ -235,12 +240,55 @@ private:
             PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
             if(!nodesVisited->contains(node.nodeId))
             {
-                segmentBySpatialLocation(node, nodesVisited);
+                segmentBySpatialLocationOnly(node, nodesVisited);
             }
             else if(false)
             {
                qDebug() << "Iteration: " << QString::number(i) << ", Node: " << QString::number(node.nodeId)
                         << " not visited" ;
+            }
+        }
+    }
+
+    void segmentByNormalsAndLocation(PrimitiveNode& stp)
+    {
+        QList<unsigned int>* nodesVisited = new QList<unsigned int>();
+        QList<PrimitiveNode>* nodesSelected = new QList<PrimitiveNode>();
+         osg::Vec3f selectedNormal = *(stp.faceNormal);
+
+        segmentByNormalsAndLocation(stp,selectedNormal,nodesVisited,nodesSelected);
+
+        QList<PrimitiveNode> list = (*nodesSelected);
+        for (unsigned int i = 0; i < list.size(); i++)
+        {
+            selectPrimitive(list[i]);
+        }
+
+        nodesSelected->clear();
+        nodesVisited->clear();
+    }
+
+    void segmentByNormalsAndLocation(PrimitiveNode &stp,osg::Vec3f& selectedNormal, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected)
+    {
+        osg::Vec3f currNormal = *(stp.faceNormal);
+
+        nodesVisited->push_back(stp.nodeId);
+        if(compareNormals(selectedNormal,currNormal))
+        {
+            nodesSelected->push_back(stp);
+
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+                if(!nodesVisited->contains(node.nodeId))
+                {
+                    segmentByNormalsAndLocation(node, selectedNormal, nodesVisited, nodesSelected);
+                }
+                else if(false)
+                {
+                   qDebug() << "Iteration: " << QString::number(i) << ", Node: " << QString::number(node.nodeId)
+                            << " not visited" ;
+                }
             }
         }
     }

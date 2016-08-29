@@ -878,7 +878,7 @@ QPushButton:checked {
    </widget>
    <widget class="QWidget" name="tab_4">
     <attribute name="title">
-     <string>View</string>
+     <string>Object</string>
     </attribute>
     <widget class="QGroupBox" name="groupBox_rendering">
      <property name="geometry">
@@ -956,6 +956,100 @@ QPushButton:checked {
       </property>
       <property name="text">
        <string>Show Normal Glyph</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>160</y>
+       <width>351</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Graph</string>
+     </property>
+     <widget class="QDoubleSpinBox" name="link_vert_dist_sb">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>70</y>
+        <width>81</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <double>0.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.010000000000000</double>
+      </property>
+      <property name="value">
+       <double>0.010000000000000</double>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="regenerate_graph_btn">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>110</y>
+        <width>186</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+    background-color: red;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton:pressed {
+    background-color: rgb(224, 0, 0);
+    border-style: inset;
+}
+QPushButton:checked {
+    background-color: rgb(200, 0, 0);
+    border-style: inset;
+}</string>
+      </property>
+      <property name="text">
+       <string>Regenerate Graph</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>70</y>
+        <width>131</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Vertex Distance</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>40</y>
+        <width>331</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Link Neighbouring Polygon</string>
       </property>
      </widget>
     </widget>
@@ -2302,9 +2396,9 @@ QPushButton:checked {
       <widget class="QPushButton" name="clearSelBtn">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>70</x>
          <y>100</y>
-         <width>200</width>
+         <width>186</width>
          <height>33</height>
         </rect>
        </property>
@@ -2316,7 +2410,7 @@ QPushButton:checked {
        </property>
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>186</width>
          <height>0</height>
         </size>
        </property>
@@ -2356,9 +2450,9 @@ QPushButton:checked {
       <widget class="QPushButton" name="selectAllBtn">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>70</x>
          <y>60</y>
-         <width>200</width>
+         <width>186</width>
          <height>33</height>
         </rect>
        </property>
@@ -2370,7 +2464,7 @@ QPushButton:checked {
        </property>
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>186</width>
          <height>0</height>
         </size>
        </property>

@@ -212,3 +212,8 @@ void MainWindow::on_spatialBtn_toggled(bool checked)
 {
     ui->osgWidget->setLocationBasedSegmentation(checked);
 }
+
+void MainWindow::on_regenerate_graph_btn_clicked()
+{
+    ui->osgWidget->link_vert_dist = ui->link_vert_dist_sb->value();
+}

@@ -13,6 +13,7 @@
 #include <osgUtil/Simplifier>
 #include <osgUtil/TriStripVisitor>
 #include <osgUtil/SmoothingVisitor>
+#include <osgUtil/MeshOptimizers>
 
 class OSGHELPERS{
 public:
@@ -288,13 +289,14 @@ public:
 
     virtual void apply(osg::Geode* geode)
     {
-        osgUtil::TriStripVisitor triStripVisitor;
-        geode->accept(triStripVisitor);
 
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
             geometry->setUseVertexBufferObjects(true);
+            osgUtil::TriStripVisitor triStripVisitor;
+            geode->accept(triStripVisitor);
+            triStripVisitor.stripify(*geometry);
 
             std::vector<TriangleIndexes> addPrimSetIndexes;
 
@@ -406,6 +408,7 @@ public:
             //Generate New Normals
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
+            sv.smooth(*geometry);
         }
     }
 
@@ -763,6 +766,7 @@ public:
         // If they share vertices or vertices are close, then keep link else delete link
         // Recursively check the links of links if they share vertices or the vertices are close
         // Add 50 weight to links which donot share a vertice but their vertices are very close
+        // Edge weights can be used to calculate the distance from the selected polygon (Grab Cut)
 
         std::vector<PrimitiveNode> xSortedVector(vector);
         std::sort(xSortedVector.begin(),xSortedVector.end(),compareByCentroidsX);
