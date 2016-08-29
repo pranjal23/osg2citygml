@@ -25,7 +25,7 @@
 #include <map>
 #include <utility>
 
-#include "OSGHelpers.h"
+#include "GeometryHandler.h"
 #include "OSGWidget.h"
 
 class AddEditColoursToGeometryVisitor : public osg::NodeVisitor

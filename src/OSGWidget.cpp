@@ -1,5 +1,5 @@
 #include "OSGWidget.h"
-#include "RayCastHelpers.h"
+#include "SelectionHandler.h"
 #include "CityGMLWriter.h"
 
 osg::ref_ptr<SelectionHandler> selectionHandler;
@@ -240,6 +240,16 @@ void OSGWidget::setNormalsBasedSegmentation(bool checked)
 bool OSGWidget::getNormalsBasedSegmentation()
 {
     return normalsBasedSegmentation;
+}
+
+void OSGWidget::setShapeBasedSegmentation(bool checked)
+{
+    shapeBasedSegmentation = checked;
+}
+
+bool OSGWidget::getShapeBasedSegmentation()
+{
+    return shapeBasedSegmentation;
 }
 
 void OSGWidget::setNormalsDistance(double value)

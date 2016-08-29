@@ -1,7 +1,7 @@
 #include "CityGMLWriter.h"
 #include "CityGMLHelper.h"
 #include "GMLHelper.h"
-#include "OSGHelpers.h"
+#include "GeometryHandler.h"
 #include "UIHelper.h"
 
 CityGMLWriter::CityGMLWriter(QString fileName, OSGWidget* osgwidget)

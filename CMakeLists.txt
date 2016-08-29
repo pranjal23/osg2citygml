@@ -54,8 +54,8 @@ SET( HEADERS
   include/GMLHelper.h
   include/MainWindow.h
   include/OSGWidget.h
-  include/OSGHelpers.h
-  include/RayCastHelpers.h
+  include/GeometryHandler.h
+  include/SelectionHandler.h
   include/ReaderWriterCityGML.h
   include/SchemaValidator.h
   include/UIHelper.h

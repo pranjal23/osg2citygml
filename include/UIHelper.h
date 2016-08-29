@@ -7,7 +7,7 @@
 #include <map>
 
 #include "CityGMLHelper.h"
-#include "OSGHelpers.h"
+#include "GeometryHandler.h"
 
 class UIHelperSingleton
 {

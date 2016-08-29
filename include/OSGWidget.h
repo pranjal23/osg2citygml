@@ -40,7 +40,7 @@
 #include <QPainter>
 #include <QWheelEvent>
 
-#include "OSGHelpers.h"
+#include "GeometryHandler.h"
 
 
 class OSGWidget : public QOpenGLWidget
@@ -63,6 +63,8 @@ public:
   void setNormalsBasedSegmentation(bool checked);
   bool getNormalsBasedSegmentation();
   void setNormalsDistance(double value);
+  bool getShapeBasedSegmentation();
+  void setShapeBasedSegmentation(bool checked);
   double getNormalsDistance();
   void selectAllPolygons();
   void clearAllSelection();
@@ -104,6 +106,7 @@ private:
 
   bool locationBasedSegmentation = false;
   bool normalsBasedSegmentation = false;
+  bool shapeBasedSegmentation = false;
   double normalsDistance = 0.0;
 
 

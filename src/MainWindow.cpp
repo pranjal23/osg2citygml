@@ -217,3 +217,8 @@ void MainWindow::on_regenerate_graph_btn_clicked()
 {
     ui->osgWidget->link_vert_dist = ui->link_vert_dist_sb->value();
 }
+
+void MainWindow::on_shapeBtn_toggled(bool checked)
+{
+
+}

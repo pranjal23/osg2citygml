@@ -47,6 +47,7 @@ private slots:
   void on_normalGylphCB_toggled(bool checked);
   void on_spatialBtn_toggled(bool checked);
   void on_regenerate_graph_btn_clicked();
+  void on_shapeBtn_toggled(bool checked);
 };
 
 #endif
