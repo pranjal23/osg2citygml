@@ -2,6 +2,7 @@
 #define RAYCASTHELPERS_H__
 
 #include <QDebug>
+#include <QMessageBox>
 
 #include <osg/Group>
 #include <osg/Vec3>
@@ -38,7 +39,6 @@ public:
     void apply(osg::Geode& geode,
                std::multimap<unsigned int,PrimitiveNode>& selectedPrimitives)
     {
-        //qDebug() << "In add color ...";
         for(unsigned int i=0;i<geode.getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode.getDrawable(i));
@@ -333,6 +333,12 @@ private:
                 }
             }
         }
+        else
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Curved and Cylindrical Surfaces require spatial consideration, please check the spatial button.");
+            msgBox.exec();
+        }
     }
 
     void segmentBySpatialNShape(PrimitiveNode& stp)
@@ -363,15 +369,23 @@ private:
                 osg::Vec3f& U = (* verts)[prset->index(0)];
                 osg::Vec3f& V = (* verts)[prset->index(1)];
                 osg::Vec3f& W = (* verts)[prset->index(2)];
-                segmentPlainSpatial(U,V,W,stp,nodesVisited,nodesSelected);
+                segmentPlainSpatial(U,V,W,stp,nodesVisited,nodesSelected, true);
             }
+        }
+        else if(osgwidget->shape_to_segment==Shape::Curved)
+        {
+            segmentCurvedSpatial((*stp.faceNormal),stp,nodesVisited,nodesSelected, true);
+        }
+        else if(osgwidget->shape_to_segment==Shape::Cylindrical)
+        {
+            segmentCylindricalSpatial((*stp.faceNormal),stp,nodesVisited,nodesSelected, true);
         }
     }
 
-    void segmentPlainSpatial(osg::Vec3f& U, osg::Vec3f& V, osg::Vec3f& W, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected)
+    void segmentPlainSpatial(osg::Vec3f& U, osg::Vec3f& V, osg::Vec3f& W, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
     {
         nodesVisited->push_back(stp.nodeId);
-        if(isCoplanar(U,V,W,*(stp.centroid)))
+        if(isCoplanar(U,V,W,*(stp.centroid)) || root)
         {
             nodesSelected->push_back(stp);
 
@@ -380,7 +394,43 @@ private:
                 PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
                 if(!nodesVisited->contains(node.nodeId))
                 {
-                    segmentPlainSpatial(U,V,W,node,nodesVisited,nodesSelected);
+                    segmentPlainSpatial(U,V,W,node,nodesVisited,nodesSelected, false);
+                }
+            }
+        }
+    }
+
+    void segmentCurvedSpatial(osg::Vec3f& normal, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
+    {
+        nodesVisited->push_back(stp.nodeId);
+        if(!isPerpendicular(normal,*(stp.faceNormal)) || root)
+        {
+            nodesSelected->push_back(stp);
+
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+                if(!nodesVisited->contains(node.nodeId))
+                {
+                    segmentCurvedSpatial(normal,node,nodesVisited,nodesSelected, false);
+                }
+            }
+        }
+    }
+
+    void segmentCylindricalSpatial(osg::Vec3f& normal, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
+    {
+        nodesVisited->push_back(stp.nodeId);
+        if(isNotPerpendicularOrParallel(normal,*(stp.faceNormal)) || root)
+        {
+            nodesSelected->push_back(stp);
+
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+                if(!nodesVisited->contains(node.nodeId))
+                {
+                    segmentCylindricalSpatial(normal,node,nodesVisited,nodesSelected, false);
                 }
             }
         }
@@ -393,6 +443,18 @@ private:
     bool isCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z)
     {
         return ((W - U)*((V-U)^(Z - W)))==0;
+    }
+
+    bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)
+    {
+        float dotp = (U*V);
+        return dotp < 0.1;
+    }
+
+    bool isNotPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
+    {
+        float dotp = (U*V);
+        return dotp > 0.1 || dotp < 0.9;
     }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {

@@ -23,6 +23,7 @@
 
 #include <osgGA/EventQueue>
 #include <osgGA/TrackballManipulator>
+#include <osgGA/FlightManipulator>
 
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/PolytopeIntersector>

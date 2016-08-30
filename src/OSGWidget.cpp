@@ -560,7 +560,6 @@ void OSGWidget::setView(){
 
     osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
     manipulator->setAllowThrow( false );
-
     view->setCameraManipulator( manipulator );
 
     viewer_->addView( view );

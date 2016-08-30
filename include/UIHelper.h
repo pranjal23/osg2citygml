@@ -21,7 +21,7 @@ public:
     std::vector<QString>& getLabels();
 };
 
-enum Shape { Plain, Spherical, Cylindrical };
+enum Shape { Plain, Curved, Cylindrical };
 
 
 #endif //UIHELPER_H__

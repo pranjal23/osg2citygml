@@ -222,3 +222,21 @@ void MainWindow::on_shapeBtn_toggled(bool checked)
 {
     ui->osgWidget->setShapeBasedSegmentation(checked);
 }
+
+void MainWindow::on_plainRb_toggled(bool checked)
+{
+    if(checked)
+        ui->osgWidget->shape_to_segment = Shape::Plain;
+}
+
+void MainWindow::on_curvedSurfaceRb_toggled(bool checked)
+{
+    if(checked)
+        ui->osgWidget->shape_to_segment = Shape::Curved;
+}
+
+void MainWindow::on_cylindricalRb_toggled(bool checked)
+{
+    if(checked)
+        ui->osgWidget->shape_to_segment = Shape::Cylindrical;
+}

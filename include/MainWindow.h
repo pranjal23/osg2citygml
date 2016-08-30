@@ -48,6 +48,9 @@ private slots:
   void on_spatialBtn_toggled(bool checked);
   void on_regenerate_graph_btn_clicked();
   void on_shapeBtn_toggled(bool checked);
+  void on_plainRb_toggled(bool checked);
+  void on_curvedSurfaceRb_toggled(bool checked);
+  void on_cylindricalRb_toggled(bool checked);
 };
 
 #endif
