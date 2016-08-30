@@ -295,7 +295,7 @@ public:
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
             geometry->setUseVertexBufferObjects(true);
             osgUtil::TriStripVisitor triStripVisitor;
-            geode->accept(triStripVisitor);
+            geometry->accept(triStripVisitor);
             triStripVisitor.stripify(*geometry);
 
             std::vector<TriangleIndexes> addPrimSetIndexes;

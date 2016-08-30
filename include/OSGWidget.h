@@ -30,6 +30,7 @@
 
 #include <osgViewer/View>
 #include <osgViewer/ViewerEventHandlers>
+#include <osg/PolygonOffset>
 
 #include <cassert>
 
@@ -70,6 +71,7 @@ public:
   double getNormalsDistance();
   void selectAllPolygons();
   void clearAllSelection();
+  void setEditableStateSet();
   void tagSelectedItems(QString name_space, QString element_name);
   void selectElementItems(QString name_space, QString element_name);
 
@@ -82,6 +84,7 @@ public:
   bool showNormalGlyph = false;
   bool drawGraphEdges = false;
   bool renderEditableMode = true;
+  bool renderWireFrame = false;
 
   float link_vert_dist = 0.0001;
 
@@ -121,7 +124,7 @@ private:
   osg::ref_ptr<osg::Group> rootSceneGroup;
 
   osg::ref_ptr<osg::Group> editableModelGroup;
-  osg::ref_ptr<osg::Node> originalModelGroup;
+  osg::ref_ptr<osg::Group> originalModelGroup;
 
   osg::ref_ptr<osg::Node> glyphGroup;
 };

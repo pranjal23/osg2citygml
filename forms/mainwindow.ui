@@ -937,7 +937,7 @@ QPushButton:checked {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>80</y>
+       <y>170</y>
        <width>351</width>
        <height>80</height>
       </rect>
@@ -966,7 +966,7 @@ QPushButton:checked {
      <property name="geometry">
       <rect>
        <x>0</x>
-       <y>160</y>
+       <y>250</y>
        <width>351</width>
        <height>151</height>
       </rect>
@@ -1050,6 +1050,55 @@ QPushButton:checked {
       </property>
       <property name="text">
        <string>Link Neighbouring Polygon</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_7">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>80</y>
+       <width>351</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>View</string>
+     </property>
+     <widget class="QPushButton" name="wireFrameModeBtn">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>30</y>
+        <width>186</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+    background-color: red;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton:pressed {
+    background-color: rgb(224, 0, 0);
+    border-style: inset;
+}
+QPushButton:checked {
+    background-color: rgb(200, 0, 0);
+    border-style: inset;
+}</string>
+      </property>
+      <property name="text">
+       <string>WireFrame Mode</string>
+      </property>
+      <property name="checkable">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>

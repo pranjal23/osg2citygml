@@ -240,3 +240,10 @@ void MainWindow::on_cylindricalRb_toggled(bool checked)
     if(checked)
         ui->osgWidget->shape_to_segment = Shape::Cylindrical;
 }
+
+void MainWindow::on_wireFrameModeBtn_toggled(bool checked)
+{
+    ui->osgWidget->renderWireFrame = checked;
+
+    ui->osgWidget->renderModel();
+}

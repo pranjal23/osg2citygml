@@ -447,7 +447,7 @@ PrimitiveNode& OSGWidget::getPolygonNode(osg::Drawable* drawable, unsigned int i
 void OSGWidget::convertToTrianglePrimitives(bool verbose){
     TrianglePrimitivesConverter triangleConverter;
     triangleConverter.setVerbose(verbose);
-    triangleConverter.apply(editableModelGroup.get());
+    triangleConverter.apply(originalModelGroup.get());
 
 }
 
@@ -456,6 +456,8 @@ void OSGWidget::renderModel()
     if(renderEditableMode)
     {
         rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
+
+        setEditableStateSet();
 
         //Editable Model Render
         rootSceneGroup->addChild(editableModelGroup.get());
@@ -472,20 +474,74 @@ void OSGWidget::renderModel()
     addGlyph();
 }
 
+void OSGWidget::setEditableStateSet()
+{
+        // set up the state so that the underlying color is not seen through
+        // and that the drawing mode is changed to wireframe, and a polygon offset
+        // is added to ensure that we see the wireframe itself, and turn off
+        // so texturing too.
+        osg::ref_ptr<osg::StateSet> stateset = new osg::StateSet;
+        osg::ref_ptr<osg::PolygonOffset> polyoffset = new osg::PolygonOffset;
+        polyoffset->setFactor(-1.0f);
+        polyoffset->setUnits(-1.0f);
+        osg::ref_ptr<osg::PolygonMode> polymode = new osg::PolygonMode;
+        polymode->setMode(osg::PolygonMode::FRONT_AND_BACK,osg::PolygonMode::LINE);
+
+        if(renderWireFrame)
+        {
+            stateset->setAttributeAndModes(polyoffset,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+            stateset->setAttributeAndModes(polymode,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+        }
+        else
+        {
+            stateset->setAttributeAndModes(polyoffset,osg::StateAttribute::INHERIT|osg::StateAttribute::OFF);
+            stateset->setAttributeAndModes(polymode,osg::StateAttribute::INHERIT|osg::StateAttribute::OFF);
+        }
+
+        /*
+        #if 1
+            osg::ref_ptr<osg::Material> material = new osg::Material;
+            stateset->setAttributeAndModes(material,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+            stateset->setMode(GL_LIGHTING,osg::StateAttribute::OVERRIDE|osg::StateAttribute::OFF);
+        #else
+             // version which sets the color of the wireframe.
+            osg::Material* material = new osg::Material;
+            material->setColorMode(osg::Material::OFF); // switch glColor usage off
+            // turn all lighting off
+            material->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0,0.0f,0.0f,1.0f));
+            material->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0,0.0f,0.0f,1.0f));
+            material->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0,0.0f,0.0f,1.0f));
+            // except emission... in which we set the color we desire
+            material->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4(0.0,1.0f,0.0f,1.0f));
+            stateset->setAttributeAndModes(material,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+            stateset->setMode(GL_LIGHTING,osg::StateAttribute::OVERRIDE|osg::StateAttribute::ON);
+        #endif
+        */
+
+            stateset->setTextureMode(0,GL_TEXTURE_2D,osg::StateAttribute::OVERRIDE|osg::StateAttribute::OFF);
+
+        //     osg::LineStipple* linestipple = new osg::LineStipple;
+        //     linestipple->setFactor(1);
+        //     linestipple->setPattern(0xf0f0);
+        //     stateset->setAttributeAndModes(linestipple,osg::StateAttribute::OVERRIDE_ON);
+
+        editableModelGroup.get()->setStateSet(stateset);
+}
+
 void OSGWidget::setFile(QString fileName){
 
     rootSceneGroup = new osg::Group;
 
     if(!fileName.isEmpty())
     {
-        osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
+        //osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
 
-        osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(fileName.toStdString(), options);
+        osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(fileName.toStdString());//, options);
         if (node == nullptr) {
             std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
             return;
         }
-        originalModelGroup = node;
+
         /*
         originalModelGroup = osgDB::readRefNodeFile(fileName.toStdString());
 
@@ -495,22 +551,21 @@ void OSGWidget::setFile(QString fileName){
         }
         */
 
-        const osg::Group *origGroup = originalModelGroup.get()->asGroup();
+        osg::Group *origGroup = node->asGroup();
 
         if(origGroup==0){
             osg::notify(osg::WARN) << "Group = 0" << std::endl;
         } else {
-            osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
+            //osg::notify(osg::WARN) << "Number of Children in group - " << origGroup->getNumChildren() << std::endl;
 
-            editableModelGroup = new osg::Group(*origGroup,osg::CopyOp::DEEP_COPY_ALL);
+            originalModelGroup = origGroup;
 
             convertToTrianglePrimitives();
 
+            editableModelGroup = new osg::Group(*(originalModelGroup.get()),osg::CopyOp::DEEP_COPY_ALL);
+
             GraphGenerator grapGen;
             grapGen.generate(editableModelGroup.get());
-
-            //GraphEnhancer grapEnhan;
-            //grapEnhan.generateLinksFromNearbyVertices(editableModelGroup.get(),link_vert_dist);
         }
     }
 
