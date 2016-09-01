@@ -22,8 +22,7 @@
 #include <osgDB/WriteFile>
 
 #include <osgGA/EventQueue>
-#include <osgGA/TrackballManipulator>
-#include <osgGA/FlightManipulator>
+#include "AppCameraManipulator.h"
 
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/PolytopeIntersector>

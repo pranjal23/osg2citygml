@@ -46,6 +46,7 @@ SET( SOURCES
   src/CityGMLWriter.cpp
   src/ReaderWriterCityGML.cpp
   src/UIHelperSingleton.cpp
+  src/AppCameraManipulator.cpp
 )
 
 SET( HEADERS
@@ -59,6 +60,7 @@ SET( HEADERS
   include/ReaderWriterCityGML.h
   include/SchemaValidator.h
   include/UIHelper.h
+  include/AppCameraManipulator.h
 )
 
 FILE(

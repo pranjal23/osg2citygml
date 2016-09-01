@@ -610,11 +610,12 @@ void OSGWidget::setView(){
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
-    view->addEventHandler( new osgViewer::StatsHandler );
+    //view->addEventHandler( new osgViewer::StatsHandler );
     view->addEventHandler(selectionHandler.get() );
+    //view->addEventHandler(new PickHandler());
 
-    osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator;
-    manipulator->setAllowThrow( false );
+    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator;
+    manipulator->setAllowThrow(false);
     view->setCameraManipulator( manipulator );
 
     viewer_->addView( view );
