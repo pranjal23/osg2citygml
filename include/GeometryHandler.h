@@ -2,6 +2,9 @@
 #ifndef OSGHELPERS_H__
 #define OSGHELPERS_H__
 
+#include <sstream>
+#include <iomanip>
+
 #include <QDebug>
 #include <QException>
 #include <QSet>
@@ -162,6 +165,18 @@ public:
         return pyramidGeode;
     }
 
+};
+
+class MathHelper
+{
+public:
+    template <typename T>
+    static std::string to_string_with_precision(const T a_value, const int n = 6)
+    {
+        std::ostringstream out;
+        out << std::setprecision(n) << a_value;
+        return out.str();
+    }
 };
 
 class VertexLinks
@@ -751,6 +766,14 @@ public:
 
 };
 
+class EnhancedNode
+{
+public:
+    PrimitiveNode theNode;
+    osg::Vec3f theVertex;
+    float dist = 0.0f;
+};
+
 class PrimitiveGraphEnhancer
 {
 public:
@@ -778,6 +801,120 @@ public:
     static bool compareByCentroidsX(const PrimitiveNode & s1, const PrimitiveNode & s2)
     {
         return (s1.centroid->x() < s2.centroid->x());
+    }
+
+    void generateTestLinksFromNearbyVertices(osg::Group* group, const int precision)
+    {
+        // Calculate the Euclidean distance of each vertices of Primitive Nodes from origin and put them into bins
+        // Compare all the vertices in the same bin... if the vertexes are close then polygon can be linked
+        // Add -50 weight to links which donot share a vertice but their vertices are very close
+        // Edge weights can be used to calculate the distance from the selected polygon (Geodesic Distance)
+
+        std::multimap<float, EnhancedNode> euclideanVertexBuckets;
+        QList<float> keyList;
+
+        unsigned int k;
+        for (k = 0; k < group->getNumChildren(); k++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(k);
+            unsigned int i;
+            for(i=0; i < geode->getNumDrawables(); i++)
+            {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
+                osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());
+
+                for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
+                {
+                    PrimitiveNode a =(*it).second;
+
+                    osg::PrimitiveSet* prset=geometry->getPrimitiveSet(a.primitiveIndex);
+
+                    for(unsigned int idx=0; idx<prset->getNumIndices(); idx++)
+                    {
+                        osg::Vec3f currVert = (* verts)[prset->index(idx)];
+                        EnhancedNode e_node;
+                        e_node.theVertex = currVert;
+                        e_node.theNode = a;
+                        e_node.dist = calculateVertexDistanceFromOrigin(currVert);
+
+                        std::string dist_str = MathHelper::to_string_with_precision(e_node.dist,precision);
+                        float precision_bucket_key = QString::fromStdString(dist_str).toFloat();
+                        euclideanVertexBuckets.insert(std::pair<float,EnhancedNode>(precision_bucket_key,e_node));
+
+                        if(!keyList.contains(precision_bucket_key))
+                            keyList.push_back(precision_bucket_key);
+                    }
+                }
+            }
+        }
+
+        qDebug() << "Number of Buckets: " << QString::number(keyList.size());
+
+
+        float min_dist = 1.0f;
+        if(precision>0)
+            min_dist = 1.0f/((float)precision * 10);
+
+        for(unsigned int ki=0; ki<keyList.size(); ki++)
+        {
+            float key = keyList.at(ki);
+            qDebug() << "In Bucket Id: " << ki << ", key: " << QString::number(key);
+
+            std::pair<std::multimap<float,EnhancedNode>::iterator, std::multimap<float,EnhancedNode>::iterator> ret;
+            ret = euclideanVertexBuckets.equal_range(key);
+
+            std::pair<std::multimap<float,EnhancedNode>::iterator, std::multimap<float,EnhancedNode>::iterator> ret2;
+            ret2 = euclideanVertexBuckets.equal_range(key);
+
+            for (std::multimap<float,EnhancedNode>::iterator it=ret.first; it!=ret.second; ++it)
+            {
+                EnhancedNode a = it->second;
+
+                for (std::multimap<float,EnhancedNode>::iterator it2=ret2.first; it2!=ret2.second; ++it2)
+                {
+                    EnhancedNode b = it2->second;
+
+                    if(a.theNode.nodeId!=b.theNode.nodeId)
+                    {
+                        //qDebug() << " Comparing: " <<  QString::number(a.theNode.nodeId) << " and " <<  QString::number(b.theNode.nodeId);
+                        float dist = std::fabs(a.dist - b.dist);
+                        if(dist < min_dist)
+                        {
+
+                            osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(a.theNode.drawable.get());
+                            GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
+                            std::map<unsigned int,PrimitiveNode>::iterator nt = userData->primitivesMap->find(a.theNode.primitiveIndex);
+                            if (nt != userData->primitivesMap->end())
+                            {
+                                PrimitiveNode orig =(*nt).second;
+                                Link l;
+                                l.drawable = b.theNode.drawable;
+                                l.primitiveIndex = b.theNode.primitiveIndex;
+                                l.weight = 50;
+                                if(!orig.links->contains(l))
+                                    orig.links->push_back(l);
+                                (*nt).second = orig;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+private:
+
+    float calculateVertexDistanceFromOrigin(osg::Vec3f& U)
+    {
+        return std::sqrt(std::pow(U.x(), 2) + std::pow( U.y(), 2) + std::pow(U.z(),2));
+    }
+
+    float calculateVertexDistance(osg::Vec3f& U, osg::Vec3f& V)
+    {
+        return std::sqrt( std::pow(U.x() - V.x(),2) +  std::pow(U.y() - V.y(),2) + std::pow(U.z() - V.z(),2));
     }
 };
 
