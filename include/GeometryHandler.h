@@ -849,9 +849,7 @@ public:
                 }
             }
         }
-
-        qDebug() << "Number of Buckets: " << QString::number(keyList.size());
-
+        //qDebug() << "Number of Buckets: " << QString::number(keyList.size());
 
         float min_dist = 1.0f;
         if(precision>0)
@@ -860,7 +858,7 @@ public:
         for(unsigned int ki=0; ki<keyList.size(); ki++)
         {
             float key = keyList.at(ki);
-            qDebug() << "In Bucket Id: " << ki << ", key: " << QString::number(key);
+            //qDebug() << "In Bucket Id: " << ki << ", key: " << QString::number(key);
 
             std::pair<std::multimap<float,EnhancedNode>::iterator, std::multimap<float,EnhancedNode>::iterator> ret;
             ret = euclideanVertexBuckets.equal_range(key);
