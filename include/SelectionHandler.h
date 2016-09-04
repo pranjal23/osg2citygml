@@ -382,6 +382,10 @@ private:
         {
             segmentCylindricalSpatial((*stp.faceNormal),stp,nodesVisited,nodesSelected, true);
         }
+        else if(osgwidget->shape_to_segment==Shape::Box)
+        {
+            segmentBoxSpatial((*stp.faceNormal),stp,nodesVisited,nodesSelected, true);
+        }
     }
 
     void segmentPlainSpatial(osg::Vec3f& U, osg::Vec3f& V, osg::Vec3f& W, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
@@ -438,6 +442,24 @@ private:
         }
     }
 
+    void segmentBoxSpatial(osg::Vec3f& normal, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
+    {
+        nodesVisited->push_back(stp.nodeId);
+        if(isPerpendicularOrParallel(normal,*(stp.faceNormal)) || root)
+        {
+            nodesSelected->push_back(stp);
+
+            for(unsigned int i=0; i < stp.links->size(); i++)
+            {
+                PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
+                if(!nodesVisited->contains(node.nodeId))
+                {
+                    segmentBoxSpatial(normal,node,nodesVisited,nodesSelected, false);
+                }
+            }
+        }
+    }
+
     /**
      * @brief: (W - U)*[(V-U)^(Z - W)]=0
      * Check if four points are coplanar
@@ -450,13 +472,19 @@ private:
     bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)
     {
         float dotp = (U*V);
-        return dotp < 0.1;
+        return dotp == 0;
     }
 
     bool isNotPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
     {
         float dotp = (U*V);
-        return dotp > 0.1 || dotp < 0.9;
+        return dotp > 0.0f || dotp < 1.0f;
+    }
+
+    bool isPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
+    {
+        float dotp = (U*V);
+        return dotp == 1 ;//|| dotp == 0;
     }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {

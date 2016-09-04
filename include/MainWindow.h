@@ -52,6 +52,10 @@ private slots:
   void on_curvedSurfaceRb_toggled(bool checked);
   void on_cylindricalRb_toggled(bool checked);
   void on_wireFrameModeBtn_toggled(bool checked);
+  void on_boxRB_toggled(bool checked);
+  void on_link_vert_dist_sb_valueChanged(double arg1);
+  void on_save_osgt_btn_clicked();
+  void saveOSGT();
 };
 
 #endif

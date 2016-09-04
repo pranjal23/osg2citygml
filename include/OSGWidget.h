@@ -56,6 +56,7 @@ public:
   virtual ~OSGWidget();
   void setFile(QString fileName);
   void saveObject2File(QString fileName);
+  void saveOSG2File(QString fileName);
   void setView();
   void resizeWidget(int width, int height);
   void convertToTrianglePrimitives(bool verbose=false);
@@ -73,6 +74,7 @@ public:
   void setEditableStateSet();
   void tagSelectedItems(QString name_space, QString element_name);
   void selectElementItems(QString name_space, QString element_name);
+  void generateMoreGraphLinks();
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   PrimitiveNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
@@ -84,8 +86,9 @@ public:
   bool drawGraphEdges = false;
   bool renderEditableMode = true;
   bool renderWireFrame = false;
+  bool click_n_drag=false;
 
-  float link_vert_dist = 0.0001;
+  float link_precision = 6;
 
   Shape shape_to_segment = Shape::Plain;
 

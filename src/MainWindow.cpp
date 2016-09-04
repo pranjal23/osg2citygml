@@ -58,7 +58,7 @@ void MainWindow::open(){
                 this,
                 tr("Open 3D Mesh"),
                 QDir::homePath(),
-                tr("3D Mesh (*.obj *.osg *.ive)") );
+                tr("3D Mesh (*.obj *.osg *.ive *.gml)") );
     if( !filename.isEmpty() )
     {
         onCreateView(filename);
@@ -215,7 +215,7 @@ void MainWindow::on_spatialBtn_toggled(bool checked)
 
 void MainWindow::on_regenerate_graph_btn_clicked()
 {
-    ui->osgWidget->link_vert_dist = ui->link_vert_dist_sb->value();
+    ui->osgWidget->generateMoreGraphLinks();
 }
 
 void MainWindow::on_shapeBtn_toggled(bool checked)
@@ -241,9 +241,42 @@ void MainWindow::on_cylindricalRb_toggled(bool checked)
         ui->osgWidget->shape_to_segment = Shape::Cylindrical;
 }
 
+void MainWindow::on_boxRB_toggled(bool checked)
+{
+    if(checked)
+        ui->osgWidget->shape_to_segment = Shape::Box;
+}
+
 void MainWindow::on_wireFrameModeBtn_toggled(bool checked)
 {
     ui->osgWidget->renderWireFrame = checked;
 
     ui->osgWidget->renderModel();
+}
+
+void MainWindow::on_link_vert_dist_sb_valueChanged(double arg1)
+{
+    ui->osgWidget->link_precision = arg1;
+}
+
+void MainWindow::saveOSGT(){
+    QString filename = QFileDialog::getSaveFileName(
+                this,
+                tr("Save City Object"),
+                QDir::homePath(),
+                tr("OSG (*.osg)") );
+    if( !filename.isEmpty() )
+    {
+        if(!filename.endsWith(".osg"))
+        {
+            filename.append(".osg");
+        }
+
+        ui->osgWidget->saveOSG2File(filename);
+    }
+}
+
+void MainWindow::on_save_osgt_btn_clicked()
+{
+    saveOSGT();
 }

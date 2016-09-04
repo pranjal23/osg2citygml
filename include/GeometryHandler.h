@@ -308,6 +308,11 @@ public:
         for(unsigned int i=0;i<geode->getNumDrawables();i++)
         {
             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+            if(!geometry)
+            {
+                continue;
+            }
+
             geometry->setUseVertexBufferObjects(true);
             osgUtil::TriStripVisitor triStripVisitor;
             geometry->accept(triStripVisitor);
@@ -420,10 +425,13 @@ public:
                 osg::notify(osg::WARN) << "---- AFTER PRINTING PRIMITIVES ----" << std::endl;
             }
 
+            geometry->setNormalArray(new osg::Vec3Array());
+
             //Generate New Normals
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
             sv.smooth(*geometry);
+
         }
     }
 
@@ -456,6 +464,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = new GraphData;
                 for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
@@ -491,6 +503,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
@@ -524,6 +540,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
 
@@ -560,6 +580,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                 std::map<unsigned int,VertexLinks>* vertexNodeMap = userData->vertexNodeMap;
@@ -599,6 +623,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                 std::map<unsigned int,VertexLinks>* vertexNodeMap = userData->vertexNodeMap;
@@ -778,30 +806,6 @@ class PrimitiveGraphEnhancer
 {
 public:
     PrimitiveGraphEnhancer(){}
-    QMap<osg::Drawable, std::vector<int>>* container;
-
-    void generateLinksFromNearbyVertices(std::vector<PrimitiveNode>& vector)
-    {
-        // 1.0 - Sort list by centroid X
-        // 2.0 - Sort list by centroid Y
-        // 3.0 - Sort list by centroid Z
-        // Create link for 2 * numberOfVerticesInPolygon nearest centroids in each axis
-        // If they share vertices or vertices are close, then keep link else delete link
-        // Recursively check the links of links if they share vertices or the vertices are close
-        // Add 50 weight to links which donot share a vertice but their vertices are very close
-        // Edge weights can be used to calculate the distance from the selected polygon (Grab Cut)
-
-        std::vector<PrimitiveNode> xSortedVector(vector);
-        std::sort(xSortedVector.begin(),xSortedVector.end(),compareByCentroidsX);
-
-
-
-    }
-
-    static bool compareByCentroidsX(const PrimitiveNode & s1, const PrimitiveNode & s2)
-    {
-        return (s1.centroid->x() < s2.centroid->x());
-    }
 
     void generateTestLinksFromNearbyVertices(osg::Group* group, const int precision)
     {
@@ -821,6 +825,10 @@ public:
             for(i=0; i < geode->getNumDrawables(); i++)
             {
                 osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
 
                 GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                 osg::Vec3Array* verts= dynamic_cast<osg::Vec3Array*>(geometry->getVertexArray());

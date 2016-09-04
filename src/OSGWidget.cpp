@@ -510,22 +510,24 @@ void OSGWidget::setFile(QString fileName){
 
     if(!fileName.isEmpty())
     {
-        //osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
-
-        osg::ref_ptr<osg::Node> node = osgDB::readNodeFile(fileName.toStdString());//, options);
-        if (node == nullptr) {
-            std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
-            return;
-        }
-
-        /*
-        originalModelGroup = osgDB::readRefNodeFile(fileName.toStdString());
-
-        if(originalModelGroup==NULL)
+        osg::ref_ptr<osg::Node> node;
+        if(fileName.endsWith(".gml"))
         {
-            return;
+            osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
+             node = osgDB::readNodeFile(fileName.toStdString(), options);
+            if (node == nullptr) {
+                std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
+                return;
+            }
         }
-        */
+        else
+        {
+            node = osgDB::readNodeFile(fileName.toStdString());
+            if (node == nullptr) {
+                std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
+                return;
+            }
+        }
 
         osg::Group *origGroup = node->asGroup();
 
@@ -542,9 +544,6 @@ void OSGWidget::setFile(QString fileName){
 
             GraphGenerator grapGen;
             grapGen.generate(editableModelGroup.get());
-
-            PrimitiveGraphEnhancer pGE;
-            pGE.generateTestLinksFromNearbyVertices(editableModelGroup.get(), 5);
         }
     }
 
@@ -553,10 +552,21 @@ void OSGWidget::setFile(QString fileName){
     this->onHome();
 }
 
+void OSGWidget::generateMoreGraphLinks()
+{
+    PrimitiveGraphEnhancer pGE;
+    pGE.generateTestLinksFromNearbyVertices(editableModelGroup.get(), link_precision);
+}
+
 void OSGWidget::saveObject2File(QString fileName)
 {
     CityGMLWriter writer(fileName, this);
     writer.write(editableModelGroup.get());
+}
+
+void OSGWidget::saveOSG2File(QString fileName)
+{
+    osgDB::writeNodeFile(*(editableModelGroup.get()->asNode()), fileName.toStdString());
 }
 
 void OSGWidget::setView(){
