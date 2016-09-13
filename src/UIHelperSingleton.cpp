@@ -59,9 +59,6 @@ void UIHelperSingleton::initialize(void)
     feature_vec->push_back(GroundSurface_feature);
     name_space_map->insert(std::make_pair(GroundSurface_feature,building_namespace));
 
-    QString InteriorWallSurface = BuildingNamespace::FEATURE_InteriorWallSurface();
-    feature_vec->push_back(InteriorWallSurface);
-    name_space_map->insert(std::make_pair(InteriorWallSurface,building_namespace));
 
     QString OuterCeilingSurface_feature = BuildingNamespace::FEATURE_OuterCeilingSurface();
     feature_vec->push_back(OuterCeilingSurface_feature);
@@ -79,10 +76,18 @@ void UIHelperSingleton::initialize(void)
     feature_vec->push_back(Window_feature);
     name_space_map->insert(std::make_pair(Window_feature,building_namespace));
 
-    //Add the default namespace and element
-    //feature_vec->push_back(OSGHELPERS::DEFAULT_STR());
-    //name_space_map->insert(std::make_pair(OSGHELPERS::DEFAULT_STR(),OSGHELPERS::DEFAULT_STR()));
 
+    /**
+     * NOT TO BE DONE: ROOM, INTERIOR WALL, INTERIOR BUILDING INSTALLATION
+     **/
+
+    /*
+    QString InteriorWallSurface = BuildingNamespace::FEATURE_InteriorWallSurface();
+    feature_vec->push_back(InteriorWallSurface);
+    name_space_map->insert(std::make_pair(InteriorWallSurface,building_namespace));
+    */
+
+    //TODO: BUILDING INSTALLATIONS LIKE CHIMMNEYS
 }
 
 std::vector<QString>* UIHelperSingleton::getFeatrueVector()

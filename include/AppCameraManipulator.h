@@ -74,6 +74,13 @@ class OSGGA_EXPORT AppCameraManipulator : public osgGA::StandardManipulator
 
     protected:
 
+        virtual bool handleMouseMove( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+        virtual bool handleMouseDrag( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+        virtual bool handleMousePush( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+        virtual bool handleMouseRelease( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+        virtual bool handleKeyDown( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+        virtual bool handleKeyUp( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
+
         virtual bool handleMouseWheel( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us );
 
         virtual bool performMovementLeftMouseButton( const double eventTimeDelta, const double dx, const double dy );
@@ -101,6 +108,8 @@ class OSGGA_EXPORT AppCameraManipulator : public osgGA::StandardManipulator
 
         double _minimumDistance;
         static int _minimumDistanceFlagIndex;
+
+        bool _controlKeyPressed=false;
 
         class OrbitAnimationData : public AnimationData {
         public:

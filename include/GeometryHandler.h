@@ -326,61 +326,66 @@ public:
 
                 switch (prset->getMode())
                 {
-                case osg::PrimitiveSet::TRIANGLES:
-                {
-                    unsigned int ja;
-                    for (ja=0; ja<=prset->getNumIndices()-3; )
+                    case osg::PrimitiveSet::TRIANGLES:
                     {
-                        TriangleIndexes ti;
-
-                        ti.vertexId1 = prset->index(ja);
-                        ti.vertexId2 = prset->index(ja+1);
-                        ti.vertexId3 = prset->index(ja+2);
-
-                        if(verbose && printIndexes)
+                        unsigned int ja;
+                        for (ja=0; ja<=prset->getNumIndices()-3; )
                         {
-                            osg::notify(osg::WARN) << ti.vertexId1 << ", "
-                                                   << ti.vertexId2 << ", "
-                                                   << ti.vertexId3 << std::endl;
-                        }
+                            TriangleIndexes ti;
 
-                        addPrimSetIndexes.push_back(ti);
-                        ja=ja+3;
-                    }
-                }
-                    break;
-
-                case osg::PrimitiveSet::TRIANGLE_STRIP:
-                {
-                    unsigned int ja;
-                    for (ja=0; ja<prset->getNumIndices()-2; ja++)
-                    {
-                        TriangleIndexes ti;
-
-                        if(ja % 2 == 0)
-                        {
                             ti.vertexId1 = prset->index(ja);
                             ti.vertexId2 = prset->index(ja+1);
                             ti.vertexId3 = prset->index(ja+2);
-                        }
-                        else
-                        {
-                            ti.vertexId1 = prset->index(ja);
-                            ti.vertexId2 = prset->index(ja+2);
-                            ti.vertexId3 = prset->index(ja+1);
-                        }
 
-                        if(verbose && printIndexes)
-                        {
-                            osg::notify(osg::WARN) << ti.vertexId1 << ", "
-                                                   << ti.vertexId2 << ", "
-                                                   << ti.vertexId3 << std::endl;
-                        }
+                            if(verbose && printIndexes)
+                            {
+                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                       << ti.vertexId2 << ", "
+                                                       << ti.vertexId3 << std::endl;
+                            }
 
-                        addPrimSetIndexes.push_back(ti);
+                            addPrimSetIndexes.push_back(ti);
+                            ja=ja+3;
+                        }
                     }
-                }
                     break;
+
+                    case osg::PrimitiveSet::TRIANGLE_STRIP:
+                    {
+                        unsigned int ja;
+                        for (ja=0; ja<prset->getNumIndices()-2; ja++)
+                        {
+                            TriangleIndexes ti;
+
+                            if(ja % 2 == 0)
+                            {
+                                ti.vertexId1 = prset->index(ja);
+                                ti.vertexId2 = prset->index(ja+1);
+                                ti.vertexId3 = prset->index(ja+2);
+                            }
+                            else
+                            {
+                                ti.vertexId1 = prset->index(ja);
+                                ti.vertexId2 = prset->index(ja+2);
+                                ti.vertexId3 = prset->index(ja+1);
+                            }
+
+                            if(verbose && printIndexes)
+                            {
+                                osg::notify(osg::WARN) << ti.vertexId1 << ", "
+                                                       << ti.vertexId2 << ", "
+                                                       << ti.vertexId3 << std::endl;
+                            }
+
+                            addPrimSetIndexes.push_back(ti);
+                        }
+                    }
+                    break;
+
+                    default:
+                    {
+                        qDebug() << "NOT TRIANGLE STRIP OR TRIANGLE" <<  prset->getMode();
+                    }
 
                     //TODO: Check and Handle other primitive types such as lines line loops etc
                     //that is not converted into triangle_strip by TriStripVisitor...

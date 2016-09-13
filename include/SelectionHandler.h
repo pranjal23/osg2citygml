@@ -111,7 +111,7 @@ public:
         if(!osgwidget->renderEditableMode)
             return false;
 
-        if (ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+        if (ea.getEventType() == osgGA::GUIEventAdapter::DRAG && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
         {
 
             if (m_xMouseCoordAtLastPress != ea.getX() || m_yMouseCoordAtLastPress != ea.getY())
@@ -484,8 +484,13 @@ private:
     bool isPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
     {
         float dotp = (U*V);
-        return dotp == 1 ;//|| dotp == 0;
+        return dotp == 1 || dotp == 0;
     }
+
+    /*osg::Vec3f& getProjectedVector(const osg::Vec3f& U,const osg::Vec3f& V)
+    {
+
+    }*/
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
 

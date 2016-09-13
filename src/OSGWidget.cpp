@@ -603,7 +603,7 @@ void OSGWidget::setView(){
     view->addEventHandler(selectionHandler.get() );
     //view->addEventHandler(new PickHandler());
 
-    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator;
+    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator(osg2citygml::AppCameraManipulator::UPDATE_MODEL_SIZE);
     manipulator->setAllowThrow(false);
     view->setCameraManipulator( manipulator );
 

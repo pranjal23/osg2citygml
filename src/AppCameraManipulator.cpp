@@ -3,6 +3,7 @@
 #include <cassert>
 
 using namespace osg;
+using namespace osgGA;
 using namespace osg2citygml;
 
 
@@ -195,10 +196,126 @@ double AppCameraManipulator::getElevation() const
     return asin( -dist / (eye-center).length() );
 }
 
+/// Handles GUIEventAdapter::MOVE event.
+bool AppCameraManipulator::handleMouseMove( const GUIEventAdapter& /*ea*/, GUIActionAdapter& /*us*/ )
+{
+    return false;
+}
+
+
+/// Handles GUIEventAdapter::DRAG event.
+bool AppCameraManipulator::handleMouseDrag( const GUIEventAdapter& ea, GUIActionAdapter& us )
+{
+    if(_controlKeyPressed)
+        return true;
+
+    addMouseEvent( ea );
+
+    if( performMovement() )
+        us.requestRedraw();
+
+    us.requestContinuousUpdate( false );
+    _thrown = false;
+
+    return true;
+}
+
+
+/// Handles GUIEventAdapter::PUSH event.
+bool AppCameraManipulator::handleMousePush( const GUIEventAdapter& ea, GUIActionAdapter& us )
+{
+    if(_controlKeyPressed)
+        return true;
+
+    flushMouseEventStack();
+    addMouseEvent( ea );
+
+    if( performMovement() )
+        us.requestRedraw();
+
+    us.requestContinuousUpdate( false );
+    _thrown = false;
+
+    return true;
+}
+
+
+/// Handles GUIEventAdapter::RELEASE event.
+bool AppCameraManipulator::handleMouseRelease( const GUIEventAdapter& ea, GUIActionAdapter& us )
+{
+    if(_controlKeyPressed)
+        return true;
+
+    if( ea.getButtonMask() == 0 )
+    {
+
+        double timeSinceLastRecordEvent = _ga_t0.valid() ? (ea.getTime() - _ga_t0->getTime()) : DBL_MAX;
+        if( timeSinceLastRecordEvent > 0.02 )
+            flushMouseEventStack();
+
+        if( isMouseMoving() )
+        {
+
+            if( performMovement() && _allowThrow )
+            {
+                us.requestRedraw();
+                us.requestContinuousUpdate( true );
+                _thrown = true;
+            }
+
+            return true;
+        }
+    }
+
+    flushMouseEventStack();
+    addMouseEvent( ea );
+    if( performMovement() )
+        us.requestRedraw();
+    us.requestContinuousUpdate( false );
+    _thrown = false;
+
+    return true;
+}
+
+
+/// Handles GUIEventAdapter::KEYDOWN event.
+bool AppCameraManipulator::handleKeyDown( const GUIEventAdapter& ea, GUIActionAdapter& us )
+{
+    if( ea.getKey() == GUIEventAdapter::KEY_Space )
+    {
+        flushMouseEventStack();
+        _thrown = false;
+        home(ea,us);
+        return true;
+    }
+    else if(ea.getKey() == GUIEventAdapter::KEY_Control_L || ea.getKey() == GUIEventAdapter::KEY_Control_R)
+    {
+        _controlKeyPressed = true;
+        return true;
+    }
+
+    return false;
+}
+
+
+/// Handles GUIEventAdapter::KEYUP event.
+bool AppCameraManipulator::handleKeyUp( const GUIEventAdapter& ea, GUIActionAdapter& us )
+{
+    if(ea.getKey() == GUIEventAdapter::KEY_Control_L || ea.getKey() == GUIEventAdapter::KEY_Control_R)
+    {
+        _controlKeyPressed = false;
+        return true;
+    }
+    return false;
+}
+
 
 // doc in parent
 bool AppCameraManipulator::handleMouseWheel( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
+    if(_controlKeyPressed)
+        return true;
+
     osgGA::GUIEventAdapter::ScrollingMotion sm = ea.getScrollingMotion();
 
     // handle centering
@@ -257,6 +374,9 @@ bool AppCameraManipulator::handleMouseWheel( const osgGA::GUIEventAdapter& ea, o
 // doc in parent
 bool AppCameraManipulator::performMovementLeftMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
+    if(_controlKeyPressed)
+        return true;
+
     // rotate camera
     if( getVerticalAxisFixed() )
         rotateWithFixedVertical( dx, dy );
@@ -271,6 +391,9 @@ bool AppCameraManipulator::performMovementLeftMouseButton( const double eventTim
 // doc in parent
 bool AppCameraManipulator::performMovementMiddleMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
+    if(_controlKeyPressed)
+        return true;
+
     // pan model
     float scale = -0.3f * _distance * getThrowScale( eventTimeDelta );
     panModel( dx*scale, dy*scale );
@@ -281,6 +404,9 @@ bool AppCameraManipulator::performMovementMiddleMouseButton( const double eventT
 // doc in parent
 bool AppCameraManipulator::performMovementRightMouseButton( const double eventTimeDelta, const double /*dx*/, const double dy )
 {
+    if(_controlKeyPressed)
+        return true;
+
     // zoom model
     zoomModel( dy * getThrowScale( eventTimeDelta ), true );
     return true;
@@ -289,6 +415,9 @@ bool AppCameraManipulator::performMovementRightMouseButton( const double eventTi
 
 bool AppCameraManipulator::performMouseDeltaMovement( const float dx, const float dy )
 {
+    if(_controlKeyPressed)
+        return true;
+
     // rotate camera
     if( getVerticalAxisFixed() )
         rotateWithFixedVertical( dx, dy );
