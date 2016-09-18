@@ -56,6 +56,7 @@ private slots:
   void on_link_vert_dist_sb_valueChanged(double arg1);
   void on_save_osgt_btn_clicked();
   void saveOSGT();
+  void on_radioButton_toggled(bool checked);
 };
 
 #endif

@@ -280,3 +280,8 @@ void MainWindow::on_save_osgt_btn_clicked()
 {
     saveOSGT();
 }
+
+void MainWindow::on_radioButton_toggled(bool checked)
+{
+    ui->osgWidget->_controlKeyPressed = checked;
+}

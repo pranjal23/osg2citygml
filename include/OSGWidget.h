@@ -22,7 +22,6 @@
 #include <osgDB/WriteFile>
 
 #include <osgGA/EventQueue>
-#include "AppCameraManipulator.h"
 
 #include <osgUtil/IntersectionVisitor>
 #include <osgUtil/PolytopeIntersector>
@@ -87,6 +86,7 @@ public:
   bool renderEditableMode = true;
   bool renderWireFrame = false;
   bool click_n_drag=false;
+  bool _controlKeyPressed=false;
 
   float link_precision = 6;
 

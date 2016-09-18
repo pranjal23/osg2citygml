@@ -20,6 +20,7 @@
 #define OSGGA_ORBIT_MANIPULATOR 1
 
 #include <osgGA/StandardManipulator>
+#include "OSGWidget.h"
 
 
 namespace osg2citygml {
@@ -34,10 +35,11 @@ class OSGGA_EXPORT AppCameraManipulator : public osgGA::StandardManipulator
 
     public:
 
-        AppCameraManipulator( int flags = DEFAULT_SETTINGS );
+        AppCameraManipulator( int flags = DEFAULT_SETTINGS, OSGWidget* osgWidget=nullptr );
         AppCameraManipulator( const AppCameraManipulator& om,
                           const osg::CopyOp& copyOp = osg::CopyOp::SHALLOW_COPY );
 
+        OSGWidget* osgWidget;
 
         virtual void setByMatrix( const osg::Matrixd& matrix );
         virtual void setByInverseMatrix( const osg::Matrixd& matrix );
@@ -108,8 +110,6 @@ class OSGGA_EXPORT AppCameraManipulator : public osgGA::StandardManipulator
 
         double _minimumDistance;
         static int _minimumDistanceFlagIndex;
-
-        bool _controlKeyPressed=false;
 
         class OrbitAnimationData : public AnimationData {
         public:

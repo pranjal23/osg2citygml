@@ -1,6 +1,9 @@
 #include "OSGWidget.h"
 #include "SelectionHandler.h"
 #include "CityGMLWriter.h"
+#include "AppCameraManipulator.h"
+
+using namespace osg2citygml;
 
 osg::ref_ptr<SelectionHandler> selectionHandler;
 
@@ -72,6 +75,11 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
         //HANDLED IN PICKING HANDLER... DO NOT CHANGE
     }
 
+    if( event->key() == Qt::Key_Control )
+    {
+        _controlKeyPressed = true;
+    }
+
     if( event->key() == Qt::Key_Z )
     {
         selectAllPolygons();
@@ -84,6 +92,11 @@ void OSGWidget::keyReleaseEvent( QKeyEvent* event )
 {
     QString keyString   = event->text();
     const char* keyData = keyString.toLocal8Bit().data();
+
+    if( event->key() == Qt::Key_Control )
+    {
+        _controlKeyPressed = false;
+    }
 
     this->getEventQueue()->keyRelease( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
 }
@@ -595,17 +608,20 @@ void OSGWidget::setView(){
     camera->setProjectionMatrixAsPerspective( 45.f, aspectRatio, 0.5f, 1000.f );
     camera->setGraphicsContext( graphicsWindow_ );
 
+    //osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator();
+    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator(osg2citygml::AppCameraManipulator::DEFAULT_SETTINGS,this);
+    manipulator->setAllowThrow(false);
+
     selectionHandler = new SelectionHandler(this);
+
     osgViewer::View* view = new osgViewer::View;
     view->setCamera( camera );
     view->setSceneData( rootSceneGroup.get() );
     //view->addEventHandler( new osgViewer::StatsHandler );
+
+    view->setCameraManipulator( manipulator );
     view->addEventHandler(selectionHandler.get() );
     //view->addEventHandler(new PickHandler());
-
-    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator(osg2citygml::AppCameraManipulator::UPDATE_MODEL_SIZE);
-    manipulator->setAllowThrow(false);
-    view->setCameraManipulator( manipulator );
 
     viewer_->addView( view );
     viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );

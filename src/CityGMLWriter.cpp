@@ -133,13 +133,10 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         unsigned int i;
         for (i=0; i < vertexStrlist.size(); i++)
         {
-            QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_posList());
+            QString elementName7 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_pos());
             xmlWriter.writeStartElement(elementName7);
-
             xmlWriter.writeCharacters(vertexStrlist.at(i));
-
             xmlWriter.writeEndElement();
-
         }
 
         xmlWriter.writeEndElement();//40
@@ -148,8 +145,6 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
 
         xmlWriter.writeEndElement();//60
         }
-
-
 
 
         xmlWriter.writeEndElement(); //6

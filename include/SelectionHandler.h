@@ -93,6 +93,7 @@ private:
 class SelectionHandler : public osgGA::GUIEventHandler {
 public:
     OSGWidget* osgwidget;
+    bool _controlKeyPressed = false;
     std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives;
 
     AddEditColoursToGeometryVisitor* colorVistor = new AddEditColoursToGeometryVisitor();
@@ -111,7 +112,8 @@ public:
         if(!osgwidget->renderEditableMode)
             return false;
 
-        if (ea.getEventType() == osgGA::GUIEventAdapter::DRAG && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+
+        if ((ea.getEventType() == osgGA::GUIEventAdapter::RELEASE && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON))
         {
 
             if (m_xMouseCoordAtLastPress != ea.getX() || m_yMouseCoordAtLastPress != ea.getY())
@@ -119,15 +121,26 @@ public:
                 return false;
             }
 
-            return selectIntersectedPrimitives(ea, aa);
+            bool ret = selectIntersectedPrimitives(ea, aa);
+            aa.requestRedraw();
+            return ret;
 
         }
-        else if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+        else
         {
-            m_xMouseCoordAtLastPress = ea.getX();
-            m_yMouseCoordAtLastPress = ea.getY();
+            if (ea.getEventType() == osgGA::GUIEventAdapter::PUSH && ea.getButton() == osgGA::GUIEventAdapter::LEFT_MOUSE_BUTTON)
+            {
+                m_xMouseCoordAtLastPress = ea.getX();
+                m_yMouseCoordAtLastPress = ea.getY();
+            }
         }
 
+        if ( osgwidget->_controlKeyPressed && ea.getEventType() == osgGA::GUIEventAdapter::DRAG)
+        {
+            bool ret = selectIntersectedPrimitives(ea, aa);
+            aa.requestRedraw();
+            return ret;
+        }
 
         if(ea.getEventType() == osgGA::GUIEventAdapter::KEYDOWN)
         {
@@ -135,6 +148,7 @@ public:
             {
             case 'c':
                 clearSelectedList();
+                aa.requestRedraw();
                 return true;
                 break;
             default:
