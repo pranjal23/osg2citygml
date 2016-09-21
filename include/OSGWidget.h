@@ -74,6 +74,7 @@ public:
   void tagSelectedItems(QString name_space, QString element_name);
   void selectElementItems(QString name_space, QString element_name);
   void generateMoreGraphLinks();
+  void recalculateUpVector();
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   PrimitiveNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
@@ -91,6 +92,7 @@ public:
   float link_precision = 6;
 
   Shape shape_to_segment = Shape::Plain;
+  osg::Vec3f* up_vector;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );

@@ -464,6 +464,26 @@ void OSGWidget::convertToTrianglePrimitives(bool verbose){
 
 }
 
+void OSGWidget::recalculateUpVector()
+{
+    std::multimap<unsigned int,PrimitiveNode>* selectedPrimitives =
+            selectionHandler.get()->selectedPrimitives;
+
+    if(selectedPrimitives->size()<=0 || selectedPrimitives->size()>1)
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Please select only one polygon whose normal will be used as up vector!!!");
+        msgBox.exec();
+        return;
+    }
+
+    for(std::multimap<unsigned int,PrimitiveNode>::iterator itS = selectedPrimitives->begin();itS!=selectedPrimitives->end();itS++)
+    {
+        PrimitiveNode s = (*itS).second;
+        up_vector = new osg::Vec3f(s.faceNormal->x(),s.faceNormal->y(),s.faceNormal->z());
+    }
+}
+
 void OSGWidget::renderModel()
 {
     if(renderEditableMode)
@@ -621,7 +641,6 @@ void OSGWidget::setView(){
 
     view->setCameraManipulator( manipulator );
     view->addEventHandler(selectionHandler.get() );
-    //view->addEventHandler(new PickHandler());
 
     viewer_->addView( view );
     viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );

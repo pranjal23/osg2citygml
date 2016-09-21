@@ -37,9 +37,8 @@ MainWindow::MainWindow( QWidget* parent)
         ui->elementSelectCB->addItem(vector.at(i));
     }
 
-    //TEST TBR
-    //SchemaValidator schemaV;
-    //schemaV.validate();
+   ui->osgWidget->up_vector = new osg::Vec3f(ui->xUpSB->value(),ui->yUpSB->value(),ui->zUpSB->value());
+
 }
 
 MainWindow::~MainWindow()
@@ -284,4 +283,12 @@ void MainWindow::on_save_osgt_btn_clicked()
 void MainWindow::on_radioButton_toggled(bool checked)
 {
     ui->osgWidget->_controlKeyPressed = checked;
+}
+
+void MainWindow::on_recalUpBtn_clicked()
+{
+    ui->osgWidget->recalculateUpVector();
+    ui->xUpSB->setValue(ui->osgWidget->up_vector->x());
+    ui->yUpSB->setValue(ui->osgWidget->up_vector->y());
+    ui->zUpSB->setValue(ui->osgWidget->up_vector->z());
 }

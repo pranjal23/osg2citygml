@@ -352,7 +352,7 @@ private:
         else
         {
             QMessageBox msgBox;
-            msgBox.setText("Curved and Cylindrical Surfaces require spatial consideration, please check the spatial button.");
+            msgBox.setText("Wall, Curved and Cylindrical Surfaces require spatial consideration, please check the spatial button.");
             msgBox.exec();
         }
     }
@@ -398,7 +398,8 @@ private:
         }
         else if(osgwidget->shape_to_segment==Shape::Box)
         {
-            segmentBoxSpatial((*stp.faceNormal),stp,nodesVisited,nodesSelected, true);
+            osg::Vec3f up = *osgwidget->up_vector;
+            segmentBoxSpatial((*stp.faceNormal),stp,up,nodesVisited,nodesSelected, true);
         }
     }
 
@@ -456,10 +457,10 @@ private:
         }
     }
 
-    void segmentBoxSpatial(osg::Vec3f& normal, PrimitiveNode &stp, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
+    void segmentBoxSpatial(osg::Vec3f& normal, PrimitiveNode &stp, osg::Vec3f& up, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
     {
         nodesVisited->push_back(stp.nodeId);
-        if(isPerpendicularOrParallel(normal,*(stp.faceNormal)) || root)
+        if((isNotParallel(up,*(stp.faceNormal)) && isBoxSurface(normal,*(stp.faceNormal))) || root)
         {
             nodesSelected->push_back(stp);
 
@@ -468,7 +469,7 @@ private:
                 PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
                 if(!nodesVisited->contains(node.nodeId))
                 {
-                    segmentBoxSpatial(normal,node,nodesVisited,nodesSelected, false);
+                    segmentBoxSpatial(normal,node,up,nodesVisited,nodesSelected, false);
                 }
             }
         }
@@ -486,7 +487,7 @@ private:
     bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)
     {
         float dotp = (U*V);
-        return dotp == 0;
+        return dotp == 0.0f;
     }
 
     bool isNotPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
@@ -495,16 +496,17 @@ private:
         return dotp > 0.0f || dotp < 1.0f;
     }
 
-    bool isPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
+    bool isBoxSurface(const osg::Vec3f& U,const osg::Vec3f& V)
     {
-        float dotp = (U*V);
+        float dotp = fabs(U*V);
         return dotp == 1 || dotp == 0;
     }
 
-    /*osg::Vec3f& getProjectedVector(const osg::Vec3f& U,const osg::Vec3f& V)
+    bool isNotParallel(const osg::Vec3f& U,const osg::Vec3f& V)
     {
-
-    }*/
+        float dotp = fabs(U*V);
+        return dotp < 0.9f;
+    }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
 
@@ -576,163 +578,6 @@ private:
 
     int m_xMouseCoordAtLastPress;
     int m_yMouseCoordAtLastPress;
-};
-
-// class to handle events with a pick
-class PickHandler : public osgGA::GUIEventHandler
-{
-public:
-
-    PickHandler():
-        _mx(0.0),_my(0.0),
-        _usePolytopeIntersector(true),
-        _useWindowCoordinates(true) {}
-
-    ~PickHandler() {}
-
-    bool handle(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa)
-    {
-        osgViewer::Viewer* viewer = dynamic_cast<osgViewer::Viewer*>(&aa);
-        if (!viewer) return false;
-
-        switch(ea.getEventType())
-        {
-            case(osgGA::GUIEventAdapter::KEYUP):
-            {
-                if (ea.getKey()=='p')
-                {
-                    _usePolytopeIntersector = !_usePolytopeIntersector;
-                    if (_usePolytopeIntersector)
-                    {
-                        osg::notify(osg::NOTICE)<<"Using PolytopeIntersector"<<std::endl;
-                    } else {
-                        osg::notify(osg::NOTICE)<<"Using LineSegmentIntersector"<<std::endl;
-                    }
-                }
-                else if (ea.getKey()=='c')
-                {
-                    _useWindowCoordinates = !_useWindowCoordinates;
-                    if (_useWindowCoordinates)
-                    {
-                        osg::notify(osg::NOTICE)<<"Using window coordinates for picking"<<std::endl;
-                    } else {
-                        osg::notify(osg::NOTICE)<<"Using projection coordiates for picking"<<std::endl;
-                    }
-                }
-                return false;
-            }
-            case(osgGA::GUIEventAdapter::PUSH):
-            case(osgGA::GUIEventAdapter::MOVE):
-            {
-                _mx = ea.getX();
-                _my = ea.getY();
-                return false;
-            }
-            case(osgGA::GUIEventAdapter::RELEASE):
-            {
-                if (_mx == ea.getX() && _my == ea.getY())
-                {
-                    // only do a pick if the mouse hasn't moved
-                    pick(ea,viewer);
-                }
-                return true;
-            }
-
-            default:
-                return false;
-        }
-
-        aa.requestRedraw();
-    }
-
-    void pick(const osgGA::GUIEventAdapter& ea, osgViewer::Viewer* viewer)
-    {
-        osg::Node* scene = viewer->getSceneData();
-        if (!scene) return;
-
-        osg::notify(osg::NOTICE)<<std::endl;
-
-        osg::Node* node = 0;
-        osg::Group* parent = 0;
-
-        if (_usePolytopeIntersector)
-        {
-            osgUtil::PolytopeIntersector* picker;
-            if (_useWindowCoordinates)
-            {
-                // use window coordinates
-                // remap the mouse x,y into viewport coordinates.
-                osg::Viewport* viewport = viewer->getCamera()->getViewport();
-                double mx = viewport->x() + (int)((double )viewport->width()*(ea.getXnormalized()*0.5+0.5));
-                double my = viewport->y() + (int)((double )viewport->height()*(ea.getYnormalized()*0.5+0.5));
-
-                // half width, height.
-                double w = 5.0f;
-                double h = 5.0f;
-                picker = new osgUtil::PolytopeIntersector( osgUtil::Intersector::WINDOW, mx-w, my-h, mx+w, my+h );
-            } else {
-                double mx = ea.getXnormalized();
-                double my = ea.getYnormalized();
-                double w = 0.05;
-                double h = 0.05;
-                picker = new osgUtil::PolytopeIntersector( osgUtil::Intersector::PROJECTION, mx-w, my-h, mx+w, my+h );
-            }
-            osgUtil::IntersectionVisitor iv(picker);
-
-            viewer->getCamera()->accept(iv);
-
-            if (picker->containsIntersections())
-            {
-                //osgUtil::PolytopeIntersector::Intersection intersection = picker->getFirstIntersection();
-
-                osgUtil::PolytopeIntersector::Intersections intersections = picker->getIntersections();
-                for(osgUtil::PolytopeIntersector::Intersections::iterator it = intersections.begin();
-                    it != intersections.end(); ++it)
-                {
-                    const osgUtil::PolytopeIntersector::Intersection& intersection = *it;
-                    qDebug() <<"  primitiveIndex "<<intersection.primitiveIndex;
-                }
-            }
-
-        }
-        else
-        {
-            osgUtil::LineSegmentIntersector* picker;
-            if (!_useWindowCoordinates)
-            {
-                // use non dimensional coordinates - in projection/clip space
-                picker = new osgUtil::LineSegmentIntersector( osgUtil::Intersector::PROJECTION, ea.getXnormalized(),ea.getYnormalized() );
-            } else {
-                // use window coordinates
-                // remap the mouse x,y into viewport coordinates.
-                osg::Viewport* viewport = viewer->getCamera()->getViewport();
-                float mx = viewport->x() + (int)((float)viewport->width()*(ea.getXnormalized()*0.5f+0.5f));
-                float my = viewport->y() + (int)((float)viewport->height()*(ea.getYnormalized()*0.5f+0.5f));
-                picker = new osgUtil::LineSegmentIntersector( osgUtil::Intersector::WINDOW, mx, my );
-            }
-            osgUtil::IntersectionVisitor iv(picker);
-
-            viewer->getCamera()->accept(iv);
-
-            if (picker->containsIntersections())
-            {
-                osgUtil::LineSegmentIntersector::Intersection intersection = picker->getFirstIntersection();
-               // osg::notify(osg::NOTICE)<<"Picked "<<intersection.localIntersectionPoint<<std::endl;
-
-                osg::NodePath& nodePath = intersection.nodePath;
-                node = (nodePath.size()>=1)?nodePath[nodePath.size()-1]:0;
-                parent = (nodePath.size()>=2)?dynamic_cast<osg::Group*>(nodePath[nodePath.size()-2]):0;
-
-            }
-        }
-    }
-
-
-protected:
-
-    float _mx,_my;
-    bool _usePolytopeIntersector;
-    bool _useWindowCoordinates;
 };
 
 #endif //SELECTIONHANDLER_H
