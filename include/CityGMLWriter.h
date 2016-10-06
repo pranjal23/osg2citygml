@@ -33,16 +33,6 @@
 
 #include <osgUtil/SmoothingVisitor>
 
-#include <citygml/citygml.h>
-#include <citygml/envelope.h>
-#include <citygml/citymodel.h>
-#include <citygml/cityobject.h>
-#include <citygml/geometry.h>
-#include <citygml/polygon.h>
-#include <citygml/material.h>
-#include <citygml/texture.h>
-#include <citygml/citygmllogger.h>
-
 #include "OSGWidget.h"
 
 class CityGMLWriter {

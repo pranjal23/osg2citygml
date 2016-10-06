@@ -544,22 +544,10 @@ void OSGWidget::setFile(QString fileName){
     if(!fileName.isEmpty())
     {
         osg::ref_ptr<osg::Node> node;
-        if(fileName.endsWith(".gml"))
-        {
-            osg::ref_ptr<osgDB::Options> options = new osgDB::Options("usemaxlodonly storegeomids");
-             node = osgDB::readNodeFile(fileName.toStdString(), options);
-            if (node == nullptr) {
-                std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
-                return;
-            }
-        }
-        else
-        {
-            node = osgDB::readNodeFile(fileName.toStdString());
-            if (node == nullptr) {
-                std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
-                return;
-            }
+        node = osgDB::readNodeFile(fileName.toStdString());
+        if (node == nullptr) {
+            std::cerr << "Failed to load file " << fileName.toStdString() << std::endl;
+            return;
         }
 
         osg::Group *origGroup = node->asGroup();
