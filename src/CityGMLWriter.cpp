@@ -90,27 +90,49 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
     if(list.size()<=0)
         return;
 
-    QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
-    xmlWriter.writeStartElement(elementName1);
+    bool isBuilding = true;
+    bool isOpening=false;
+
+    if(element_name == BuildingNamespace::FEATURE_BuildingInstallation())
+    {
+        isBuilding = false;
+    }
+
+    if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
+    {
+        isOpening = true;
+    }
+
+    if(isBuilding)
+    {
+        QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
+        xmlWriter.writeStartElement(elementName1);
+    }
 
     QString openingElement =  getElementName(name_space,BuildingNamespace::FEATURE_Opening());
 
     unsigned int j;
     for(j=0; j < list.size(); j++)
     {
-        if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
+        if(isBuilding)
         {
-            xmlWriter.writeStartElement(openingElement);
+            if(isOpening)
+            {
+                xmlWriter.writeStartElement(openingElement);
+            }
+
+            if(!isOpening)
+            {
+                QString elementName2 =  getElementName(name_space,BuildingNamespace::META_boundedBy());
+                xmlWriter.writeStartElement(elementName2);
+            }
+
+            QString elementName3 =  getElementName(name_space,element_name);
+            xmlWriter.writeStartElement(elementName3);
+
+            QString elementName4 =  getElementName(name_space,BuildingNamespace::TYPE_lod3MultiSurface());
+            xmlWriter.writeStartElement(elementName4);
         }
-
-        QString elementName2 =  getElementName(name_space,BuildingNamespace::META_boundedBy());
-        xmlWriter.writeStartElement(elementName2);
-
-        QString elementName3 =  getElementName(name_space,element_name);
-        xmlWriter.writeStartElement(elementName3);
-
-        QString elementName4 =  getElementName(name_space,BuildingNamespace::TYPE_lod2MultiSurface());
-        xmlWriter.writeStartElement(elementName4);
 
         QString elementName5 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_MultiSurface());
         xmlWriter.writeStartElement(elementName5);
@@ -118,10 +140,6 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         QString elementName6 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_surfaceMember());
         xmlWriter.writeStartElement(elementName6);
 
-
-
-        //This can be reused at other places
-        {
         QString elementName40 =  getElementName(CityGMLNamespace::namespace_gml(),GMLNamespace::GEOMETRY_Polygon());
         xmlWriter.writeStartElement(elementName40);
 
@@ -151,27 +169,33 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         xmlWriter.writeEndElement();//50
 
         xmlWriter.writeEndElement();//60
-        }
-
 
         xmlWriter.writeEndElement(); //6
 
         xmlWriter.writeEndElement(); //5
 
-        xmlWriter.writeEndElement(); //4
-
-        xmlWriter.writeEndElement(); //3
-
-        xmlWriter.writeEndElement(); //2
-
-        if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
+        if(isBuilding)
         {
-            xmlWriter.writeEndElement(); //Opening
+            xmlWriter.writeEndElement(); //4
+
+            xmlWriter.writeEndElement(); //3
+
+            if(!isOpening)
+            {
+                xmlWriter.writeEndElement(); //2
+            }
+
+            if(isOpening)
+            {
+                xmlWriter.writeEndElement(); //Opening
+            }
         }
     }
 
-
-    xmlWriter.writeEndElement();
+    if(isBuilding)
+    {
+        xmlWriter.writeEndElement(); //Building
+    }
 }
 
 void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& xmlWriter)

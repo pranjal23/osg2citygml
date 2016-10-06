@@ -127,7 +127,6 @@ class BuildingNamespace {
       */
 public:
     const static QString FEATURE_Building(void){return "Building";}
-    const static QString FEATURE_BuildingPart(void){return "BuildingPart";}
     const static QString FEATURE_RoofSurface(void){return "RoofSurface";}
     const static QString FEATURE_WallSurface(void){return "WallSurface";}
     const static QString FEATURE_GroundSurface(void){return "GroundSurface";}
@@ -141,6 +140,15 @@ public:
     const static QString FEATURE_Opening(void){return "opening";}
     const static QString FEATURE_Door(void){return "Door";}
     const static QString FEATURE_Window(void){return "Window";}
+
+    const static QString FEATURE_outerBuildingInstallation(void){return "outerBuildingInstallation";}
+    const static QString FEATURE_BuildingInstallation(void){return "BuildingInstallation";}
+    const static QString FEATURE_BuildingPart(void){return "BuildingPart";}
+
+    const static QString TYPE_lod1Geometry(void){return "lod1Geometry";}
+    const static QString TYPE_lod2Geometry(void){return "lod2Geometry";}
+    const static QString TYPE_lod3Geometry(void){return "lod3Geometry";}
+    const static QString TYPE_lod4Geometry(void){return "lod4Geometry";}
 
     const static QString TYPE_lod1MultiSurface(void){return "lod1MultiSurface";}
     const static QString TYPE_lod2MultiSurface(void){return "lod2MultiSurface";}
