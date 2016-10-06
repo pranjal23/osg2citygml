@@ -2993,6 +2993,9 @@ QPushButton:checked {
      <string>CityGML</string>
     </attribute>
     <widget class="QCheckBox" name="cityObjectGroupCB">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>0</x>

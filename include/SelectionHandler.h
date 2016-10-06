@@ -482,7 +482,26 @@ private:
     bool isCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z)
     {
         double weight = osgwidget->getNormalsDistance();
-        return ((W - U)*((V-U)^(Z - W)))<(1.0f - weight);
+        if(weight==0.0f)
+        {
+            return ((W - U)*((V-U)^(Z - W)))==0 ;
+        }
+        else
+        {
+            return isNotCoplanar(U,V,W,Z,weight);
+        }
+    }
+
+    bool isNotCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z, double weight)
+    {
+        if(weight>0.0f)
+        {
+            return ((W - U)*((V-U)^(Z - W)))>(weight) ;
+        }
+        else
+        {
+            return ((W - U)*((V-U)^(Z - W)))<(weight) ;
+        }
     }
 
     bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)

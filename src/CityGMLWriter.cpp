@@ -93,9 +93,16 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
     QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
     xmlWriter.writeStartElement(elementName1);
 
+    QString openingElement =  getElementName(name_space,BuildingNamespace::FEATURE_Opening());
+
     unsigned int j;
     for(j=0; j < list.size(); j++)
     {
+        if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
+        {
+            xmlWriter.writeStartElement(openingElement);
+        }
+
         QString elementName2 =  getElementName(name_space,BuildingNamespace::META_boundedBy());
         xmlWriter.writeStartElement(elementName2);
 
@@ -157,6 +164,10 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
 
         xmlWriter.writeEndElement(); //2
 
+        if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
+        {
+            xmlWriter.writeEndElement(); //Opening
+        }
     }
 
 
@@ -186,6 +197,7 @@ void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& x
 
         if(name_space==CityGMLNamespace::namespace_building())
         {
+            qDebug() << "Writing element: " << element_name;
             writeBuildingGeometry(group , xmlWriter, name_space, element_name);
         }
     }

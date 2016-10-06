@@ -138,7 +138,7 @@ public:
     const static QString FEATURE_OuterCeilingSurface(void){return "OuterCeilingSurface";}
     const static QString FEATURE_OuterFloorSurface(void){return "OuterFloorSurface";}
 
-    const static QString FEATURE_Opening(void){return "Opening";}
+    const static QString FEATURE_Opening(void){return "opening";}
     const static QString FEATURE_Door(void){return "Door";}
     const static QString FEATURE_Window(void){return "Window";}
 
