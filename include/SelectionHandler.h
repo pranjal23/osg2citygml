@@ -232,7 +232,7 @@ private:
         {
             segmentByNormalsAndLocation(stp);
         }
-        else if(spatialNshape)
+        else if(spatialNshape || normalsNspatialNshape)
         {
             segmentBySpatialNShape(stp);
         }
@@ -481,19 +481,22 @@ private:
      */
     bool isCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z)
     {
-        return ((W - U)*((V-U)^(Z - W)))==0;
+        double weight = osgwidget->getNormalsDistance();
+        return ((W - U)*((V-U)^(Z - W)))<(1.0f - weight);
     }
 
     bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)
     {
+        double weight = osgwidget->getNormalsDistance();
         float dotp = (U*V);
-        return dotp == 0.0f;
+        return dotp < weight;
     }
 
     bool isNotPerpendicularOrParallel(const osg::Vec3f& U,const osg::Vec3f& V)
     {
+        double weight = osgwidget->getNormalsDistance();
         float dotp = (U*V);
-        return dotp > 0.0f || dotp < 1.0f;
+        return dotp > weight || dotp < (1.0f - weight);
     }
 
     bool isBoxSurface(const osg::Vec3f& U,const osg::Vec3f& V)
@@ -504,8 +507,9 @@ private:
 
     bool isNotParallel(const osg::Vec3f& U,const osg::Vec3f& V)
     {
+        double weight = osgwidget->getNormalsDistance();
         float dotp = fabs(U*V);
-        return dotp < 0.9f;
+        return dotp < (1.0f - weight);
     }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {

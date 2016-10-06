@@ -38,6 +38,7 @@ MainWindow::MainWindow( QWidget* parent)
     }
 
    ui->osgWidget->up_vector = new osg::Vec3f(ui->xUpSB->value(),ui->yUpSB->value(),ui->zUpSB->value());
+   ui->shapeGrp->setEnabled(false);
 
 }
 
@@ -220,6 +221,7 @@ void MainWindow::on_regenerate_graph_btn_clicked()
 void MainWindow::on_shapeBtn_toggled(bool checked)
 {
     ui->osgWidget->setShapeBasedSegmentation(checked);
+    ui->shapeGrp->setEnabled(checked);
 }
 
 void MainWindow::on_plainRb_toggled(bool checked)
