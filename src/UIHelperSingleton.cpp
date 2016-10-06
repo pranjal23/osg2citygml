@@ -27,13 +27,9 @@ void UIHelperSingleton::initialize(void)
     //Add all relevant building elements for UI
     QString building_namespace = CityGMLNamespace::namespace_building();
 
-    //QString Building_feature = BuildingNamespace::FEATURE_Building();
-    //feature_vec->push_back(Building_feature);
-    //name_space_map->insert(std::make_pair(Building_feature,building_namespace));
-
-    //QString BuildingPart_feature = BuildingNamespace::FEATURE_BuildingPart();
-    //feature_vec->push_back(BuildingPart_feature);
-    //name_space_map->insert(std::make_pair(BuildingPart_feature,building_namespace));
+    QString BuildingInstallation_feature = BuildingNamespace::BuildingNamespace::FEATURE_BuildingInstallation();
+    feature_vec->push_back(BuildingInstallation_feature);
+    name_space_map->insert(std::make_pair(BuildingInstallation_feature,building_namespace));
 
     QString RoofSurface_feature = BuildingNamespace::FEATURE_RoofSurface();
     feature_vec->push_back(RoofSurface_feature);
@@ -86,8 +82,6 @@ void UIHelperSingleton::initialize(void)
     feature_vec->push_back(InteriorWallSurface);
     name_space_map->insert(std::make_pair(InteriorWallSurface,building_namespace));
     */
-
-    //TODO: BUILDING INSTALLATIONS LIKE CHIMMNEYS
 }
 
 std::vector<QString>* UIHelperSingleton::getFeatrueVector()

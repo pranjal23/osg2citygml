@@ -90,12 +90,12 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
     if(list.size()<=0)
         return;
 
-    bool isBuilding = true;
+    bool isBuildingInstallation = false;
     bool isOpening=false;
 
     if(element_name == BuildingNamespace::FEATURE_BuildingInstallation())
     {
-        isBuilding = false;
+        isBuildingInstallation = true;
     }
 
     if(element_name == BuildingNamespace::FEATURE_Door() || element_name == BuildingNamespace::FEATURE_Window())
@@ -103,21 +103,30 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
         isOpening = true;
     }
 
-    if(isBuilding)
-    {
-        QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
-        xmlWriter.writeStartElement(elementName1);
-    }
 
-    QString openingElement =  getElementName(name_space,BuildingNamespace::FEATURE_Opening());
+    QString elementName1 =  getElementName(name_space,BuildingNamespace::FEATURE_Building());
+    xmlWriter.writeStartElement(elementName1);
 
     unsigned int j;
     for(j=0; j < list.size(); j++)
     {
-        if(isBuilding)
+        if(isBuildingInstallation)
+        {
+            QString element_outerbuildingInstallation =  getElementName(name_space,BuildingNamespace::FEATURE_outerBuildingInstallation());
+            xmlWriter.writeStartElement(element_outerbuildingInstallation);
+
+            QString element_buildingInstallation =  getElementName(name_space,BuildingNamespace::FEATURE_BuildingInstallation());
+            xmlWriter.writeStartElement(element_buildingInstallation);
+
+            QString element_lod3geometry =  getElementName(name_space,BuildingNamespace::TYPE_lod3Geometry());
+            xmlWriter.writeStartElement(element_lod3geometry);
+        }
+
+        if(!isBuildingInstallation)
         {
             if(isOpening)
             {
+                QString openingElement =  getElementName(name_space,BuildingNamespace::FEATURE_Opening());
                 xmlWriter.writeStartElement(openingElement);
             }
 
@@ -174,7 +183,7 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
 
         xmlWriter.writeEndElement(); //5
 
-        if(isBuilding)
+        if(!isBuildingInstallation)
         {
             xmlWriter.writeEndElement(); //4
 
@@ -190,12 +199,16 @@ void CityGMLWriter::writeBuildingGeometry(osg::Group* group , QXmlStreamWriter& 
                 xmlWriter.writeEndElement(); //Opening
             }
         }
+
+        if(isBuildingInstallation)
+        {
+            xmlWriter.writeEndElement();//lod3Geometry
+            xmlWriter.writeEndElement();//BuildingInstallation
+            xmlWriter.writeEndElement();//outerbuildingInstallation
+        }
     }
 
-    if(isBuilding)
-    {
-        xmlWriter.writeEndElement(); //Building
-    }
+    xmlWriter.writeEndElement(); //Building
 }
 
 void CityGMLWriter::writeCityObjectGroup(osg::Group* group , QXmlStreamWriter& xmlWriter)
