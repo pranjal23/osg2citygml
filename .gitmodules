@@ -1,0 +1,3 @@
+[submodule "OpenSceneGraph"]
+	path = OpenSceneGraph
+	url = https://github.com/pranjal23/OpenSceneGraph.git
