@@ -75,6 +75,7 @@ public:
   void selectElementItems(QString name_space, QString element_name);
   void generateMoreGraphLinks();
   void recalculateUpVector();
+  void setCameraTranslateMode(bool setOn);
 
   osg::ref_ptr<osg::Group> getEditableModelGroup();
   PrimitiveNode& getPolygonNode(osg::Drawable* drawable, unsigned int index);
@@ -87,7 +88,7 @@ public:
   bool renderEditableMode = true;
   bool renderWireFrame = false;
   bool click_n_drag=false;
-  bool _controlKeyPressed=false;
+  bool paintSelectionMode=false;
 
   float link_precision = 6;
 
@@ -131,6 +132,7 @@ private:
   osg::ref_ptr<osg::Group> originalModelGroup;
 
   osg::ref_ptr<osg::Node> glyphGroup;
+  osg::ref_ptr<osgViewer::View> view;
 };
 
 #endif

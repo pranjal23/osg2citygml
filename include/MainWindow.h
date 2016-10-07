@@ -58,6 +58,7 @@ private slots:
   void saveOSGT();
   void on_radioButton_toggled(bool checked);
   void on_recalUpBtn_clicked();
+  void on_paintToolBtn_toggled(bool checked);
 };
 
 #endif

@@ -135,7 +135,7 @@ public:
             }
         }
 
-        if ( osgwidget->_controlKeyPressed && ea.getEventType() == osgGA::GUIEventAdapter::DRAG)
+        if ( osgwidget->paintSelectionMode && ea.getEventType() == osgGA::GUIEventAdapter::DRAG)
         {
             bool ret = selectIntersectedPrimitives(ea, aa);
             aa.requestRedraw();
@@ -481,27 +481,21 @@ private:
      */
     bool isCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z)
     {
+        double scalartp = ((W - U)*((V-U)^(Z - W)));
+        if (scalartp==0)
+            return true;
+
         double weight = osgwidget->getNormalsDistance();
-        if(weight==0.0f)
-        {
-            return ((W - U)*((V-U)^(Z - W)))==0 ;
-        }
-        else
-        {
-            return isNotCoplanar(U,V,W,Z,weight);
-        }
+        return weigthedCoplanar(U,V,W,Z,scalartp,weight);
+
     }
 
-    bool isNotCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z, double weight)
+    bool weigthedCoplanar(const osg::Vec3f& U,const osg::Vec3f& V,const osg::Vec3f& W,const osg::Vec3f& Z,double scalartp, double weight)
     {
-        if(weight>0.0f)
-        {
-            return ((W - U)*((V-U)^(Z - W)))>(weight) ;
-        }
+        if(weight<0)
+            return (std::abs(scalartp)>weight && std::abs(scalartp)<0);
         else
-        {
-            return ((W - U)*((V-U)^(Z - W)))<(weight) ;
-        }
+            return (std::abs(scalartp)<weight && std::abs(scalartp)>0);
     }
 
     bool isPerpendicular(const osg::Vec3f& U,const osg::Vec3f& V)

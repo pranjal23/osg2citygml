@@ -284,7 +284,10 @@ void MainWindow::on_save_osgt_btn_clicked()
 
 void MainWindow::on_radioButton_toggled(bool checked)
 {
-    ui->osgWidget->_controlKeyPressed = checked;
+    if(checked)
+        ui->paintToolBtn->setChecked(!checked);
+
+    ui->osgWidget->setCameraTranslateMode(checked);
 }
 
 void MainWindow::on_recalUpBtn_clicked()
@@ -293,4 +296,9 @@ void MainWindow::on_recalUpBtn_clicked()
     ui->xUpSB->setValue(ui->osgWidget->up_vector->x());
     ui->yUpSB->setValue(ui->osgWidget->up_vector->y());
     ui->zUpSB->setValue(ui->osgWidget->up_vector->z());
+}
+
+void MainWindow::on_paintToolBtn_toggled(bool checked)
+{
+    ui->osgWidget->paintSelectionMode = checked;
 }

@@ -2,10 +2,14 @@
 #include "SelectionHandler.h"
 #include "CityGMLWriter.h"
 #include "AppCameraManipulator.h"
+#include <osgGA/FirstPersonManipulator>
 
 using namespace osg2citygml;
 
 osg::ref_ptr<SelectionHandler> selectionHandler;
+
+osg::ref_ptr<osg2citygml::AppCameraManipulator> acManipulator;
+osg::ref_ptr<osgGA::FirstPersonManipulator> fpManipulator;
 
 OSGWidget::OSGWidget( QWidget* parent,
                       Qt::WindowFlags f )
@@ -75,11 +79,6 @@ void OSGWidget::keyPressEvent( QKeyEvent* event )
         //HANDLED IN PICKING HANDLER... DO NOT CHANGE
     }
 
-    if( event->key() == Qt::Key_Control )
-    {
-        _controlKeyPressed = true;
-    }
-
     if( event->key() == Qt::Key_Z )
     {
         selectAllPolygons();
@@ -95,7 +94,7 @@ void OSGWidget::keyReleaseEvent( QKeyEvent* event )
 
     if( event->key() == Qt::Key_Control )
     {
-        _controlKeyPressed = false;
+        paintSelectionMode = false;
     }
 
     this->getEventQueue()->keyRelease( osgGA::GUIEventAdapter::KeySymbol( *keyData ) );
@@ -486,6 +485,9 @@ void OSGWidget::recalculateUpVector()
 
 void OSGWidget::renderModel()
 {
+    if(editableModelGroup.get()==nullptr)
+            return;
+
     if(renderEditableMode)
     {
         rootSceneGroup->removeChildren(0,rootSceneGroup->getNumChildren());
@@ -590,6 +592,28 @@ void OSGWidget::saveOSG2File(QString fileName)
     osgDB::writeNodeFile(*(editableModelGroup.get()->asNode()), fileName.toStdString());
 }
 
+void OSGWidget::setCameraTranslateMode(bool setOn)
+{
+    if(setOn)
+    {
+        osg::Vec3d eye;
+        osg::Vec3d center;
+        osg::Vec3d up;
+        acManipulator.get()->getTransformation(eye,center,up);
+        fpManipulator.get()->setTransformation(eye,center,up);
+        view.get()->setCameraManipulator( fpManipulator.get(), false);
+    }
+    else
+    {
+        //osg::Vec3d eye;
+        //osg::Vec3d center;
+        //osg::Vec3d up;
+        //fpManipulator.get()->getTransformation(eye,center,up);
+        //acManipulator.get()->setHomePosition(eye,center,up);
+        view.get()->setCameraManipulator( acManipulator.get(), false);
+    }
+}
+
 void OSGWidget::setView(){
     float aspectRatio = static_cast<float>( this->width() ) / static_cast<float>( this->height() );
 
@@ -617,18 +641,21 @@ void OSGWidget::setView(){
     camera->setGraphicsContext( graphicsWindow_ );
 
     //osgGA::TrackballManipulator* manipulator = new osgGA::TrackballManipulator();
-    osg2citygml::AppCameraManipulator* manipulator = new osg2citygml::AppCameraManipulator(osg2citygml::AppCameraManipulator::DEFAULT_SETTINGS,this);
-    manipulator->setAllowThrow(false);
+    acManipulator = new osg2citygml::AppCameraManipulator(osg2citygml::AppCameraManipulator::DEFAULT_SETTINGS,this);
+    acManipulator->setAllowThrow(false);
+
+    fpManipulator = new osgGA::FirstPersonManipulator();
+    fpManipulator->setAllowThrow(false);
 
     selectionHandler = new SelectionHandler(this);
 
-    osgViewer::View* view = new osgViewer::View;
-    view->setCamera( camera );
-    view->setSceneData( rootSceneGroup.get() );
+    view = new osgViewer::View;
+    view.get()->setCamera( camera );
+    view.get()->setSceneData( rootSceneGroup.get() );
     //view->addEventHandler( new osgViewer::StatsHandler );
 
-    view->setCameraManipulator( manipulator );
-    view->addEventHandler(selectionHandler.get() );
+    view.get()->setCameraManipulator( acManipulator.get() );
+    view.get()->addEventHandler(selectionHandler.get() );
 
     viewer_->addView( view );
     viewer_->setThreadingModel( osgViewer::CompositeViewer::SingleThreaded );

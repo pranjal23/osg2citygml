@@ -209,7 +209,7 @@ bool AppCameraManipulator::handleMouseMove( const GUIEventAdapter& /*ea*/, GUIAc
 /// Handles GUIEventAdapter::DRAG event.
 bool AppCameraManipulator::handleMouseDrag( const GUIEventAdapter& ea, GUIActionAdapter& us )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     addMouseEvent( ea );
@@ -227,7 +227,7 @@ bool AppCameraManipulator::handleMouseDrag( const GUIEventAdapter& ea, GUIAction
 /// Handles GUIEventAdapter::PUSH event.
 bool AppCameraManipulator::handleMousePush( const GUIEventAdapter& ea, GUIActionAdapter& us )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     flushMouseEventStack();
@@ -246,7 +246,7 @@ bool AppCameraManipulator::handleMousePush( const GUIEventAdapter& ea, GUIAction
 /// Handles GUIEventAdapter::RELEASE event.
 bool AppCameraManipulator::handleMouseRelease( const GUIEventAdapter& ea, GUIActionAdapter& us )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     if( ea.getButtonMask() == 0 )
@@ -306,7 +306,7 @@ bool AppCameraManipulator::handleKeyUp( const GUIEventAdapter& ea, GUIActionAdap
 // doc in parent
 bool AppCameraManipulator::handleMouseWheel( const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& us )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     osgGA::GUIEventAdapter::ScrollingMotion sm = ea.getScrollingMotion();
@@ -367,7 +367,7 @@ bool AppCameraManipulator::handleMouseWheel( const osgGA::GUIEventAdapter& ea, o
 // doc in parent
 bool AppCameraManipulator::performMovementLeftMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     // rotate camera
@@ -384,7 +384,7 @@ bool AppCameraManipulator::performMovementLeftMouseButton( const double eventTim
 // doc in parent
 bool AppCameraManipulator::performMovementMiddleMouseButton( const double eventTimeDelta, const double dx, const double dy )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     // pan model
@@ -397,7 +397,7 @@ bool AppCameraManipulator::performMovementMiddleMouseButton( const double eventT
 // doc in parent
 bool AppCameraManipulator::performMovementRightMouseButton( const double eventTimeDelta, const double /*dx*/, const double dy )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     // zoom model
@@ -408,7 +408,7 @@ bool AppCameraManipulator::performMovementRightMouseButton( const double eventTi
 
 bool AppCameraManipulator::performMouseDeltaMovement( const float dx, const float dy )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         return false;
 
     // rotate camera
@@ -535,7 +535,7 @@ void AppCameraManipulator::panModel( const float dx, const float dy, const float
  */
 void AppCameraManipulator::zoomModel( const float dy, bool pushForwardIfNeeded )
 {
-    if(osgWidget->_controlKeyPressed)
+    if(osgWidget->paintSelectionMode)
         osg::notify(osg::NOTICE) << "where is the love!!!" << std::endl;
 
     // scale
