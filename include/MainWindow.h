@@ -59,6 +59,7 @@ private slots:
   void on_radioButton_toggled(bool checked);
   void on_recalUpBtn_clicked();
   void on_paintToolBtn_toggled(bool checked);
+  void on_elemSelBtn_2_clicked();
 };
 
 #endif

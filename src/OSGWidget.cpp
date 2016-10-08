@@ -324,7 +324,7 @@ void OSGWidget::selectAllPolygons()
         }
     }
 
-    selectionHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->addToSelectedPrimitiveList(list,false);
     selectionHandler.get()->colorify();
 }
 
@@ -334,7 +334,7 @@ void OSGWidget::clearAllSelection()
     selectionHandler.get()->colorify();
 }
 
-void OSGWidget::selectElementItems(QString name_space, QString element_name)
+void OSGWidget::selectElementItems(QString name_space, QString element_name, bool deselect )
 {
     if(!editableModelGroup.get())
         return;
@@ -364,11 +364,15 @@ void OSGWidget::selectElementItems(QString name_space, QString element_name)
         }
     }
 
-    selectionHandler.get()->addToSelectedPrimitiveList(list);
+    selectionHandler.get()->addToSelectedPrimitiveList(list,deselect);
     selectionHandler.get()->colorify();
 
+    QString selected = "Selected ";
+    if(deselect)
+        selected = "Deselected ";
+
     QMessageBox* msg = new QMessageBox();
-    msg->setText( "Selected " + QString::number(list.size()) + " polygons!!!" );
+    msg->setText(selected  + QString::number(list.size()) + " polygons!!!" );
     msg->show();
 }
 

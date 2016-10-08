@@ -145,7 +145,7 @@ void MainWindow::on_elemSelBtn_clicked()
     QStringList selectedList = selected.split(":");
     QString name_space = selectedList.at(0);
     QString element_name = selectedList.at(1);
-    ui->osgWidget->selectElementItems(name_space,element_name);
+    ui->osgWidget->selectElementItems(name_space,element_name, false);
 }
 
 void MainWindow::on_open_btn_clicked()
@@ -301,4 +301,13 @@ void MainWindow::on_recalUpBtn_clicked()
 void MainWindow::on_paintToolBtn_toggled(bool checked)
 {
     ui->osgWidget->paintSelectionMode = checked;
+}
+
+void MainWindow::on_elemSelBtn_2_clicked()
+{
+    QString selected = ui->elementSelectCB->itemText(ui->elementSelectCB->currentIndex());
+    QStringList selectedList = selected.split(":");
+    QString name_space = selectedList.at(0);
+    QString element_name = selectedList.at(1);
+    ui->osgWidget->selectElementItems(name_space,element_name, true);
 }

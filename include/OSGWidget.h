@@ -72,7 +72,7 @@ public:
   void clearAllSelection();
   void setEditableStateSet();
   void tagSelectedItems(QString name_space, QString element_name);
-  void selectElementItems(QString name_space, QString element_name);
+  void selectElementItems(QString name_space, QString element_name, bool deselect);
   void generateMoreGraphLinks();
   void recalculateUpVector();
   void setCameraTranslateMode(bool setOn);

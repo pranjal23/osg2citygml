@@ -159,12 +159,40 @@ public:
         return false;
     }
 
-    void addToSelectedPrimitiveList(QList<PrimitiveNode>& prim_list)
+    void addToSelectedPrimitiveList(QList<PrimitiveNode>& prim_list, bool deselect)
     {
-        for(int i=0; i<prim_list.size(); i++)
+        if(!deselect)
         {
-            selectedPrimitives->insert(
-                        std::pair<unsigned int,PrimitiveNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
+            for(int i=0; i<prim_list.size(); i++)
+            {
+                selectedPrimitives->insert(
+                            std::pair<unsigned int,PrimitiveNode>(prim_list.at(i).primitiveIndex,prim_list.at(i)));
+            }
+        }
+        else
+        {
+            for(int i=0; i<prim_list.size(); i++)
+            {
+                std::multimap<unsigned int,PrimitiveNode>::iterator itS;
+                bool selected = false;
+                std::pair <std::multimap<unsigned int,PrimitiveNode>::iterator, std::multimap<unsigned int,PrimitiveNode>::iterator> ret;
+                ret = selectedPrimitives->equal_range(prim_list.at(i).primitiveIndex);
+                for (std::multimap<unsigned int,PrimitiveNode>::iterator it=ret.first; it!=ret.second; ++it)
+                {
+                    PrimitiveNode a = it->second;
+                    if(a.drawable == prim_list.at(i).drawable)
+                    {
+                        itS = it;
+                        selected = true;
+                        break;
+                    }
+                }
+
+                if(selected)
+                {
+                    selectedPrimitives->erase(itS);
+                }
+            }
         }
     }
 
