@@ -866,7 +866,7 @@ public:
 
         float min_dist = 1.0f;
         if(precision>0)
-            min_dist = 1.0f/((float)precision * 10);
+            min_dist = 1.0f/(std::pow(10,precision));
 
         for(unsigned int ki=0; ki<keyList.size(); ki++)
         {
