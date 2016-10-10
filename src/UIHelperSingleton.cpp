@@ -27,7 +27,7 @@ void UIHelperSingleton::initialize(void)
     //Add all relevant building elements for UI
     QString building_namespace = CityGMLNamespace::namespace_building();
 
-    QString BuildingInstallation_feature = BuildingNamespace::BuildingNamespace::FEATURE_BuildingInstallation();
+    QString BuildingInstallation_feature = BuildingNamespace::FEATURE_BuildingInstallation();
     feature_vec->push_back(BuildingInstallation_feature);
     name_space_map->insert(std::make_pair(BuildingInstallation_feature,building_namespace));
 
