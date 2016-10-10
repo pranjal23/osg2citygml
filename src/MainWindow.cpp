@@ -196,6 +196,7 @@ void MainWindow::on_normalGylphCB_toggled(bool checked)
     ui->osgWidget->showNormalGlyph = checked;
 
     ui->osgWidget->renderModel();
+    ui->osgWidget->repaint();
 }
 
 void MainWindow::on_originalRenderRb_toggled(bool checked)
@@ -206,6 +207,7 @@ void MainWindow::on_originalRenderRb_toggled(bool checked)
         this->ui->osgWidget->renderEditableMode = true;
 
      ui->osgWidget->renderModel();
+     ui->osgWidget->repaint();
 }
 
 void MainWindow::on_spatialBtn_toggled(bool checked)
@@ -253,6 +255,7 @@ void MainWindow::on_wireFrameModeBtn_toggled(bool checked)
     ui->osgWidget->renderWireFrame = checked;
 
     ui->osgWidget->renderModel();
+    ui->osgWidget->repaint();
 }
 
 void MainWindow::on_link_vert_dist_sb_valueChanged(double arg1)

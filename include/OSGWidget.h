@@ -94,6 +94,7 @@ public:
 
   Shape shape_to_segment = Shape::Plain;
   osg::Vec3f* up_vector;
+  osg::ref_ptr<osgViewer::CompositeViewer> viewer_;
 
 protected:
   virtual void paintEvent( QPaintEvent* paintEvent );
@@ -125,7 +126,6 @@ private:
   osgGA::EventQueue* getEventQueue() const;
 
   osg::ref_ptr<osgViewer::GraphicsWindowEmbedded> graphicsWindow_;
-  osg::ref_ptr<osgViewer::CompositeViewer> viewer_;
   osg::ref_ptr<osg::Group> rootSceneGroup;
 
   osg::ref_ptr<osg::Group> editableModelGroup;

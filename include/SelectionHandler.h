@@ -461,7 +461,7 @@ private:
                 PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
                 if(!nodesVisited->contains(node.nodeId))
                 {
-                    segmentCurvedSpatial(normal,node,nodesVisited,nodesSelected, false);
+                    segmentCurvedSpatial(*(stp.faceNormal),node,nodesVisited,nodesSelected, false);
                 }
             }
         }
@@ -479,7 +479,7 @@ private:
                 PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
                 if(!nodesVisited->contains(node.nodeId))
                 {
-                    segmentCylindricalSpatial(normal,node,nodesVisited,nodesSelected, false);
+                    segmentCylindricalSpatial(*(stp.faceNormal),node,nodesVisited,nodesSelected, false);
                 }
             }
         }
