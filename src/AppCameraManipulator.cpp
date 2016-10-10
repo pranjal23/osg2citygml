@@ -7,7 +7,7 @@ using namespace osgGA;
 using namespace osg2citygml;
 
 
-int AppCameraManipulator::_minimumDistanceFlagIndex = allocateRelativeFlag();
+int AppCameraManipulator::_minimumDistanceFlagIndex = StandardManipulator::allocateRelativeFlag();
 
 
 /// Constructor.

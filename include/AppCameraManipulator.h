@@ -1,23 +1,5 @@
-/* -*-c++-*- OpenSceneGraph - Copyright (C) 1998-2010 Robert Osfield
- *
- * This library is open source and may be redistributed and/or modified under
- * the terms of the OpenSceneGraph Public License (OSGPL) version 0.0 or
- * (at your option) any later version.  The full license is in LICENSE file
- * included with this distribution, and on the openscenegraph.org website.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * OpenSceneGraph Public License for more details.
- *
- * OrbitManipulator code Copyright (C) 2010 PCJohn (Jan Peciva)
- * while some pieces of code were taken from OSG.
- * Thanks to company Cadwork (www.cadwork.ch) and
- * Brno University of Technology (www.fit.vutbr.cz) for open-sourcing this work.
-*/
-
-#ifndef OSGGA_ORBIT_MANIPULATOR
-#define OSGGA_ORBIT_MANIPULATOR 1
+#ifndef OSGGA_APPCAMERA_MANIPULATOR
+#define OSGGA_APPCAMERA_MANIPULATOR 1
 
 #include <osgGA/StandardManipulator>
 #include "OSGWidget.h"
@@ -29,7 +11,7 @@ namespace osg2citygml {
 /** OrbitManipulator is base class for camera control based on focal center,
     distance from the center, and orientation of distance vector to the eye.
     This is the base class for trackball style manipulators.*/
-class OSGGA_EXPORT AppCameraManipulator : public osgGA::StandardManipulator
+class AppCameraManipulator : public osgGA::StandardManipulator
 {
         typedef osgGA::StandardManipulator inherited;
 
@@ -132,4 +114,4 @@ inline double AppCameraManipulator::getWheelZoomFactor() const  { return _wheelZ
 
 }
 
-#endif /* OSGGA_ORBIT_MANIPULATOR */
+#endif /* OSGGA_APPCAMERA_MANIPULATOR */
