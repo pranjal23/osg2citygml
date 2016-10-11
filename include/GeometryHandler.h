@@ -12,10 +12,10 @@
 #include <osg/Group>
 #include <osg/Vec3>
 #include <osg/Referenced>
+#include <osg/TriangleIndexFunctor>
 
 #include <osgUtil/Simplifier>
 #include <osgUtil/TriStripVisitor>
-#include <osgUtil/SmoothingVisitor>
 #include <osgUtil/MeshOptimizers>
 
 class OSGHELPERS{
@@ -267,9 +267,24 @@ public:
 class TriangleIndexes
 {
 public:
-    unsigned int vertexId1;
-    unsigned int vertexId2;
-    unsigned int vertexId3;
+     int vertexId1;
+     int vertexId2;
+     int vertexId3;
+};
+
+struct FaceIndexCollector
+{
+    std::vector<TriangleIndexes> addPrimSetIndexes;
+    void operator()(const int v1,const int v2, const int v3)
+    {
+        TriangleIndexes ti;
+
+        ti.vertexId1 = v1;
+        ti.vertexId2 = v2;
+        ti.vertexId3 = v3;
+
+        addPrimSetIndexes.push_back(ti);
+    }
 };
 
 class GraphData  : public osg::Referenced
@@ -313,13 +328,19 @@ public:
                 continue;
             }
 
+
             geometry->setUseVertexBufferObjects(true);
             osgUtil::TriStripVisitor triStripVisitor;
             geometry->accept(triStripVisitor);
+            triStripVisitor.setMinStripSize(1);
             triStripVisitor.stripify(*geometry);
 
-            std::vector<TriangleIndexes> addPrimSetIndexes;
+            osg::TriangleIndexFunctor<FaceIndexCollector> tfF;
+            geometry->accept(tfF);
 
+
+            /*
+             std::vector<TriangleIndexes> addPrimSetIndexes;
             for (unsigned int ipr=0; ipr<geometry->getNumPrimitiveSets(); ipr++)
             {
                 osg::PrimitiveSet* prset=geometry->getPrimitiveSet(ipr);
@@ -392,16 +413,17 @@ public:
                 }
 
             }
+            */
 
 
-            //Free memory
+            //clear primitive list add new triangle indices
             geometry->getPrimitiveSetList().clear();
 
-            for (unsigned int prn=0; prn<addPrimSetIndexes.size(); prn++)
+            for (unsigned int prn=0; prn<tfF.addPrimSetIndexes.size(); prn++)
             {
-                osg::DrawElementsUShort* primSet =
-                        new osg::DrawElementsUShort(osg::PrimitiveSet::TRIANGLES, 0);
-                TriangleIndexes ti = addPrimSetIndexes[prn];
+                osg::DrawElementsUInt* primSet =
+                        new osg::DrawElementsUInt(osg::PrimitiveSet::TRIANGLES, 0);
+                TriangleIndexes ti = tfF.addPrimSetIndexes[prn];
                 primSet->push_back(ti.vertexId1);
                 primSet->push_back(ti.vertexId2);
                 primSet->push_back(ti.vertexId3);
@@ -430,12 +452,16 @@ public:
                 osg::notify(osg::WARN) << "---- AFTER PRINTING PRIMITIVES ----" << std::endl;
             }
 
+
+            /*
             geometry->setNormalArray(new osg::Vec3Array());
 
             //Generate New Normals
             osgUtil::SmoothingVisitor sv;
             geometry->accept(sv);
+            sv.setCreaseAngle(90);
             sv.smooth(*geometry);
+            */
 
         }
     }
