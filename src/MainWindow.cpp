@@ -174,11 +174,13 @@ void MainWindow::on_selectBtn_toggled(bool checked)
 void MainWindow::on_clearSelBtn_clicked()
 {
     ui->osgWidget->clearAllSelection();
+    ui->osgWidget->repaint();
 }
 
 void MainWindow::on_selectAllBtn_clicked()
 {
     ui->osgWidget->selectAllPolygons();
+    ui->osgWidget->repaint();
 }
 
 void MainWindow::on_showMenuCB_toggled(bool checked)
@@ -303,6 +305,7 @@ void MainWindow::on_recalUpBtn_clicked()
 
 void MainWindow::on_paintToolBtn_toggled(bool checked)
 {
+    ui->radioButton_2->setChecked(true);
     ui->osgWidget->paintSelectionMode = checked;
 }
 
