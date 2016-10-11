@@ -57,8 +57,8 @@ public:
                         );
         }
 
-        //QString firstVertex = list.at(0);
-        //list.push_back(firstVertex);
+        QString firstVertex = list.at(0);
+        list.push_back(firstVertex);
 
         return list;
     }
