@@ -551,10 +551,10 @@ private:
         double weight = osgwidget->getNormalsDistance();
         float dotp = fabs(U*V);
 
-        if(weight < 0)
-            return std::abs(dotp) < (1.0f + weight);
+        if(weight <= 0)
+            return dotp < (1.00 + weight);
         else
-            return std::abs(dotp) < (1.0f - weight);
+            return dotp < (1.00 - weight);
     }
 
     bool selectIntersectedPrimitives(const osgGA::GUIEventAdapter& ea, osgGA::GUIActionAdapter& aa) {
