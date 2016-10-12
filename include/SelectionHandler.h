@@ -488,7 +488,7 @@ private:
     void segmentBoxSpatial(osg::Vec3f& normal, PrimitiveNode &stp, osg::Vec3f& up, QList<unsigned int>* nodesVisited, QList<PrimitiveNode>* nodesSelected, bool root)
     {
         nodesVisited->push_back(stp.nodeId);
-        if((isNotParallel(up,*(stp.faceNormal)) && isBoxSurface(normal,*(stp.faceNormal))) || root)
+        if((isNotParallel(up,*(stp.faceNormal)) && isBoxSurface(normal,*(stp.faceNormal))))
         {
             nodesSelected->push_back(stp);
 
@@ -497,7 +497,7 @@ private:
                 PrimitiveNode node = osgwidget->getPolygonNode(stp.links->at(i).drawable,stp.links->at(i).primitiveIndex);
                 if(!nodesVisited->contains(node.nodeId))
                 {
-                    segmentBoxSpatial(normal,node,up,nodesVisited,nodesSelected, false);
+                    segmentBoxSpatial(*(stp.faceNormal),node,up,nodesVisited,nodesSelected, false);
                 }
             }
         }
@@ -542,8 +542,15 @@ private:
 
     bool isBoxSurface(const osg::Vec3f& U,const osg::Vec3f& V)
     {
+        double weight = osgwidget->getNormalsDistance();
         float dotp = fabs(U*V);
-        return dotp == 1 || dotp == 0;
+        //qDebug() << "U.X:" << U.x() << "," << "U.Y:" << U.y() << "," << "U.Z:" << U.z();
+        //qDebug() << "V.X:" << V.x() << "," << "V.Y:" << V.y() << "," << "V.Z:" << V.z();
+
+        //qDebug() << "dotp: " << dotp;
+        bool boxSurface = dotp >= (1-weight) || dotp <= (0+weight);
+        //qDebug() << "Box Surface:" << boxSurface;
+        return boxSurface;
     }
 
     bool isNotParallel(const osg::Vec3f& U,const osg::Vec3f& V)
