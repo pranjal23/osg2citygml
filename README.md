@@ -2,6 +2,10 @@
 
 A tool to add semantics to a 3D Mesh and convert it into CityGML format.
 
+Dependency:
+OpenSceneGraph (Added as submodule)
+Qt5
+
 
 ## SETUP  ##
 1. Git clone this repo
