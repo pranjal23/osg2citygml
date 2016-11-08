@@ -918,7 +918,7 @@ public:
 
         float min_dist = 1.0f;
         if(precision>0)
-            min_dist = 1.0f/(std::pow(10,precision));
+            min_dist = 1.0f/precision;
 
         for(unsigned int ki=0; ki<keyList.size(); ki++)
         {
@@ -940,12 +940,13 @@ public:
                     EnhancedNode b = it2->second;
 
                     if(a.theNode.nodeId!=b.theNode.nodeId)
-                    {
-                        //qDebug() << " Comparing: " <<  QString::number(a.theNode.nodeId) << " and " <<  QString::number(b.theNode.nodeId);
-                        float dist = std::fabs(a.dist - b.dist);
+                    { 
+                        float dist = std::fabs(calculateVertexDistance(*a.theNode.centroid, *b.theNode.centroid));
+                        qDebug() << " Comparing: " <<  QString::number(dist) << " and min_dist-> " <<  QString::number(min_dist);
+                        qDebug() << " dist-> " <<  QString::number(dist) << " and min_dist-> " <<  QString::number(min_dist);
                         if(dist < min_dist)
                         {
-
+                            qDebug() << " Comparing: Yes-> " <<  QString::number(dist);
                             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(a.theNode.drawable.get());
                             GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                             std::map<unsigned int,PrimitiveNode>::iterator nt = userData->primitivesMap->find(a.theNode.primitiveIndex);
