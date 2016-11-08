@@ -838,6 +838,32 @@ class PrimitiveGraphEnhancer
 public:
     PrimitiveGraphEnhancer(){}
 
+    void clearAllLinks(osg::Group* group)
+    {
+        unsigned int k;
+        for (k = 0; k < group->getNumChildren(); k++)
+        {
+            osg::Geode* geode = (osg::Geode*)group->getChild(k);
+            unsigned int i;
+            for(i=0; i < geode->getNumDrawables(); i++)
+            {
+                osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(geode->getDrawable(i));
+                if(!geometry)
+                {
+                    continue;
+                }
+
+                GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
+                for(std::map<unsigned int,PrimitiveNode>::iterator it = userData->primitivesMap->begin();it!=userData->primitivesMap->end();it++)
+                {
+                    PrimitiveNode a =(*it).second;
+                    a.links->clear();
+                    (*it).second = a;
+                }
+            }
+        }
+    }
+
     void generateTestLinksFromNearbyVertices(osg::Group* group, const int precision)
     {
         // Calculate the Euclidean distance of each vertices of Primitive Nodes from origin and put them into bins

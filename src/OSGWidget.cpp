@@ -582,6 +582,7 @@ void OSGWidget::setFile(QString fileName){
 void OSGWidget::generateMoreGraphLinks()
 {
     PrimitiveGraphEnhancer pGE;
+    pGE.clearAllLinks(editableModelGroup.get());
     pGE.generateTestLinksFromNearbyVertices(editableModelGroup.get(), link_precision);
 }
 
