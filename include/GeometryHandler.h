@@ -918,7 +918,7 @@ public:
 
         float min_dist = 1.0f;
         if(precision>0)
-            min_dist = 1.0f/precision;
+            min_dist = 2.0f/precision;
 
         for(unsigned int ki=0; ki<keyList.size(); ki++)
         {
@@ -941,12 +941,12 @@ public:
 
                     if(a.theNode.nodeId!=b.theNode.nodeId)
                     { 
-                        float dist = std::fabs(calculateVertexDistance(*a.theNode.centroid, *b.theNode.centroid));
-                        qDebug() << " Comparing: " <<  QString::number(dist) << " and min_dist-> " <<  QString::number(min_dist);
-                        qDebug() << " dist-> " <<  QString::number(dist) << " and min_dist-> " <<  QString::number(min_dist);
+                        float dist =  std::fabs(calculateVertexDistance((a.theVertex), (b.theVertex)));
+                        //qDebug() << " Comparing: " <<  QString::number(dist) << " and min_dist-> " <<  QString::number(min_dist);
+                        //qDebug() << " dist-> " <<  QString::number(dist);
                         if(dist < min_dist)
                         {
-                            qDebug() << " Comparing: Yes-> " <<  QString::number(dist);
+                            //qDebug() << " Comparing: Yes-> " <<  QString::number(dist);
                             osg::Geometry* geometry = dynamic_cast<osg::Geometry*>(a.theNode.drawable.get());
                             GraphData* userData = dynamic_cast<GraphData*>(geometry->getUserData());
                             std::map<unsigned int,PrimitiveNode>::iterator nt = userData->primitivesMap->find(a.theNode.primitiveIndex);
@@ -979,6 +979,12 @@ private:
     float calculateVertexDistance(osg::Vec3f& U, osg::Vec3f& V)
     {
         return std::sqrt( std::pow(U.x() - V.x(),2) +  std::pow(U.y() - V.y(),2) + std::pow(U.z() - V.z(),2));
+    }
+
+    float calculateAngle(const osg::Vec3f& U,const osg::Vec3f& V)
+    {
+        float dotp = (U*V);
+        return dotp;
     }
 };
 
