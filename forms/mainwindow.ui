@@ -3100,11 +3100,12 @@ selection-background-color: red; </string>
   <customwidget>
    <class>OSGWidget</class>
    <extends>QWidget</extends>
-   <header>include/osgwidget.h</header>
+   <header location="global">OSGWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>
