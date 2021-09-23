@@ -1,5 +1,8 @@
 # **OSG2CityGML** #
 
+
+Code for my 2016 MSc Dissertation: Semi-automatic conversion from OSG to CityGML
+
 A tool to add semantics to a 3D Mesh and convert it into CityGML format.
 
 Dependency:
