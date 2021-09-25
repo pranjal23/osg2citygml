@@ -19,5 +19,5 @@ Qt5
 
 The following work on Human-Computer interaction was derived from my Thesis:
 
-Jayaraman et al. Interactive Labeling for Generation of CityGML Building Models from Meshes. InIntelligent Scene Modeling and Human-Computer Interaction 2021 (pp. 147-163). Springer, Cham.
+Jayaraman Pradeep Kumar et al. Interactive Labeling for Generation of CityGML Building Models from Meshes. InIntelligent Scene Modeling and Human-Computer Interaction 2021 (pp. 147-163). Springer, Cham.
 https://link.springer.com/chapter/10.1007/978-3-030-71002-6_9
