@@ -18,7 +18,7 @@ Qt5
 4. Qt5 Project - can be built using QT Creator or CMake from command line
 
 ## Cite ##
-If you use this code as a base please cite it as the following from the arxiv publication (https://arxiv.org/abs/2104.01138)
+If you use this code as a base please cite it as the following from the arxiv publication (http://arxiv.org/abs/2109.14643)
 @misc{swarup2021semiautomatic,
       title={Semi-automatic conversion from OSG to CityGML}, 
       author={Pranjal Swarup},
