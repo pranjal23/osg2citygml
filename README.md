@@ -28,7 +28,7 @@ If you use this code as a base please cite it as the following from the arxiv pu
       primaryClass={cs.HC}
 }
 
-## Plagiarised work based on my work by authors who had access to my dissertation and code ##
+## Plagiarised work by authors who had access to my dissertation and code ##
 The following 2021 work on Human-Computer interaction was derived from my 2016 Thesis:
 
 Jayaraman Pradeep Kumar et al. Interactive Labeling for Generation of CityGML Building Models from Meshes. InIntelligent Scene Modeling and Human-Computer Interaction 2021 (pp. 147-163). Springer, Cham.
