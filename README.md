@@ -18,14 +18,12 @@ Qt5
 4. Qt5 Project - can be built using QT Creator or CMake from command line
 
 ## Cite ##
-If you use this code as a base please cite it as the following from the arxiv publication (http://arxiv.org/abs/2109.14643)
-@misc{swarup2021semiautomatic,
+If you use this code please cite it as the following from the arxiv publication (http://arxiv.org/abs/2109.14643)
+@mastersthesis{swarup2016semiautomatic,
       title={Semi-automatic conversion from OSG to CityGML}, 
       author={Pranjal Swarup},
-      year={2021},
-      eprint={2109.14643},
-      archivePrefix={arXiv},
-      primaryClass={cs.HC}
+      year={2016},
+      institution = {Nanyang Technological University}
 }
 
 ## Plagiarised work by authors who had access to my dissertation and code ##
